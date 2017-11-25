@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.util.List;
 
 public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.MyRecycleViewHolder>{
-
     private static final String TAG = "ChatListAdapter";
     private Context context;
     private List<Message> mMessages;
@@ -58,7 +57,7 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.MyRecy
     @Override
     public void onBindViewHolder(MyRecycleViewHolder holder, int position) {
         holder.bindHolder(mMessages.get(position));
-        Log.d("qwe",String.valueOf(mMessages.get(position).getType()));
+        Log.d(TAG,String.valueOf(mMessages.get(position).getType()));
     }
 
     @Override
@@ -101,7 +100,7 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.MyRecy
         }
 
 
-        public void bindHolder(Message msg) {
+        void bindHolder(Message msg) {
             if (msg.getType() == Message.MESSAGE_TEXT_TYPE) {
                 mText.setVisibility(View.VISIBLE);
                 mIvPhotoMessage.setVisibility(View.GONE);

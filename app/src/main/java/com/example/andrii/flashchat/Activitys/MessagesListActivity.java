@@ -44,7 +44,7 @@ import static android.widget.Toast.LENGTH_LONG;
 
 public class MessagesListActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
-
+    private final String TAG = "MessagesListActivity";
     private static final String USER_ID_ARG_KEY = "USER_ID_ARG_KEY";
     private ViewPager mViewPager;
     private Person currentUser;
@@ -171,7 +171,7 @@ public class MessagesListActivity extends AppCompatActivity
                     SingletonConnection.getInstance().executeAction(action);
 
                     BufferedReader in = SingletonConnection.getInstance().getReader();
-                    Log.d("qwe","in = null:" + String.valueOf(in == null));
+                    Log.d(TAG,"in = null:" + String.valueOf(in == null));
                     String answer = "";
                     try {
                         answer = in.readLine();
@@ -188,14 +188,14 @@ public class MessagesListActivity extends AppCompatActivity
                 .subscribe(new Observer<String>() {
                     @Override
                     public void onCompleted() {
-                        Log.d("qwe","onCompleted");
+                        Log.d(TAG,"onCompleted");
                         SingletonConnection.getInstance().close();
                         setInformation();
                     }
 
                     @Override
                     public void onError(Throwable e) {
-                        Log.e("qwe","",e);
+                        Log.e(TAG,"",e);
                         SingletonConnection.getInstance().close();
                         Toast.makeText(getApplicationContext(),"Server error", LENGTH_LONG).show();
 
@@ -203,8 +203,8 @@ public class MessagesListActivity extends AppCompatActivity
 
                     @Override
                     public void onNext(String answer) {
-                        Log.d("qwe","OnNext");
-                        Log.d("qwe",answer);
+                        Log.d(TAG,"OnNext");
+                        Log.d(TAG,answer);
 
                         if (answer.equals("not found")){
                             Toast.makeText(getApplicationContext(),"Server error", LENGTH_LONG).show();
@@ -230,7 +230,7 @@ public class MessagesListActivity extends AppCompatActivity
         ViewPagerAdapter mAdapter = new ViewPagerAdapter(getSupportFragmentManager());
         mAdapter.addFragment(RecyclerViewFragment.newInstance(RecyclerViewFragment.FRAGMENT_TYPE_MESSAGES),"Messages");
         mAdapter.addFragment(RecyclerViewFragment.newInstance(RecyclerViewFragment.FRAGMENT_TYPE_ONLINE),"Online");
-        mAdapter.addFragment(RecyclerViewFragment.newInstance(RecyclerViewFragment.FRAGMENT_TYPE_GRUPS),"Groups");
+        mAdapter.addFragment(RecyclerViewFragment.newInstance(RecyclerViewFragment.FRAGMENT_TYPE_GROUPS),"Groups");
 
         mViewPager.setAdapter(mAdapter);
     }

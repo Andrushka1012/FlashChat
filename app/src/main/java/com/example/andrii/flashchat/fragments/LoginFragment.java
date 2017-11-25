@@ -62,7 +62,7 @@ import static android.Manifest.permission.READ_CONTACTS;
 
 public class LoginFragment extends Fragment
 implements EmailHelper{
-
+    private final String TAG = "LoginFragment"; 
     private static final int REQUEST_READ_CONTACTS = 0;
 
     /**
@@ -120,7 +120,7 @@ implements EmailHelper{
         mLoginFacebook.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
-                Log.d("qwe","onSuccess");
+                Log.d(TAG,"onSuccess");
                         showProgress(true);
                         Observable<String> graphConnectionObservable = Observable.just(loginResult).observeOn(Schedulers.io())
                         .subscribeOn(Schedulers.io())
@@ -128,8 +128,8 @@ implements EmailHelper{
                             AccessToken token = loginResult.getAccessToken();
                             final Person[] person = new Person[1];
                             GraphRequest request = GraphRequest.newMeRequest(token, (object, response) -> {
-                                Log.d("qwe", response.toString());
-                                Log.d("qwe", object.toString());
+                                Log.d(TAG, response.toString());
+                                Log.d(TAG, object.toString());
 
                                 long id;
                                 String name;
@@ -204,8 +204,8 @@ implements EmailHelper{
 
                                     @Override
                                     public void onError(Throwable e) {
-                                        Log.d("qwe","facebook onError");
-                                        Log.e("qwe","Facebook error",e);
+                                        Log.d(TAG,"facebook onError");
+                                        Log.e(TAG,"Facebook error",e);
                                         SingletonConnection.getInstance().close();
                                         showProgress(false);
                                         Toast.makeText(getActivity(),"FlashChat server error.",Toast.LENGTH_LONG).show();
@@ -216,7 +216,7 @@ implements EmailHelper{
 
                                         showProgress(false);
                                         if(!answer.equals("error")){
-                                            Log.d("qwe","facebook success");
+                                            Log.d(TAG,"facebook success");
                                             QueryPreferences.setActiveUserId(getActivity(),answer);
 
                                         }else{
@@ -236,7 +236,7 @@ implements EmailHelper{
 
             @Override
             public void onError(FacebookException error) {
-                Log.e("qwe","onError " + error.getMessage());
+                Log.e(TAG,"onError " + error.getMessage());
             }
         });
 
@@ -389,7 +389,7 @@ implements EmailHelper{
 
                             @Override
                             public void onError(Throwable e) {
-                                Log.e("qwe","OnError: ",e);
+                                Log.e(TAG,"OnError: ",e);
 
                                 showProgress(false);
                                 mEmailView.setError("Error with connecting to server");
@@ -398,7 +398,7 @@ implements EmailHelper{
 
                             @Override
                             public void onNext(String s) {
-                                Log.d("qwe","OnNext s = " + s);
+                                Log.d(TAG,"OnNext s = " + s);
 
                                 showProgress(false);
                                 if (s.equals("incorrect")) mPasswordView.setError(getString(R.string.error_incorrect_password));
@@ -425,7 +425,7 @@ implements EmailHelper{
 
     public String read(){
         BufferedReader in = SingletonConnection.getInstance().getReader();
-        Log.d("qwe","in = null:" + String.valueOf(in == null));
+        Log.d(TAG,"in = null:" + String.valueOf(in == null));
         String answer = "";
         try {
             answer = in.readLine();
@@ -502,21 +502,22 @@ implements EmailHelper{
                 e.printStackTrace();
             }
 
-            if (answer.equals("incorrect")) {
+            if (!answer.equals("incorrect")) {
+                if(answer.equals("")){
+                    return RESULT_NO_ANSWER_SERVER;
+                }
+                else{
+                    userId = answer;
+                    return RESULT_SUCCES;
+                }
+            } else {
                 return RESULT_INCORRECT_PASSWORD;
-            }
-            else if(answer.equals("")){
-                return RESULT_NO_ANSWER_SERVER;
-            }
-            else{
-                userId = answer;
-                return RESULT_SUCCES;
             }
         }
 
         @Override
         protected void onPostExecute(final Integer result) {
-            Log.d("qwe",String.valueOf(result));
+            Log.d(TAG,String.valueOf(result));
             switch (result){
                 case RESULT_INCORRECT_PASSWORD:
                     mPasswordView.setError(getString(R.string.error_incorrect_password));

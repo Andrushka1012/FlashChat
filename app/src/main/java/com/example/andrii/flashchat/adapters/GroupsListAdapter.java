@@ -14,6 +14,7 @@ import com.example.andrii.flashchat.data.Person;
 import java.util.List;
 
 public class GroupsListAdapter extends RecyclerView.Adapter<GroupsListAdapter.MyHolder>{
+    private final String TAG = "GroupsListAdapter";
     private Context context;
     private List<Person> mGroups;
 

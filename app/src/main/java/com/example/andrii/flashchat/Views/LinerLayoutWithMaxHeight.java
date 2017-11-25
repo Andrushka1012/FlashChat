@@ -9,7 +9,7 @@ import android.util.Log;
 import android.widget.LinearLayout;
 
 public class LinerLayoutWithMaxHeight extends LinearLayout {
-
+    private final String TAG = "LinerLayoutWithMaxHei";
     private int maxHeight = 0;
 
     public LinerLayoutWithMaxHeight(Context context) {
@@ -39,7 +39,7 @@ public class LinerLayoutWithMaxHeight extends LinearLayout {
             heightMeasureSpec = MeasureSpec.makeMeasureSpec(heightSize, MeasureSpec.AT_MOST);
             getLayoutParams().height = heightSize;
         }catch (Exception e){
-            Log.e("qwe","Error forcing height",e);
+            Log.e(TAG,"Error forcing height",e);
         }finally {
             super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         }

@@ -17,9 +17,10 @@ import com.example.andrii.flashchat.adapters.OnlineListAdapter;
 import com.example.andrii.flashchat.data.TestData;
 
 public class RecyclerViewFragment extends Fragment{
+    private final String TAG = "RecyclerViewFragment";
     public static final int FRAGMENT_TYPE_MESSAGES = 1;
     public static final int FRAGMENT_TYPE_ONLINE = 2;
-    public static final int FRAGMENT_TYPE_GRUPS = 3;
+    public static final int FRAGMENT_TYPE_GROUPS = 3;
     private static final String FRAGMENT_TYPE_ARGUMENT = "FRAGMENT_TYPE_ARGUMENT";
     private int type;
 
@@ -65,7 +66,7 @@ public class RecyclerViewFragment extends Fragment{
                 mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
                 mRecyclerView.setAdapter(new OnlineListAdapter(getActivity(),TestData.getPersons(10)));
                 break;
-            case FRAGMENT_TYPE_GRUPS:
+            case FRAGMENT_TYPE_GROUPS:
                 mRecyclerView.setLayoutManager(new GridLayoutManager(getActivity(),2));
                 mRecyclerView.setAdapter(new GroupsListAdapter(getActivity(),TestData.getPersons(10)));
         }

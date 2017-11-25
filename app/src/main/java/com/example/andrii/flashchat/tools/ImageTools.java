@@ -25,27 +25,27 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 public class ImageTools {
-
-    Context context;
+    private final String TAG = "ImageTools";
+    private Context context;
 
     public ImageTools(Context context) {
         this.context = context;
     }
 
     public void downloadImage(ImageView imageView, Person p) {
-
+            
             String root = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES).getPath();
             File file = new File(root,p.getId() + ".jpg");
 
             if (file.exists()){
-                Log.d("qwe","from from cash");
+                Log.d(TAG,"from from cash");
                 String path = file.getPath();
                 Uri uri = Uri.fromFile(new File(path));
                 Bitmap image = null;
                 try {
                     image = MediaStore.Images.Media.getBitmap(context.getContentResolver(), uri);
                 } catch (IOException e) {
-                    Log.e("qwe","IOException",e);
+                    Log.e(TAG,"IOException",e);
                     image = BitmapFactory.decodeResource(context.getResources(),R.drawable.ic_action_person);
                 }
                 imageView.setImageBitmap(image);
@@ -61,7 +61,7 @@ public class ImageTools {
                                     try {
                                         bitmap = Picasso.with(context).load(u).get();
                                     } catch (IOException e) {
-                                        Log.e("qwe","Picasso error",e);
+                                        Log.e(TAG,"Picasso error",e);
                                         bitmap = BitmapFactory.decodeResource(context.getResources(),R.drawable.ic_action_person);
                                     }
                                     return bitmap;
@@ -75,12 +75,12 @@ public class ImageTools {
                                 .subscribe(new Observer<Bitmap>() {
                                     @Override
                                     public void onCompleted() {
-                                        Log.d("qwe","Downloaded photo from facebook");
+                                        Log.d(TAG,"Downloaded photo from facebook");
                                     }
 
                                     @Override
                                     public void onError(Throwable e) {
-                                        Log.e("qwe","onErrorPicasso",e);
+                                        Log.e(TAG,"onErrorPicasso",e);
 
                                     }
 

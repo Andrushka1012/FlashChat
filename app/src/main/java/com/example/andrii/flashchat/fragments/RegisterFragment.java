@@ -34,7 +34,7 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 public class RegisterFragment extends Fragment {
-
+    private final String TAG = "RegisterFragment"; 
     private AutoCompleteTextView mName;
     private AutoCompleteTextView mBirthDate;
     private AutoCompleteTextView mEmail;
@@ -99,7 +99,7 @@ public class RegisterFragment extends Fragment {
                             SingletonConnection.getInstance().executeAction(act);
 
                             BufferedReader in = SingletonConnection.getInstance().getReader();
-                            Log.d("qwe","in = null:" + String.valueOf(in == null));
+                            Log.d(TAG,"in = null:" + String.valueOf(in == null));
                             String answer = "";
                             try {
                                 answer = in.readLine();
@@ -129,7 +129,7 @@ public class RegisterFragment extends Fragment {
 
                             @Override
                             public void onNext(String answer) {
-                                Log.d("qwe","OnNext s = " + answer);
+                                Log.d(TAG,"OnNext s = " + answer);
                                 if (answer.equals("invalid")) Toast.makeText(getActivity(),"Invalid data",Toast.LENGTH_LONG).show();
                                 else{
                                     Toast.makeText(getActivity(),"Your account was created",Toast.LENGTH_LONG).show();
@@ -139,9 +139,7 @@ public class RegisterFragment extends Fragment {
                         });
             }
         });
-        mLogin.setOnClickListener(view -> {
-            getActivity().onBackPressed();
-        });
+        mLogin.setOnClickListener(view -> getActivity().onBackPressed());
 
         return v;
     }
