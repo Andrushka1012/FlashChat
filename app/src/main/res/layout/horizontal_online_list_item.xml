@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="10dp"
+    >
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        >
+        <de.hdodenhof.circleimageview.CircleImageView xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_height="60dp"
+            android:layout_width="60dp"
+            android:id="@+id/iv_photo"
+            android:src="@drawable/andruszka_photo"
+            android:layout_marginLeft="10dp"
+            />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="15dp"
+            >
+            <de.hdodenhof.circleimageview.CircleImageView xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_gravity="bottom|end"
+                android:layout_height="10dp"
+                android:layout_width="10dp"
+                android:id="@+id/iv_online"
+                android:src="@color/online"
+                android:layout_marginBottom="2dp"
+                android:layout_marginRight="2dp"
+                />
+            <TextView
+                android:id="@+id/tv_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="asdasq"
+                />
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+</LinearLayout>
