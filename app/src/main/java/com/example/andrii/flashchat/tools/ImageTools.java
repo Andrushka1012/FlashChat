@@ -41,7 +41,7 @@ public class ImageTools {
                 Log.d(TAG,"from from cash");
                 String path = file.getPath();
                 Uri uri = Uri.fromFile(new File(path));
-                Bitmap image = null;
+                Bitmap image;
                 try {
                     image = MediaStore.Images.Media.getBitmap(context.getContentResolver(), uri);
                 } catch (IOException e) {

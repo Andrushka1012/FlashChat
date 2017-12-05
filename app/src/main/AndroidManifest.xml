@@ -48,7 +48,12 @@
             android:theme="@style/AppTheme.NoActionBar"/>
         <activity
             android:name=".Activitys.CorrespondenceListActivity"
-            android:parentActivityName=".Activitys.MessagesListActivity" />
+            android:parentActivityName=".Activitys.MessagesListActivity"/>
+        <activity
+            android:name=".Activitys.ProfileActivity"
+            android:parentActivityName=".Activitys.MessagesListActivity"
+            android:theme="@style/AppTheme.NoActionBar"
+            />
         <activity
             android:name=".Activitys.PhotoActivity"
             android:theme="@style/NoActionBar" />

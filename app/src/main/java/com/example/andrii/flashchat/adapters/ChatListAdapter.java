@@ -118,7 +118,7 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.MyRecy
                     Matrix matrix = new Matrix();
 
                     int x = origin.getWidth()/mIvPhotoMessage.getWidth();
-                    int height = origin.getHeight()/x;
+                    double height = origin.getHeight()/x;
                     int width = mIvPhotoMessage.getWidth();
 
                     if (origin.getHeight()<origin.getWidth()){
@@ -127,7 +127,7 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.MyRecy
                         width = (int) (mIvPhotoMessage.getWidth()*1.3);
                     }
 
-                    Bitmap scaledBitmap = Bitmap.createScaledBitmap(origin,width,height,true);
+                    Bitmap scaledBitmap = Bitmap.createScaledBitmap(origin,width, Math.toIntExact(Math.round(height)),true);
 
                     Bitmap rotated= Bitmap.createBitmap(scaledBitmap , 0, 0, scaledBitmap.getWidth(), scaledBitmap.getHeight(), matrix, true);
                     mIvPhotoMessage.setImageBitmap(rotated);

@@ -36,5 +36,11 @@
 
     <string name="facebook_app_id">490149971366174</string>
     <string name="fb_login_protocol_scheme">fb490149971366174</string>
+    <string name="Save">save</string>
+
+    <string-array name="genderlist">
+        <item>Male</item>
+        <item>Female</item>
+    </string-array>
 
 </resources>

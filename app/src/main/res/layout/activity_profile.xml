@@ -1,0 +1,209 @@
+<android.support.design.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:ignore="RtlHardcoded"
+    android:fitsSystemWindows="true"
+    >
+
+    <android.support.design.widget.AppBarLayout
+        android:id="@+id/main.appbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        >
+
+        <android.support.design.widget.CollapsingToolbarLayout
+            android:id="@+id/main.collapsing"
+            android:layout_width="match_parent"
+            android:layout_height="250dp"
+            app:layout_scrollFlags="scroll|exitUntilCollapsed|snap"
+            >
+
+            <ImageView
+                android:id="@+id/main.imageview.placeholder"
+                android:layout_width="match_parent"
+                android:layout_height="250dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/profile_background"
+                android:tint="#11000000"
+                app:layout_collapseMode="parallax"
+                app:layout_collapseParallaxMultiplier="0.9"
+                />
+
+            <FrameLayout
+                android:id="@+id/main.framelayout.title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|center_horizontal"
+                android:orientation="vertical"
+                app:layout_collapseMode="parallax"
+                app:layout_collapseParallaxMultiplier="0.3"
+                >
+
+                <LinearLayout
+                    android:id="@+id/main.linearlayout.title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:orientation="vertical"
+                    >
+
+                    <FrameLayout
+                        android:layout_marginBottom="20dp"
+                        android:layout_marginTop="20dp"
+                        android:layout_width="match_parent"
+                        android:layout_height="200dp">
+                        <de.hdodenhof.circleimageview.CircleImageView xmlns:android="http://schemas.android.com/apk/res/android"
+                            android:id="@+id/circle_image_view_photo"
+                            android:layout_gravity="center"
+                            android:layout_height="150dp"
+                            android:layout_width="150dp"
+                            android:src="@drawable/andruszka_photo"
+                            />
+                        <FrameLayout
+                            android:id="@+id/framelayout_btn"
+                            android:layout_width="35dp"
+                            android:layout_height="35dp"
+                            android:layout_gravity="center"
+                            android:layout_marginTop="50dp"
+                            android:layout_marginLeft="55dp"
+                            android:background="@drawable/circular_layout"
+                            >
+                            <ImageButton
+                                android:id="@+id/ib_take_photo"
+                                android:layout_width="30dp"
+                                android:layout_height="30dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_camera_alt_black_24dp"
+                                android:background="@drawable/circular_button"
+                                />
+
+                        </FrameLayout>
+
+                    </FrameLayout>
+                </LinearLayout>
+            </FrameLayout>
+
+            <android.support.v7.widget.Toolbar
+
+                android:id="@+id/my_toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+                app:layout_collapseMode="pin"
+                />
+        </android.support.design.widget.CollapsingToolbarLayout>
+    </android.support.design.widget.AppBarLayout>
+
+
+    <android.support.v4.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scrollbars="none"
+        app:behavior_overlapTop="30dp"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+
+        tools:layout_editor_absoluteY="272dp">
+
+        <android.support.v7.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            app:cardElevation="8dp"
+            app:contentPadding="16dp">
+
+           <LinearLayout
+               android:layout_width="match_parent"
+               android:layout_height="match_parent"
+               android:orientation="vertical">
+               <TextView
+                   android:layout_width="match_parent"
+                   android:layout_height="wrap_content"
+                   android:lineSpacingExtra="8dp"
+                   android:text="@string/name"
+                   android:textSize="18sp" />
+
+               <EditText
+                   android:id="@+id/tv_name"
+                   android:layout_width="match_parent"
+                   android:layout_height="wrap_content"
+                   android:text="Andrushka" />
+               <TextView
+                   android:layout_width="match_parent"
+                   android:layout_height="wrap_content"
+                   android:lineSpacingExtra="8dp"
+                   android:text="@string/date_of_birth"
+                   android:textSize="18sp" />
+
+               <EditText
+                   android:id="@+id/tv_date"
+                   android:layout_width="match_parent"
+                   android:layout_height="wrap_content"
+                   android:inputType="date"
+                   android:text="Andrushka" />
+               <TextView
+                   android:layout_width="match_parent"
+                   android:layout_height="wrap_content"
+                   android:lineSpacingExtra="8dp"
+                   android:text="@string/phone_number"
+                   android:textSize="18sp" />
+
+               <EditText
+                   android:id="@+id/tv_number"
+                   android:layout_width="match_parent"
+                   android:layout_height="wrap_content"
+                   android:inputType="phone"
+                   android:text="Andrushka" />
+
+               <TextView
+                   android:layout_width="match_parent"
+                   android:layout_height="wrap_content"
+                   android:lineSpacingExtra="8dp"
+                   android:text="@string/prompt_email"
+                   android:textSize="18sp" />
+
+               <EditText
+                   android:id="@+id/tv_email"
+                   android:layout_width="match_parent"
+                   android:layout_height="wrap_content"
+                   android:inputType="textEmailAddress"
+                   android:text="Andrushka" />
+
+               <TextView
+                   android:layout_width="match_parent"
+                   android:layout_height="wrap_content"
+                   android:lineSpacingExtra="8dp"
+                   android:text="@string/gender"
+                   android:textSize="18sp" />
+               <Spinner
+                   android:id="@+id/spiner_gender"
+                   android:layout_width="match_parent"
+                   android:layout_height="wrap_content"
+                   android:text="Andrushka"
+                   android:entries="@array/genderlist"
+                   />
+
+           </LinearLayout>
+
+        </android.support.v7.widget.CardView>
+
+
+
+    </android.support.v4.widget.NestedScrollView>
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/main.toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+
+        app:layout_anchor="@id/main.framelayout.title"
+        app:theme="@style/ThemeOverlay.AppCompat.Dark"
+        app:title=""
+        >
+
+
+    </android.support.v7.widget.Toolbar>
+</android.support.design.widget.CoordinatorLayout>

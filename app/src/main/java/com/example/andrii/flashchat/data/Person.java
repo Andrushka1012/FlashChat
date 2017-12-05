@@ -1,10 +1,14 @@
 package com.example.andrii.flashchat.data;
 
+import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 import java.util.UUID;
 
-public class Person {
+@SuppressLint("ParcelCreator")
+public class Person implements Parcelable {
     private String id;
     private String name;
     private String birthDate;
@@ -104,4 +108,37 @@ public class Person {
     public void setName(String name) {
         this.name = name;
     }
+    //parcel part
+    public Person(Parcel in){
+        String[] data= new String[6];
+
+        in.readStringArray(data);
+        this.id= data[0];
+        this.name= data[1];
+        this.birthDate= data[2];
+        this.phoneNumber= data[3];
+        this.email= data[4];
+        this.gender= data[5];
+        this.photoUrl= data[6];
+    }
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeStringArray(new String[]{this.id,this.name,this.birthDate,this.phoneNumber,this.email,this.gender,this.photoUrl});
+    }
+    public static final Parcelable.Creator<Person> CREATOR= new Creator<Person>() {
+        @Override
+        public Person createFromParcel(Parcel parcel) {
+            return new Person(parcel);
+        }
+
+        @Override
+        public Person[] newArray(int i) {
+            return new Person[i];
+        }
+    };
 }

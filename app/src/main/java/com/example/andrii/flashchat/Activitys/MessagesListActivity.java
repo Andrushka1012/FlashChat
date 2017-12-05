@@ -2,7 +2,12 @@ package com.example.andrii.flashchat.Activitys;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
@@ -31,8 +36,11 @@ import com.example.andrii.flashchat.tools.QueryPreferences;
 import com.google.gson.Gson;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
+import java.net.SocketException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import rx.Observable;
@@ -138,16 +146,19 @@ public class MessagesListActivity extends AppCompatActivity
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
+        Intent intent;
         int id = item.getItemId();
         switch (id){
             case R.id.nav_profile:
+                //intent = ProfileActivity.newIntent(this,currentUser.getName());
+                intent = ProfileActivity.newIntent(this,currentUser);
+                startActivity(intent);
                 break;
             case R.id.nav_manage:
                 break;
             case R.id.nav_exit:
                 QueryPreferences.setActiveUserId(this,null);
-                Intent intent = new Intent(this,LoginActivity.class);
+                intent = new Intent(this,LoginActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);
                 finish();
@@ -164,8 +175,9 @@ public class MessagesListActivity extends AppCompatActivity
     private void setUpUserData(String userId) {
         ActionGetPersonData actionGetPersonData = new ActionGetPersonData(userId);
 
-        Observable<String> connectionToServerObservable = Observable.just(actionGetPersonData).observeOn(Schedulers.io())
+        Observable<String> connectionToServerObservable = Observable.just(actionGetPersonData)
                 .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io())
                 .map(action -> {
                     SingletonConnection.getInstance().connect();
                     SingletonConnection.getInstance().executeAction(action);
@@ -182,9 +194,9 @@ public class MessagesListActivity extends AppCompatActivity
                 });
         Observable<String> observable = Observable.empty();
         observable.mergeWith(connectionToServerObservable)
+                .timeout(5, TimeUnit.SECONDS, Schedulers.io())
                 .subscribeOn(AndroidSchedulers.mainThread())
                 .observeOn(AndroidSchedulers.mainThread())
-                .timeout(5, TimeUnit.SECONDS)
                 .subscribe(new Observer<String>() {
                     @Override
                     public void onCompleted() {
@@ -195,9 +207,30 @@ public class MessagesListActivity extends AppCompatActivity
 
                     @Override
                     public void onError(Throwable e) {
+                        if(e.getClass() == TimeoutException.class || e.getClass() == SocketException.class){
+                            String root = getApplicationContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES).getPath();
+                            File file = new File(root,QueryPreferences.getActiveUserId(getApplicationContext()) + ".jpg");
+                            if (file.exists()) {
+                                String path = file.getPath();
+                                Uri uri = Uri.fromFile(new File(path));
+                                Bitmap image;
+                                try {
+                                    image = MediaStore.Images.Media.getBitmap(getApplicationContext().getContentResolver(), uri);
+                                } catch (IOException ex) {
+                                    Log.e(TAG,"IOException",ex);
+                                    image = BitmapFactory.decodeResource(getApplicationContext().getResources(),R.drawable.ic_action_person);
+                                }
+                                ivProfilePhoto.setImageBitmap(image);
+
+                            }
+                        }else{
+                            Bitmap image = BitmapFactory.decodeResource(getApplicationContext().getResources(),R.drawable.ic_action_person);
+                            ivProfilePhoto.setImageBitmap(image);
+                        }
                         Log.e(TAG,"",e);
                         SingletonConnection.getInstance().close();
                         Toast.makeText(getApplicationContext(),"Server error", LENGTH_LONG).show();
+
 
                     }
 
