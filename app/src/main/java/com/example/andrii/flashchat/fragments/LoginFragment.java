@@ -6,7 +6,6 @@ import android.annotation.TargetApi;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -29,11 +28,11 @@ import com.example.andrii.flashchat.Activitys.MessagesListActivity;
 import com.example.andrii.flashchat.R;
 import com.example.andrii.flashchat.data.Person;
 import com.example.andrii.flashchat.data.SingletonConnection;
-import com.example.andrii.flashchat.data.actions.Action;
 import com.example.andrii.flashchat.data.actions.ActionLogin;
 import com.example.andrii.flashchat.data.actions.ActionLoginFromFacebook;
 import com.example.andrii.flashchat.data.interfaces.EmailHelper;
 import com.example.andrii.flashchat.data.interfaces.LoginHelper;
+import com.example.andrii.flashchat.tools.QueryAction;
 import com.example.andrii.flashchat.tools.QueryPreferences;
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
@@ -75,7 +74,6 @@ implements EmailHelper{
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
-    private UserLoginTask mAuthTask = null;
 
     // UI references.
 
@@ -133,12 +131,12 @@ implements EmailHelper{
 
                                 long id;
                                 String name;
-                                String url = null;
+                                String url;
                                 String gender;
                                 String email;
                                 String birthday;
 
-                                JSONObject pictureData = null;
+                                JSONObject pictureData;
                                 try {
                                     pictureData = object.getJSONObject("picture").getJSONObject("data");
                                     url = pictureData.optString("url");
@@ -179,7 +177,6 @@ implements EmailHelper{
                             parameters.putString("fields", "id,name,email,picture.type(large),gender,birthday");
                             request.setParameters(parameters);
                             request.executeAndWait();
-
                             return person[0];
                         })
                         .map(person -> {
@@ -188,7 +185,15 @@ implements EmailHelper{
                            SingletonConnection.getInstance().connect();
                            SingletonConnection.getInstance().executeAction(action);
 
-                           return read();
+                            BufferedReader in = SingletonConnection.getInstance().getReader();
+                            Log.d(TAG,"in = null:" + String.valueOf(in == null));
+                            String answer = "";
+                            try {
+                                answer = in.readLine();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                            return answer;
                         });
                         Observable<String>sereverConnectionObservable = Observable.empty();
                 sereverConnectionObservable.mergeWith(graphConnectionObservable)
@@ -325,9 +330,7 @@ implements EmailHelper{
      * errors are presented and no actual login attempt is made.
      */
     private void attemptLogin() {
-        if (mAuthTask != null) {
-            return;
-        }
+
 
         // Reset errors.
         mEmailView.setError(null);
@@ -367,20 +370,9 @@ implements EmailHelper{
 
             ActionLogin actionLogin = new ActionLogin(email,password);
 
-            Observable<Action> serverConnectObservable = Observable.just(actionLogin);
 
-            Observable<String> observable = Observable.empty();
-            observable.mergeWith(serverConnectObservable.observeOn(Schedulers.io())
-            .subscribeOn(Schedulers.io())
-                            .map(action -> {
-                                SingletonConnection.getInstance().connect();
-                                SingletonConnection.getInstance().executeAction(action);
-                                return read();
-                            }))
-                        .timeout(5, TimeUnit.SECONDS)
-                        .subscribeOn(AndroidSchedulers.mainThread())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new Observer<String>() {
+            Observable<String> observable = QueryAction.executeAnswerQuery(actionLogin,TAG);
+            observable.subscribe(new Observer<String>() {
                             @Override
                             public void onCompleted() {
                                 SingletonConnection.getInstance().close();
@@ -414,15 +406,14 @@ implements EmailHelper{
     }
 
     private boolean isEmailValid(String email) {
-        //return email.contains("@");
-        return true;
+        return email.contains("@");
     }
 
     private boolean isPasswordValid(String password) {
-        //return password.length() > 8 && password.length() <= 16;
-        return true;
+        return password.length() > 8 && password.length() <= 16;
     }
 
+    @Deprecated
     public String read(){
         BufferedReader in = SingletonConnection.getInstance().getReader();
         Log.d(TAG,"in = null:" + String.valueOf(in == null));
@@ -482,56 +473,4 @@ implements EmailHelper{
         mEmailView.setAdapter(adapter);
     }
 
-    private class UserLoginTask extends AsyncTask<Void, Void, Integer> {
-        private static final int RESULT_SUCCES = 1;
-        private static final int RESULT_INCORRECT_PASSWORD = 2;
-        private static final int RESULT_NO_ANSWER_SERVER = 3;
-        private String userId;
-        BufferedReader in;
-
-
-        @Override
-        protected Integer doInBackground(Void... params) {
-            in = SingletonConnection.getInstance().getReader();
-            String answer = "";
-
-            //доробить
-            try {
-                answer = in.readLine();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            if (!answer.equals("incorrect")) {
-                if(answer.equals("")){
-                    return RESULT_NO_ANSWER_SERVER;
-                }
-                else{
-                    userId = answer;
-                    return RESULT_SUCCES;
-                }
-            } else {
-                return RESULT_INCORRECT_PASSWORD;
-            }
-        }
-
-        @Override
-        protected void onPostExecute(final Integer result) {
-            Log.d(TAG,String.valueOf(result));
-            switch (result){
-                case RESULT_INCORRECT_PASSWORD:
-                    mPasswordView.setError(getString(R.string.error_incorrect_password));
-                    break;
-                case RESULT_SUCCES:
-                mEmailView.setText(userId);
-                    break;
-                default:
-                    mPasswordView.setError("No answer from server");
-            }
-            showProgress(false);
-            mAuthTask = null;
-        }
-
-
-    }
 }

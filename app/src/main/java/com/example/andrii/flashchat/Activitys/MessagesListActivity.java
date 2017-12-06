@@ -32,21 +32,19 @@ import com.example.andrii.flashchat.data.SingletonConnection;
 import com.example.andrii.flashchat.data.actions.ActionGetPersonData;
 import com.example.andrii.flashchat.fragments.RecyclerViewFragment;
 import com.example.andrii.flashchat.tools.ImageTools;
+import com.example.andrii.flashchat.tools.QueryAction;
 import com.example.andrii.flashchat.tools.QueryPreferences;
 import com.google.gson.Gson;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.net.SocketException;
-import java.util.concurrent.TimeUnit;
+import java.util.Date;
 import java.util.concurrent.TimeoutException;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import rx.Observable;
 import rx.Observer;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
 
 import static android.widget.Toast.LENGTH_LONG;
 
@@ -74,20 +72,20 @@ public class MessagesListActivity extends AppCompatActivity
 
         String userId = getIntent().getStringExtra(USER_ID_ARG_KEY);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(view -> Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                 .setAction("Action", null).show());
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
         View hView = navigationView.getHeaderView(0);
@@ -97,7 +95,7 @@ public class MessagesListActivity extends AppCompatActivity
 
 
 
-        TabLayout mTabLayout = (TabLayout) findViewById(R.id.tabs);
+        TabLayout mTabLayout = findViewById(R.id.tabs);
         mViewPager = findViewById(R.id.viewPager);
         setUpViewPager();
         mTabLayout.setupWithViewPager(mViewPager);
@@ -150,7 +148,6 @@ public class MessagesListActivity extends AppCompatActivity
         int id = item.getItemId();
         switch (id){
             case R.id.nav_profile:
-                //intent = ProfileActivity.newIntent(this,currentUser.getName());
                 intent = ProfileActivity.newIntent(this,currentUser);
                 startActivity(intent);
                 break;
@@ -175,29 +172,9 @@ public class MessagesListActivity extends AppCompatActivity
     private void setUpUserData(String userId) {
         ActionGetPersonData actionGetPersonData = new ActionGetPersonData(userId);
 
-        Observable<String> connectionToServerObservable = Observable.just(actionGetPersonData)
-                .subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.io())
-                .map(action -> {
-                    SingletonConnection.getInstance().connect();
-                    SingletonConnection.getInstance().executeAction(action);
 
-                    BufferedReader in = SingletonConnection.getInstance().getReader();
-                    Log.d(TAG,"in = null:" + String.valueOf(in == null));
-                    String answer = "";
-                    try {
-                        answer = in.readLine();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    return answer;
-                });
-        Observable<String> observable = Observable.empty();
-        observable.mergeWith(connectionToServerObservable)
-                .timeout(5, TimeUnit.SECONDS, Schedulers.io())
-                .subscribeOn(AndroidSchedulers.mainThread())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<String>() {
+        Observable<String> observable = QueryAction.executeAnswerQuery(actionGetPersonData,TAG);
+        observable.subscribe(new Observer<String>() {
                     @Override
                     public void onCompleted() {
                         Log.d(TAG,"onCompleted");
@@ -231,7 +208,8 @@ public class MessagesListActivity extends AppCompatActivity
                         SingletonConnection.getInstance().close();
                         Toast.makeText(getApplicationContext(),"Server error", LENGTH_LONG).show();
 
-
+                        currentUser = new Person(
+                                QueryPreferences.getActiveUserId(getApplicationContext()),"User",new Date().toString(),"Number","email@email.com","gender","offline");
                     }
 
                     @Override

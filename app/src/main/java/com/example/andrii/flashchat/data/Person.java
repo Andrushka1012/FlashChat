@@ -110,7 +110,7 @@ public class Person implements Parcelable {
     }
     //parcel part
     public Person(Parcel in){
-        String[] data= new String[6];
+        String[] data= new String[7];
 
         in.readStringArray(data);
         this.id= data[0];

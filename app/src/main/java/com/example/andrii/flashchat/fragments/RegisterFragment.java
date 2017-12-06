@@ -21,17 +21,11 @@ import android.widget.Toast;
 
 import com.example.andrii.flashchat.R;
 import com.example.andrii.flashchat.data.SingletonConnection;
-import com.example.andrii.flashchat.data.actions.Action;
 import com.example.andrii.flashchat.data.actions.ActionRegister;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.util.concurrent.TimeUnit;
+import com.example.andrii.flashchat.tools.QueryAction;
 
 import rx.Observable;
 import rx.Observer;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
 
 public class RegisterFragment extends Fragment {
     private final String TAG = "RegisterFragment"; 
@@ -89,29 +83,9 @@ public class RegisterFragment extends Fragment {
 
 
                 ActionRegister action = new ActionRegister(name,date,email,number,password,gender);
-                Observable<Action> serverConnectObservable = Observable.just(action);
 
-                Observable<String> observable = Observable.empty();
-                observable.mergeWith(serverConnectObservable.observeOn(Schedulers.io())
-                        .subscribeOn(Schedulers.io())
-                        .map(act -> {
-                            SingletonConnection.getInstance().connect();
-                            SingletonConnection.getInstance().executeAction(act);
-
-                            BufferedReader in = SingletonConnection.getInstance().getReader();
-                            Log.d(TAG,"in = null:" + String.valueOf(in == null));
-                            String answer = "";
-                            try {
-                                answer = in.readLine();
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                            return answer;
-                        }))
-                        .timeout(5, TimeUnit.SECONDS)
-                        .subscribeOn(AndroidSchedulers.mainThread())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new Observer<String>() {
+                Observable<String> observable = QueryAction.executeAnswerQuery(action,TAG);
+                        observable.subscribe(new Observer<String>() {
                             @SuppressLint("ShowToast")
                             @Override
                             public void onCompleted() {
