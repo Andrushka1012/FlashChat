@@ -6,13 +6,23 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.util.Base64;
 import android.util.Log;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.example.andrii.flashchat.R;
 import com.example.andrii.flashchat.data.Person;
+import com.example.andrii.flashchat.data.SingletonConnection;
+import com.example.andrii.flashchat.data.actions.Action;
+import com.example.andrii.flashchat.data.actions.ActionLoadImage;
+import com.example.andrii.flashchat.data.actions.ActionSendImage;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.Picasso;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -32,7 +42,7 @@ public class ImageTools {
         this.context = context;
     }
 
-    public void downloadImage(ImageView imageView, Person p) {
+    public void downloadPersonImage(ImageView imageView, Person p) {
             
             String root = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES).getPath();
             File file = new File(root,p.getId() + ".jpg");
@@ -40,15 +50,11 @@ public class ImageTools {
             if (file.exists()){
                 Log.d(TAG,"from from cash");
                 String path = file.getPath();
-                Uri uri = Uri.fromFile(new File(path));
-                Bitmap image;
-                try {
-                    image = MediaStore.Images.Media.getBitmap(context.getContentResolver(), uri);
-                } catch (IOException e) {
-                    Log.e(TAG,"IOException",e);
-                    image = BitmapFactory.decodeResource(context.getResources(),R.drawable.ic_action_person);
-                }
-                imageView.setImageBitmap(image);
+
+                Picasso.with(context)
+                        .load(new File(path))
+                        .memoryPolicy(MemoryPolicy.NO_CACHE,MemoryPolicy.NO_STORE)
+                        .into(imageView);
             }else{
                 if (!p.getPhotoUrl().equals("no_facebook_url")){
                         Uri uri = Uri.parse(p.getPhotoUrl());
@@ -59,7 +65,10 @@ public class ImageTools {
                                 .map(u -> {
                                     Bitmap bitmap = null;
                                     try {
-                                        bitmap = Picasso.with(context).load(u).get();
+                                        bitmap = Picasso.with(context)
+                                                .load(u)
+                                                .memoryPolicy(MemoryPolicy.NO_CACHE,MemoryPolicy.NO_STORE)
+                                                .get();
                                     } catch (IOException e) {
                                         Log.e(TAG,"Picasso error",e);
                                         bitmap = BitmapFactory.decodeResource(context.getResources(),R.drawable.ic_action_person);
@@ -93,7 +102,47 @@ public class ImageTools {
                                     }
                                 });
                 }else {
-                    //просим у сервера
+                    Toast.makeText(context,"Downloading from server",Toast.LENGTH_LONG).show();
+                    ActionLoadImage actionLoadImage = new ActionLoadImage(p.getId(),p.getId());
+                    QueryAction.executeAnswerQuery(context,actionLoadImage,TAG)
+                            .subscribe(new Observer<String>() {
+                                @Override
+                                public void onCompleted() {
+                                    SingletonConnection.getInstance().close();
+                                }
+
+                                @Override
+                                public void onError(Throwable e) {
+                                    SingletonConnection.getInstance().close();
+                                }
+
+                                @Override
+                                public void onNext(String s) {
+                                    if (s.equals("error")) {
+                                        Toast.makeText(context,"Error with downloading photo from server.",Toast.LENGTH_LONG).show();
+                                        Picasso.with(context).load(R.drawable.ic_action_person).into(imageView);
+                                    }
+                                    else{
+                                        Toast.makeText(context,"Complete",Toast.LENGTH_LONG).show();
+                                        Log.d(TAG,"String:" + s);
+                                        Log.d(TAG,"len:" + s.length());
+                                        JsonParser jsonParser = new JsonParser();
+                                        JsonObject obj = (JsonObject) jsonParser.parse(s);
+                                        String endcodedString = obj.get("str").getAsString();
+                                        Log.d(TAG,endcodedString);
+
+                                        byte[] imageBytes = Base64.decode(endcodedString,Base64.DEFAULT);
+                                        Bitmap image = BitmapFactory.decodeByteArray(imageBytes,0,imageBytes.length);
+
+                                        imageView.setImageBitmap(image);
+
+                                        String root = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES).getPath();
+                                        File file = new File(root,p.getId() + ".jpg");
+                                        saveImage(file,image);
+                                    }
+                                }
+                            });
+
                 }
 
         }
@@ -119,5 +168,52 @@ public class ImageTools {
                         e.printStackTrace();
                     }
                 });
+    }
+
+    public void sendImage(File file,String msg_id,String sender_id,String recipirnt_id) {
+
+        Observable<Action> actionObservable = Observable.just(file)
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io())
+                .map(f -> {
+                    Uri uri = Uri.fromFile(f);
+                    Bitmap bitmap = null;
+                    try {
+                        bitmap = MediaStore.Images.Media.getBitmap(context.getContentResolver(), uri);
+                    } catch (IOException e) {
+                        Log.e(TAG,"IoEx:",e);
+                    }
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                    byte[] imageBytes = baos.toByteArray();
+                    String encodedImage = Base64.encodeToString(imageBytes, Base64.DEFAULT);
+                    ActionSendImage action = new ActionSendImage(msg_id,encodedImage,sender_id,recipirnt_id);
+
+                    return action;
+                });
+        QueryAction.executeAnswerQuery(context,actionObservable,TAG)
+                .subscribe(new Observer<String>() {
+                    @Override
+                    public void onCompleted() {
+                        Log.d(TAG,"onCompleted");
+                        SingletonConnection.getInstance().close();
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.e(TAG,"onError",e);
+                        SingletonConnection.getInstance().close();
+                    }
+
+                    @Override
+                    public void onNext(String s) {
+                        if (s.equals("error")) Toast.makeText(context,"Error with sanding photo.",Toast.LENGTH_LONG).show();
+                    }
+                });
+
+
+
+
+
     }
 }

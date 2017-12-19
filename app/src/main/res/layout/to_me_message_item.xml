@@ -11,7 +11,7 @@
         <View
             android:layout_width="176dp"
             android:layout_height="20dp"
-            android:background="@color/colorPrimary"
+            android:background="@drawable/to_me_top"
             />
         <TextView
             android:id="@+id/tv_text"
@@ -29,7 +29,7 @@
         <View
             android:layout_width="176dp"
             android:layout_height="20dp"
-            android:background="@color/colorPrimary"
+            android:background="@drawable/to_me_bot"
             />
     </LinearLayout>
 

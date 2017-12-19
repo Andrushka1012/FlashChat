@@ -84,7 +84,7 @@ public class RegisterFragment extends Fragment {
 
                 ActionRegister action = new ActionRegister(name,date,email,number,password,gender);
 
-                Observable<String> observable = QueryAction.executeAnswerQuery(action,TAG);
+                Observable<String> observable = QueryAction.executeAnswerQuery(getActivity(),action,TAG);
                         observable.subscribe(new Observer<String>() {
                             @SuppressLint("ShowToast")
                             @Override

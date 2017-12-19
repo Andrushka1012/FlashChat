@@ -13,13 +13,19 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import com.example.andrii.flashchat.R;
 import com.example.andrii.flashchat.Views.LinerLayoutWithMaxHeight;
 import com.example.andrii.flashchat.adapters.ChatListAdapter;
 import com.example.andrii.flashchat.data.Message;
 import com.example.andrii.flashchat.data.Person;
+import com.example.andrii.flashchat.data.SingletonConnection;
 import com.example.andrii.flashchat.data.TestData;
+import com.example.andrii.flashchat.data.actions.ActionGetPersonData;
+import com.example.andrii.flashchat.tools.QueryAction;
+import com.example.andrii.flashchat.tools.QueryPreferences;
+import com.google.gson.Gson;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -27,23 +33,37 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.util.UUID;
 
+import rx.Observable;
+import rx.Observer;
+
+import static android.widget.Toast.LENGTH_LONG;
+
 public class CorrespondenceListActivity extends AppCompatActivity {
     private static final int MY_ACTIVITY_RESULT_REQUEST_CODE = 103;
     private static final int PICK_IMAGE_REQUEST_CODE = 1;
 
+    private static final String TAG = "CorrespondenceListActivity";
     public static final String TITLE_EXTRA = "TITLE_EXTRA";
+    public static final String PERSON_EXTRA = "PERSON_EXTRA";
     private RecyclerView mRecyclerView;
     private LinerLayoutWithMaxHeight mLlSend;
     private ImageButton mIbSend;
     private ImageButton mIbTakePhoto;
     private EditText mEtMessage;
-    private Person I = new Person("Andruszka");
+    private Person currentUser = new Person("Andruszka");
     private UUID mId;
 
-
+    @Deprecated
     public static Intent newIntent(Context context, String title) {
         Intent intent = new Intent(context, CorrespondenceListActivity.class);
         intent.putExtra(TITLE_EXTRA, title);
+
+        return intent;
+    }
+
+    public static Intent newIntent(Context context, Person p) {
+        Intent intent = new Intent(context, CorrespondenceListActivity.class);
+        intent.putExtra(PERSON_EXTRA, p);
 
         return intent;
     }
@@ -52,12 +72,14 @@ public class CorrespondenceListActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_correspondence_list);
-        String title = getIntent().getStringExtra(TITLE_EXTRA);
-        getSupportActionBar().setTitle(title);
+        setUserData();
+
+        Person subject = getIntent().getParcelableExtra(PERSON_EXTRA);
+        getSupportActionBar().setTitle(subject.getName());
 
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        mRecyclerView.setAdapter(new ChatListAdapter(this, TestData.getMessages(I), I.getId()));
+        mRecyclerView.setAdapter(new ChatListAdapter(this, TestData.getMessages(currentUser), currentUser.getId()));
 
         mLlSend = (LinerLayoutWithMaxHeight) findViewById(R.id.ll_write);
         mLlSend.setMaxHeight(158);
@@ -71,7 +93,7 @@ public class CorrespondenceListActivity extends AppCompatActivity {
 
         mIbSend.setOnClickListener(view -> {
             if (mEtMessage.getText().toString().equals("")) return;
-            Message msg = new Message(mEtMessage.getText().toString(),I,Message.MESSAGE_TEXT_TYPE);
+            Message msg = new Message(mEtMessage.getText().toString(), currentUser,Message.MESSAGE_TEXT_TYPE);
             ((ChatListAdapter) mRecyclerView.getAdapter()).addMessage(msg);
             mRecyclerView.getAdapter().notifyDataSetChanged();
             mRecyclerView.scrollToPosition(mRecyclerView.getAdapter().getItemCount() - 1);
@@ -79,7 +101,7 @@ public class CorrespondenceListActivity extends AppCompatActivity {
         });
 
         mIbTakePhoto.setOnClickListener(view -> {
-            Message msg = new Message("",I,Message.MESSAGE_IMAGE_TYPE);
+            Message msg = new Message("", currentUser,Message.MESSAGE_IMAGE_TYPE);
             Intent intent = PhotoActivity.newIntent(this, msg.getID().toString());
             mId =  msg.getID();
             startActivityForResult(intent, MY_ACTIVITY_RESULT_REQUEST_CODE);
@@ -93,13 +115,37 @@ public class CorrespondenceListActivity extends AppCompatActivity {
 
     }
 
+    private void setUserData() {
+        ActionGetPersonData actionGetPersonData = new ActionGetPersonData(QueryPreferences.getActiveUserId(this));
+        Observable<String> observable = QueryAction.executeAnswerQuery(this,actionGetPersonData,TAG);
+        observable.subscribe(new Observer<String>() {
+            @Override
+            public void onCompleted() {
+                SingletonConnection.getInstance().close();
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                SingletonConnection.getInstance().close();
+                Toast.makeText(getApplicationContext(),"Server error", LENGTH_LONG).show();
+            }
+
+            @Override
+            public void onNext(String s) {
+                Gson gson = new Gson();
+                currentUser = gson.fromJson(s,Person.class);
+            }
+        });
+
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == MY_ACTIVITY_RESULT_REQUEST_CODE) {
             if (resultCode == Activity.RESULT_OK) {
                 String filePath = data.getStringExtra("Path");
-                Message msg = new Message(filePath,I,Message.MESSAGE_IMAGE_TYPE);
+                Message msg = new Message(filePath, currentUser,Message.MESSAGE_IMAGE_TYPE);
                 msg.setID(mId);
                 mId = null;
                 ((ChatListAdapter) mRecyclerView.getAdapter()).addMessage(msg);
@@ -114,7 +160,7 @@ public class CorrespondenceListActivity extends AppCompatActivity {
             }
 
             File file = null;
-            Message msg = new Message("",I,Message.MESSAGE_IMAGE_TYPE);
+            Message msg = new Message("", currentUser,Message.MESSAGE_IMAGE_TYPE);
             try {
                 InputStream inputStream = getContentResolver().openInputStream(data.getData());
                 BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStream);

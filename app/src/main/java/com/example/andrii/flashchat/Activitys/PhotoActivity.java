@@ -12,6 +12,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.Toast;
 
 import com.example.andrii.flashchat.R;
 import com.github.florent37.camerafragment.CameraFragment;
@@ -30,15 +31,15 @@ import java.util.List;
 public class PhotoActivity extends AppCompatActivity implements CameraFragmentResultListener ,
         CameraFragmentStateListener{
     public static final String EXTRA_MSG_ID = "EXTRA_MSG_ID";
-    private String mMsgId;
+    private String mPhotoName;
     RecordButton record;
     CameraSettingsView cameraSettings;
     FlashSwitchView flashSwitch;
     CameraSwitchView cameraSwitch;
 
-    public static Intent newIntent(Context context, String msgID) {
+    public static Intent newIntent(Context context, String photoName) {
         Intent intent = new Intent(context, PhotoActivity.class);
-        intent.putExtra(EXTRA_MSG_ID, msgID);
+        intent.putExtra(EXTRA_MSG_ID, photoName);
 
         return intent;
     }
@@ -50,7 +51,7 @@ public class PhotoActivity extends AppCompatActivity implements CameraFragmentRe
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_photo);
-        mMsgId = getIntent().getStringExtra(EXTRA_MSG_ID);
+        mPhotoName = getIntent().getStringExtra(EXTRA_MSG_ID);
         File externalFileDir = null;
         CameraFragment fragment = setCameraFragment();
 
@@ -68,13 +69,20 @@ public class PhotoActivity extends AppCompatActivity implements CameraFragmentRe
         cameraSwitch = (CameraSwitchView) findViewById(R.id.front_back_camera_switcher);
 
         record.setOnClickListener(v ->{
-            finalFragment.takePhotoOrCaptureVideo(this, finalExternalFileDir.toString(),mMsgId);
+            File f = new File(finalExternalFileDir, mPhotoName + ".jpg");
+            if(f.exists()){
+                if (f.delete()){
+                    Toast.makeText(this,"Photo changed",Toast.LENGTH_LONG).show();
+                }
+            }
+            finalFragment.takePhotoOrCaptureVideo(this, finalExternalFileDir.toString(), mPhotoName);
         });
         cameraSettings.setOnClickListener(v -> finalFragment.openSettingDialog());
         flashSwitch.setOnClickListener(v -> finalFragment.toggleFlashMode());
         cameraSwitch.setOnClickListener(v -> finalFragment.switchCameraTypeFrontBack());
 
     }
+
 
     @Override
     public void onVideoRecorded(String filePath) {

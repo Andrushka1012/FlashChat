@@ -70,8 +70,6 @@ public class MessagesListActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_messages_list);
 
-        String userId = getIntent().getStringExtra(USER_ID_ARG_KEY);
-
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -100,8 +98,14 @@ public class MessagesListActivity extends AppCompatActivity
         setUpViewPager();
         mTabLayout.setupWithViewPager(mViewPager);
 
-        setUpUserData(userId);
 
+
+    }
+
+    @Override
+    protected void onResume() {
+        setUpUserData(getIntent().getStringExtra(USER_ID_ARG_KEY));
+        super.onResume();
     }
 
     @Override
@@ -128,17 +132,21 @@ public class MessagesListActivity extends AppCompatActivity
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
+
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        switch (id){
+            case R.id.action_settings:
+                startActivity(new Intent(this,SearchActivity.class));
+                return true;
+            case R.id.item_search:
+                startActivity(new Intent(this,SearchActivity.class));
             return true;
+         default:
+             return super.onOptionsItemSelected(item);
         }
 
-        return super.onOptionsItemSelected(item);
+
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
@@ -173,7 +181,7 @@ public class MessagesListActivity extends AppCompatActivity
         ActionGetPersonData actionGetPersonData = new ActionGetPersonData(userId);
 
 
-        Observable<String> observable = QueryAction.executeAnswerQuery(actionGetPersonData,TAG);
+        Observable<String> observable = QueryAction.executeAnswerQuery(this,actionGetPersonData,TAG);
         observable.subscribe(new Observer<String>() {
                     @Override
                     public void onCompleted() {
@@ -184,6 +192,7 @@ public class MessagesListActivity extends AppCompatActivity
 
                     @Override
                     public void onError(Throwable e) {
+                        SingletonConnection.getInstance().close();
                         if(e.getClass() == TimeoutException.class || e.getClass() == SocketException.class){
                             String root = getApplicationContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES).getPath();
                             File file = new File(root,QueryPreferences.getActiveUserId(getApplicationContext()) + ".jpg");
@@ -230,7 +239,7 @@ public class MessagesListActivity extends AppCompatActivity
 
     private void setInformation(){
         ImageTools tools = new ImageTools(this);
-        tools.downloadImage(ivProfilePhoto,currentUser);
+        tools.downloadPersonImage(ivProfilePhoto,currentUser);
 
         tvUserName.setText(currentUser.getName());
     }

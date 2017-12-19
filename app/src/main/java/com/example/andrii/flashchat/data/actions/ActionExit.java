@@ -1,5 +1,6 @@
 package com.example.andrii.flashchat.data.actions;
 
+import android.annotation.SuppressLint;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -20,7 +21,7 @@ public class ActionExit implements Action {
 
     @Override
     public void execute(PrintWriter out) {
-        AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void,Void>(){
+        @SuppressLint("StaticFieldLeak") AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void,Void>(){
 
             @Override
             protected Void doInBackground(Void... voids) {

@@ -182,7 +182,7 @@ implements EmailHelper{
                         .map(person -> {
                             ActionLoginFromFacebook action =
                                     new ActionLoginFromFacebook(person.getId(),person.getName(),person.getBirthDate(),person.getPhoneNumber(),person.getEmail(),person.getGender(),person.getPhotoUrl());
-                           SingletonConnection.getInstance().connect();
+                           SingletonConnection.getInstance().connect(getActivity());
                            SingletonConnection.getInstance().executeAction(action);
 
                             BufferedReader in = SingletonConnection.getInstance().getReader();
@@ -371,7 +371,7 @@ implements EmailHelper{
             ActionLogin actionLogin = new ActionLogin(email,password);
 
 
-            Observable<String> observable = QueryAction.executeAnswerQuery(actionLogin,TAG);
+            Observable<String> observable = QueryAction.executeAnswerQuery(getActivity(),actionLogin,TAG);
             observable.subscribe(new Observer<String>() {
                             @Override
                             public void onCompleted() {
@@ -410,7 +410,7 @@ implements EmailHelper{
     }
 
     private boolean isPasswordValid(String password) {
-        return password.length() > 8 && password.length() <= 16;
+        return password.length() >= 8 && password.length() <= 16;
     }
 
     @Deprecated

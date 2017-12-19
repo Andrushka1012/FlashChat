@@ -48,18 +48,23 @@ public class OnlineListAdapter  extends RecyclerView.Adapter<OnlineListAdapter.M
         private ImageView mPhoto;
         private TextView mName;
 
+
         public MyHolder(View itemView) {
             super(itemView);
             mOnline = itemView.findViewById(R.id.iv_online);
             mPhoto = itemView.findViewById(R.id.iv_photo);
             mName = itemView.findViewById(R.id.tv_name);
 
-            itemView.setOnClickListener(v ->
-                    context.startActivity(CorrespondenceListActivity.newIntent(context, (String) mName.getText())));
+            itemView.setOnClickListener(v ->{
+                    Person p = mPersons.get(getAdapterPosition());
+                    context.startActivity(CorrespondenceListActivity.newIntent(context,p));
+            });
+
         }
 
         public void bindHolder(Person person) {
             mName.setText(person.getName());
+            //loadPhoto
         }
     }
 

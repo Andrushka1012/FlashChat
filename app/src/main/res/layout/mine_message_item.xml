@@ -13,7 +13,7 @@
             android:layout_marginLeft="29dp"
             android:layout_width="176dp"
             android:layout_height="20dp"
-            android:background="@color/grey2"
+            android:background="@drawable/mine_top"
             />
         <TextView
             android:layout_marginLeft="29dp"
@@ -35,7 +35,7 @@
             android:layout_marginLeft="29dp"
             android:layout_width="176dp"
             android:layout_height="20dp"
-            android:background="@color/grey2"
+            android:background="@drawable/mine_bot"
             />
     </LinearLayout>
 

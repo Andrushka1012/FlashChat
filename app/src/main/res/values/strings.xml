@@ -39,8 +39,10 @@
     <string name="Save">save</string>
 
     <string-array name="genderlist">
-        <item>Male</item>
-        <item>Female</item>
+        <item>male</item>
+        <item>female</item>
     </string-array>
+    <string name="title_activity_search">Search</string>
+    <string name="profile">Profile</string>
 
 </resources>

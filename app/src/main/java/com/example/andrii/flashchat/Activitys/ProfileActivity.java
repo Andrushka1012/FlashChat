@@ -1,15 +1,14 @@
 package com.example.andrii.flashchat.Activitys;
 
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.provider.MediaStore;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
@@ -35,11 +34,13 @@ import com.example.andrii.flashchat.R;
 import com.example.andrii.flashchat.data.Person;
 import com.example.andrii.flashchat.data.SingletonConnection;
 import com.example.andrii.flashchat.data.actions.ActionSaveProfileChanges;
+import com.example.andrii.flashchat.tools.ImageTools;
 import com.example.andrii.flashchat.tools.QueryAction;
 import com.example.andrii.flashchat.tools.QueryPreferences;
+import com.squareup.picasso.MemoryPolicy;
+import com.squareup.picasso.Picasso;
 
 import java.io.File;
-import java.io.IOException;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import rx.Observable;
@@ -47,6 +48,7 @@ import rx.Observer;
 
 public class ProfileActivity extends AppCompatActivity{
     private static final String TAG = "ProfileActivity";
+    private static final int MY_ACTIVITY_RESULT_REQUEST_CODE = 1;
     private static final String PERSON_EXTRA = "PERSON_EXTRA";
     private Person person;
     private CircleImageView civPhoto;
@@ -93,13 +95,19 @@ public class ProfileActivity extends AppCompatActivity{
         if (getSupportActionBar() != null){
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             //getSupportActionBar().setTitle(person.getName());
-            getSupportActionBar().setTitle("Andrushka");
+            getSupportActionBar().setTitle(person.getName());
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
         CollapsingToolbarLayout collapsingToolbarLayout = findViewById(R.id.main_collapsing);
-        collapsingToolbarLayout.setTitle("Andrushka");
+        collapsingToolbarLayout.setTitle(person.getName());
         collapsingToolbarLayout.setContentScrimColor(ContextCompat.getColor(this,R.color.colorPrimary));
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
 
     }
 
@@ -109,8 +117,30 @@ public class ProfileActivity extends AppCompatActivity{
             itemSave = menu.getItem(0);
             itemSave.setEnabled(false);
             if (person.getPhotoUrl().equals("offline")) setNotClickable();
+            if (!person.getId().equals(QueryPreferences.getActiveUserId(this))) itemSave.setVisible(false);
 
             return true;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode){
+            case MY_ACTIVITY_RESULT_REQUEST_CODE:
+                if (resultCode == Activity.RESULT_OK) {
+                   setPhoto();
+                    String root = getApplicationContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES).getPath();
+                    File file = new File(root,person.getId() + ".jpg");
+
+                    ImageTools tools = new ImageTools(this);
+                    tools.sendImage(file,person.getId(),person.getId(),person.getId());
+                }
+                break;
+
+                default:
+                    super.onActivityResult(requestCode, resultCode, data);
+        }
+
+
     }
 
     @Override
@@ -138,15 +168,17 @@ public class ProfileActivity extends AppCompatActivity{
 
             case R.id.action_save:
                 if(checkValidData()){
-                    ActionSaveProfileChanges action = new ActionSaveProfileChanges(
+                    ActionSaveProfileChanges action = new ActionSaveProfileChanges(person.getId(),
                             etName.getText().toString(),etDate.getText().toString(),etEmail.getText().toString(),
                             etNumber.getText().toString(),genderSpinner.getSelectedItem().toString());
 
-                    Observable<String> observable = QueryAction.executeAnswerQuery(action,TAG);
+                    Observable<String> observable = QueryAction.executeAnswerQuery(this,action,TAG);
                     observable.subscribe(new Observer<String>() {
                         @Override
                         public void onCompleted() {
                             SingletonConnection.getInstance().close();
+                            dataChanged = false;
+                            itemSave.setEnabled(false);
                         }
 
                         @Override
@@ -154,13 +186,12 @@ public class ProfileActivity extends AppCompatActivity{
                             Log.e(TAG,"onError",e);
                             SingletonConnection.getInstance().close();
 
-                            Toast.makeText(getApplicationContext(),"Server Error.",Toast.LENGTH_LONG).show();
                         }
 
                         @Override
                         public void onNext(String s) {
                             if (!s.equals("error")) Toast.makeText(getApplicationContext(),"Data was changed.",Toast.LENGTH_LONG).show();
-                            else onError(new Throwable("Server answer was:" + s));
+                            else  Toast.makeText(getApplicationContext(),"Server Error.",Toast.LENGTH_LONG).show();
                         }
                     });
                 }
@@ -179,6 +210,11 @@ public class ProfileActivity extends AppCompatActivity{
             view = etName;
         }
         if (!etEmail.getText().toString().contains("@")){
+            valid = false;
+            etEmail.setError("This email is invalided");
+            view = etEmail;
+        }
+        if (etDate.getText().toString().length()!=10){
             valid = false;
             etEmail.setError("This email is invalided");
             view = etEmail;
@@ -212,21 +248,16 @@ public class ProfileActivity extends AppCompatActivity{
         File file = new File(root,person.getId() + ".jpg");
         Bitmap image;
         if (file.exists()){
-            String path = file.getPath();
-            Uri uri = Uri.fromFile(new File(path));
-
-            try {
-                image = MediaStore.Images.Media.getBitmap(getApplicationContext().getContentResolver(), uri);
-            } catch (IOException ex) {
-                Log.e(TAG, "IOException", ex);
-                image = BitmapFactory.decodeResource(getApplicationContext().getResources(), R.drawable.ic_action_person);
-            }
-
+            Picasso.with(this)
+                    .load(file)
+                    .error(R.drawable.ic_action_person)
+                    .memoryPolicy(MemoryPolicy.NO_CACHE,MemoryPolicy.NO_STORE)
+                    .into(civPhoto);
         }else{
             //server try
             image = BitmapFactory.decodeResource(getApplicationContext().getResources(), R.drawable.ic_action_person);
+            civPhoto.setImageBitmap(image);
         }
-        civPhoto.setImageBitmap(image);
     }
 
     private void setNotClickable() {
@@ -236,7 +267,7 @@ public class ProfileActivity extends AppCompatActivity{
         etNumber.setFocusable(false);
         genderSpinner.setEnabled(false);
         btnLayout.setVisibility(View.GONE);
-        itemSave.setVisible(false);
+
     }
 
     private void initializeView() {
@@ -252,7 +283,7 @@ public class ProfileActivity extends AppCompatActivity{
         etEmail.setText(person.getEmail());
         etNumber.setText(person.getPhoneNumber());
 
-        if (person.getGender().equals("female")) genderSpinner.setSelection(1);
+        if (person.getGender().equals("female")) genderSpinner.setSelection(2);
 
 
         TextWatcher textWatcher = new TextWatcher() {
@@ -299,6 +330,11 @@ public class ProfileActivity extends AppCompatActivity{
 
         ibtnPhoto = findViewById(R.id.ib_take_photo);
         btnLayout= findViewById(R.id.framelayout_btn);
+
+        ibtnPhoto.setOnClickListener(v ->{
+            Intent intent = PhotoActivity.newIntent(this, person.getId());
+            startActivityForResult(intent, MY_ACTIVITY_RESULT_REQUEST_CODE);
+        });
     }
 
 
