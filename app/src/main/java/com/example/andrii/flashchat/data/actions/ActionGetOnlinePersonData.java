@@ -1,28 +1,24 @@
 package com.example.andrii.flashchat.data.actions;
 
-import android.util.Log;
-
 import com.google.gson.Gson;
 
 import java.io.PrintWriter;
 
-public class ActionLoadImage implements Action{
+public class ActionGetOnlinePersonData implements Action{
     private String action;
     private String userId;
-    private String imageId;
 
-    public ActionLoadImage(String userId, String imageId) {
-        action = "action_load_image";
+    public ActionGetOnlinePersonData(String userId) {
+        action = "action_get_online_person_data";
         this.userId = userId;
-        this.imageId = imageId;
     }
 
     @Override
     public void execute(PrintWriter out) {
         Gson gson = new Gson();
-        ActionLoadImage action = new ActionLoadImage(userId,imageId);
+        ActionGetOnlinePersonData action = new ActionGetOnlinePersonData(userId);
         String json = gson.toJson(action);
-        Log.d("qwe","Json:" + json);
+
         out.println(json);
     }
 }

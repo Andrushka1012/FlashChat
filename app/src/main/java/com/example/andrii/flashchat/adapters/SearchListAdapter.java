@@ -11,7 +11,8 @@ import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.andrii.flashchat.Activitys.ProfileActivity;
+import com.example.andrii.flashchat.Activities.CorrespondenceListActivity;
+import com.example.andrii.flashchat.Activities.ProfileActivity;
 import com.example.andrii.flashchat.R;
 import com.example.andrii.flashchat.data.Person;
 import com.example.andrii.flashchat.data.SearchItem;
@@ -55,19 +56,21 @@ public class SearchListAdapter extends RecyclerView.Adapter<SearchListAdapter.My
         return mItems.size();
     }
 
-    public class MyHolder extends RecyclerView.ViewHolder {
+    class MyHolder extends RecyclerView.ViewHolder {
         private ImageView mOnline;
         private ImageView mPhoto;
         private TextView mName;
 
 
 
-        public MyHolder(View itemView) {
+        MyHolder(View itemView) {
             super(itemView);
 
             mOnline = itemView.findViewById(R.id.iv_online);
             mPhoto = itemView.findViewById(R.id.iv_photo);
             mName = itemView.findViewById(R.id.tv_name);
+
+
 
             itemView.setOnCreateContextMenuListener((contextMenu, view, contextMenuInfo) ->
                     contextMenu.add(0,view.getId(),0,"Profile"));
@@ -118,12 +121,15 @@ public class SearchListAdapter extends RecyclerView.Adapter<SearchListAdapter.My
 
             itemView.setOnClickListener(v ->{
                 SearchItem item = mItems.get(getAdapterPosition());
-               // context.startActivity(CorrespondenceListActivity.newIntent(context,item));
+                Person p = new Person(item.getId(),item.getName());
+                Intent intent = CorrespondenceListActivity.newIntent(context,p);
+
+                context.startActivity(intent);
             });
 
         }
 
-        public void bindHolder(SearchItem item) {
+        void bindHolder(SearchItem item) {
             mName.setText(item.getName());
             mOnline.setVisibility(item.isOnline()?View.VISIBLE:View.GONE);
             Person p = new Person(item.getId(),item.getName(),"","","","",item.getImageSrc());

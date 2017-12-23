@@ -30,7 +30,7 @@ public class ActionRegister implements Action{
         Gson gson = new Gson();
         ActionRegister action = new ActionRegister(name,birth,email,number,password,gender);
         String json = gson.toJson(action);
-        Log.d("qwe","Json register" + json);
+        Log.d("qwe","Json:" + json);
         out.println(json);
     }
 

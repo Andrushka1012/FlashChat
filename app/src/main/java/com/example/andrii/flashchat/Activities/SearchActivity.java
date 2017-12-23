@@ -1,4 +1,4 @@
-package com.example.andrii.flashchat.Activitys;
+package com.example.andrii.flashchat.Activities;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;

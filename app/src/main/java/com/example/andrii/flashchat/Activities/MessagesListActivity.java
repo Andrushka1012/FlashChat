@@ -1,4 +1,4 @@
-package com.example.andrii.flashchat.Activitys;
+package com.example.andrii.flashchat.Activities;
 
 import android.content.Context;
 import android.content.Intent;
@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
@@ -115,7 +116,7 @@ public class MessagesListActivity extends AppCompatActivity
 
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
@@ -151,7 +152,7 @@ public class MessagesListActivity extends AppCompatActivity
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         Intent intent;
         int id = item.getItemId();
         switch (id){
@@ -172,7 +173,7 @@ public class MessagesListActivity extends AppCompatActivity
 
         }
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
@@ -186,13 +187,11 @@ public class MessagesListActivity extends AppCompatActivity
                     @Override
                     public void onCompleted() {
                         Log.d(TAG,"onCompleted");
-                        SingletonConnection.getInstance().close();
                         setInformation();
                     }
 
                     @Override
                     public void onError(Throwable e) {
-                        SingletonConnection.getInstance().close();
                         if(e.getClass() == TimeoutException.class || e.getClass() == SocketException.class){
                             String root = getApplicationContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES).getPath();
                             File file = new File(root,QueryPreferences.getActiveUserId(getApplicationContext()) + ".jpg");

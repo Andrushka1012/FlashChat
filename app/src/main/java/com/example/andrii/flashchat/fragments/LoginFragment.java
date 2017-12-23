@@ -24,7 +24,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.example.andrii.flashchat.Activitys.MessagesListActivity;
+import com.example.andrii.flashchat.Activities.MessagesListActivity;
 import com.example.andrii.flashchat.R;
 import com.example.andrii.flashchat.data.Person;
 import com.example.andrii.flashchat.data.SingletonConnection;
@@ -375,7 +375,6 @@ implements EmailHelper{
             observable.subscribe(new Observer<String>() {
                             @Override
                             public void onCompleted() {
-                                SingletonConnection.getInstance().close();
                                 login();
                             }
 
@@ -385,7 +384,6 @@ implements EmailHelper{
 
                                 showProgress(false);
                                 mEmailView.setError("Error with connecting to server");
-                                SingletonConnection.getInstance().close();
                             }
 
                             @Override

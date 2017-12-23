@@ -32,7 +32,7 @@ public class ActionLoginFromFacebook implements Action{
         Gson gson = new Gson();
         ActionLoginFromFacebook action = new ActionLoginFromFacebook(id, name,birthDate,phoneNumber,email,gender,photoUrl);
         String json = gson.toJson(action);
-        Log.d("qwe","Json loginFromFacebook" + json);
+        Log.d("qwe","Json:" + json);
         out.println(json);
     }
 }

@@ -1,5 +1,6 @@
 package com.example.andrii.flashchat.data;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
@@ -97,14 +98,14 @@ public class SingletonConnection {
     }
 
     public void close(){
-        if (socket != null) new ActionExit().execute(out);
+        if (out != null) new ActionExit().execute(out);
     }
 
     public void closeSocket(){
         try {
-            in.close();
-            out.close();
-            socket.close();
+            if (in != null) in.close();
+            if (out != null) out.close();
+            if (socket != null) socket.close();
         } catch (IOException e) {
             Log.e("qwe","Clothing socket error",e);
         }
@@ -117,6 +118,7 @@ public class SingletonConnection {
         action.execute(out);
     }
 
+    @SuppressLint("StaticFieldLeak")
     private class ConnectToServerItemTask extends AsyncTask<Void, Void,Void> {
 
         @Override

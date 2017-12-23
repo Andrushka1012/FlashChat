@@ -30,7 +30,7 @@ public class ActionSaveProfileChanges implements Action{
         Gson gson = new Gson();
         ActionSaveProfileChanges action = new ActionSaveProfileChanges(id,name,birth,email,number,gender);
         String json = gson.toJson(action);
-        Log.d("qwe","Json register" + json);
+        Log.d("qwe","Json:" + json);
         out.println(json);
     }
 }

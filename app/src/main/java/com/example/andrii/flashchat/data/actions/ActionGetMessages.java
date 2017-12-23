@@ -6,21 +6,21 @@ import com.google.gson.Gson;
 
 import java.io.PrintWriter;
 
-public class ActionLoadImage implements Action{
+public class ActionGetMessages implements Action{
     private String action;
     private String userId;
-    private String imageId;
+    private String recipientId;
 
-    public ActionLoadImage(String userId, String imageId) {
-        action = "action_load_image";
+    public ActionGetMessages(String userId,String recipientId) {
+        action = "action_get_messages";
         this.userId = userId;
-        this.imageId = imageId;
+        this.recipientId = recipientId;
     }
 
     @Override
     public void execute(PrintWriter out) {
         Gson gson = new Gson();
-        ActionLoadImage action = new ActionLoadImage(userId,imageId);
+        ActionGetMessages action = new ActionGetMessages(userId,recipientId);
         String json = gson.toJson(action);
         Log.d("qwe","Json:" + json);
         out.println(json);

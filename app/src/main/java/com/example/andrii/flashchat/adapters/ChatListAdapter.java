@@ -4,37 +4,45 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.net.Uri;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.andrii.flashchat.R;
+import com.example.andrii.flashchat.data.DB.MessageDb;
 import com.example.andrii.flashchat.data.Message;
+import com.example.andrii.flashchat.data.Person;
+import com.example.andrii.flashchat.tools.ImageTools;
+import com.example.andrii.flashchat.tools.QueryPreferences;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.MyRecycleViewHolder>{
+import io.realm.RealmResults;
+
+public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.MyRecycleViewHolder> {
     private static final String TAG = "ChatListAdapter";
     private Context context;
-    private List<Message> mMessages;
+    private List<MessageDb> mMessages;
     private String mMyID;
 
-    public ChatListAdapter(Context con, List<Message> list,String myID){
+    public ChatListAdapter(Context con, RealmResults<MessageDb> list){
         context = con;
         mMessages = list;
-        mMyID = myID;
+        mMyID = QueryPreferences.getActiveUserId(context);
     }
 
     @Override
     public MyRecycleViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-       View v = null;
+       View v;
         switch (viewType){
            case 0:
                v =  LayoutInflater.from(context).inflate(R.layout.mine_first_message_item,parent,false);
@@ -65,42 +73,55 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.MyRecy
         return mMessages.size();
     }
 
-    public void addMessage(Message msg){
-        mMessages.add(msg);
-    }
-
     @Override
     public int getItemViewType(int position) {
         if (position == 0){
-            if (mMessages.get(position).getFrom().getId().equals(mMyID)) return 0;
+            if (mMessages.get(position).getSenderId().equals(mMyID)) return 0;
             else return 1;
         }
-        if (mMessages.get(position).getFrom().getId().equals(mMyID)){
-            if (mMessages.get(position-1).getFrom().getId().equals(mMyID)) return 2;
+        if (mMessages.get(position).getSenderId().equals(mMyID)){
+            if (mMessages.get(position-1).getSenderId().equals(mMyID)) return 2;
 
             else return 0;
         }else {
-            if (mMessages.get(position).getFrom().getId().equals(mMessages.get(position-1).getFrom().getId())) return 3;
+            if (mMessages.get(position).getSenderId().equals(mMessages.get(position-1).getSenderId())) return 3;
             else return 1;
         }
     }
 
-    public class MyRecycleViewHolder extends RecyclerView.ViewHolder{
+    public void addMessage(MessageDb msg){
+        mMessages.add(msg);
+        notifyDataSetChanged();
 
+
+    }
+
+    class MyRecycleViewHolder extends RecyclerView.ViewHolder{
+
+        private FrameLayout mFrameLayout;
         private ImageView mPhoto;
         private TextView mText;
         private ImageView mIvPhotoMessage;
 
-        public MyRecycleViewHolder(View itemView) {
+        MyRecycleViewHolder(View itemView) {
             super(itemView);
 
+            mFrameLayout = itemView.findViewById(R.id.framelayout);
             mPhoto = itemView.findViewById(R.id.iv_photo);
             mText = itemView.findViewById(R.id.tv_text);
             mIvPhotoMessage = itemView.findViewById(R.id.iv_photo_message);
         }
 
 
-        void bindHolder(Message msg) {
+        void bindHolder(MessageDb msg) {
+            Log.d("qwe","length:" + getItemCount() +" myId:" + mMyID +  " sederId:" + msg.getSenderId() + " recipientId:" + msg.getRecipient_id());
+            ImageTools tools = new ImageTools(context);
+            Person p = new Person(msg.getSenderId(),"");
+
+            if ((getItemViewType() == 0 || getItemViewType() == 2) && msg.getRead() == 0) mFrameLayout.setBackground(context.getResources().getDrawable(R.color.grey));
+
+            if (getItemViewType() == 0 || getItemViewType() == 1)  tools.downloadPersonImage(mPhoto,p);
+
             if (msg.getType() == Message.MESSAGE_TEXT_TYPE) {
                 mText.setVisibility(View.VISIBLE);
                 mIvPhotoMessage.setVisibility(View.GONE);
@@ -109,9 +130,10 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.MyRecy
             }else{
                 mText.setVisibility(View.GONE);
                 mIvPhotoMessage.setVisibility(View.VISIBLE);
+                String root = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES).getPath();
+                File file = new File(root,msg.getMsgID() + ".jpg");
 
-                String path = msg.getImagePath();
-                Uri uri = Uri.fromFile(new File(path));
+                Uri uri = Uri.fromFile(file);
             mIvPhotoMessage.post(() -> {
                 try {
                     Bitmap origin = MediaStore.Images.Media.getBitmap(context.getContentResolver(), uri);

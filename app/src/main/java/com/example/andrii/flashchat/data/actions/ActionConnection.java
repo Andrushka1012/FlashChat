@@ -20,7 +20,7 @@ public class ActionConnection implements Action{
         Gson gson = new Gson();
         ActionConnection action = new ActionConnection(id);
         String json = gson.toJson(action);
-        Log.d("qwe","Json login" + json);
+        Log.d("qwe","Json:" + json);
         out.println(json);
     }
 }

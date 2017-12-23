@@ -18,6 +18,11 @@ public class Person implements Parcelable {
     private String photoUrl;
     private Bitmap photoBitmap;
 
+    public Person(String id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
     public Person(String id, String name, String birthDate, String phoneNumber, String email, String gender, String photoUrl) {
         this.id = id;
         this.name = name;

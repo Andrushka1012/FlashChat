@@ -1,4 +1,4 @@
-package com.example.andrii.flashchat.Activitys;
+package com.example.andrii.flashchat.Activities;
 
 
 import android.app.Activity;
@@ -32,7 +32,6 @@ import android.widget.Toast;
 
 import com.example.andrii.flashchat.R;
 import com.example.andrii.flashchat.data.Person;
-import com.example.andrii.flashchat.data.SingletonConnection;
 import com.example.andrii.flashchat.data.actions.ActionSaveProfileChanges;
 import com.example.andrii.flashchat.tools.ImageTools;
 import com.example.andrii.flashchat.tools.QueryAction;
@@ -176,7 +175,6 @@ public class ProfileActivity extends AppCompatActivity{
                     observable.subscribe(new Observer<String>() {
                         @Override
                         public void onCompleted() {
-                            SingletonConnection.getInstance().close();
                             dataChanged = false;
                             itemSave.setEnabled(false);
                         }
@@ -184,8 +182,6 @@ public class ProfileActivity extends AppCompatActivity{
                         @Override
                         public void onError(Throwable e) {
                             Log.e(TAG,"onError",e);
-                            SingletonConnection.getInstance().close();
-
                         }
 
                         @Override

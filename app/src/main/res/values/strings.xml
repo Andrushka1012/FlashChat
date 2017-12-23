@@ -44,5 +44,6 @@
     </string-array>
     <string name="title_activity_search">Search</string>
     <string name="profile">Profile</string>
+    <string name="the_search_has_not_given_any_results">The search has not given any results</string>
 
 </resources>

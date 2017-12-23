@@ -22,7 +22,7 @@ public class ActionGetPersonData implements Action {
         Gson gson = new Gson();
         ActionGetPersonData action = new ActionGetPersonData(userId);
         String json = gson.toJson(action);
-        Log.d("qwe","Json PersonData" + json);
+        Log.d("qwe","Json:" + json);
         out.println(json);
 
     }

@@ -13,7 +13,6 @@ import android.widget.Toast;
 
 import com.example.andrii.flashchat.R;
 import com.example.andrii.flashchat.data.Person;
-import com.example.andrii.flashchat.data.SingletonConnection;
 import com.example.andrii.flashchat.data.actions.Action;
 import com.example.andrii.flashchat.data.actions.ActionLoadImage;
 import com.example.andrii.flashchat.data.actions.ActionSendImage;
@@ -108,12 +107,11 @@ public class ImageTools {
                             .subscribe(new Observer<String>() {
                                 @Override
                                 public void onCompleted() {
-                                    SingletonConnection.getInstance().close();
                                 }
 
                                 @Override
                                 public void onError(Throwable e) {
-                                    SingletonConnection.getInstance().close();
+                                    Toast.makeText(context,"Error with downloading photo from server.",Toast.LENGTH_LONG).show();
                                 }
 
                                 @Override
@@ -170,7 +168,7 @@ public class ImageTools {
                 });
     }
 
-    public void sendImage(File file,String msg_id,String sender_id,String recipirnt_id) {
+    public void sendImage(File file,String msg_id,String sender_id,String recipient_id) {
 
         Observable<Action> actionObservable = Observable.just(file)
                 .subscribeOn(Schedulers.io())
@@ -187,7 +185,7 @@ public class ImageTools {
                     bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
                     byte[] imageBytes = baos.toByteArray();
                     String encodedImage = Base64.encodeToString(imageBytes, Base64.DEFAULT);
-                    ActionSendImage action = new ActionSendImage(msg_id,encodedImage,sender_id,recipirnt_id);
+                    ActionSendImage action = new ActionSendImage(msg_id,encodedImage,sender_id,recipient_id);
 
                     return action;
                 });
@@ -196,13 +194,11 @@ public class ImageTools {
                     @Override
                     public void onCompleted() {
                         Log.d(TAG,"onCompleted");
-                        SingletonConnection.getInstance().close();
                     }
 
                     @Override
                     public void onError(Throwable e) {
                         Log.e(TAG,"onError",e);
-                        SingletonConnection.getInstance().close();
                     }
 
                     @Override

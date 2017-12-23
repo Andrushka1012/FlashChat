@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.andrii.flashchat.Activitys.CorrespondenceListActivity"
+    tools:context="com.example.andrii.flashchat.Activities.CorrespondenceListActivity"
     android:orientation="vertical">
 
     <android.support.v7.widget.RecyclerView

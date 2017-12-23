@@ -19,7 +19,6 @@ import android.widget.Toast;
 import com.example.andrii.flashchat.R;
 import com.example.andrii.flashchat.adapters.SearchListAdapter;
 import com.example.andrii.flashchat.data.SearchItem;
-import com.example.andrii.flashchat.data.SingletonConnection;
 import com.example.andrii.flashchat.data.actions.ActionSearch;
 import com.example.andrii.flashchat.tools.QueryAction;
 import com.example.andrii.flashchat.tools.QueryPreferences;
@@ -43,11 +42,7 @@ public class SearchFragment extends Fragment {
     private RecyclerView mRecyclerView;
     private ProgressBar mProgressBar;
     private TextView tvEmpty;
-    public static SearchFragment newInstance(){
-        SearchFragment fragment = new SearchFragment();
-
-        return fragment;
-    }
+    public static SearchFragment newInstance(){return new SearchFragment();}
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -106,13 +101,12 @@ public class SearchFragment extends Fragment {
                    subscription = observable.subscribe(new Observer<String>() {
                        @Override
                        public void onCompleted() {
-                           SingletonConnection.getInstance().close();
+
                            showProgress(false);
                        }
 
                        @Override
                        public void onError(Throwable e) {
-                           SingletonConnection.getInstance().close();
                            Toast.makeText(getActivity(),"Server error", LENGTH_LONG).show();
                            showProgress(false);
                        }

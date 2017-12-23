@@ -17,19 +17,13 @@ public class ActionLogin implements Action {
         this.email = email;
         this.password = password;
     }
-    public ActionLogin(String action,String email,String password){
-        this.action = action;
-        this.email = email;
-        this.password = password;
-
-    }
 
     @Override
     public void execute(PrintWriter out) {
         Gson gson = new Gson();
-        ActionLogin actionLogin = new ActionLogin(action,email,password);
+        ActionLogin actionLogin = new ActionLogin(email,password);
         String json = gson.toJson(actionLogin);
-        Log.d("qwe","Json login" + json);
+        Log.d("qwe","Json:" + json);
         out.println(json);
 
 

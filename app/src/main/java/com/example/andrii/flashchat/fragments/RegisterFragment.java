@@ -20,7 +20,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.andrii.flashchat.R;
-import com.example.andrii.flashchat.data.SingletonConnection;
 import com.example.andrii.flashchat.data.actions.ActionRegister;
 import com.example.andrii.flashchat.tools.QueryAction;
 
@@ -89,7 +88,6 @@ public class RegisterFragment extends Fragment {
                             @SuppressLint("ShowToast")
                             @Override
                             public void onCompleted() {
-                                SingletonConnection.getInstance().close();
                                 showProgress(false);
                             }
 
@@ -97,7 +95,6 @@ public class RegisterFragment extends Fragment {
                             @Override
                             public void onError(Throwable e) {
                                 Toast.makeText(getActivity(),"Error with connecting to server",Toast.LENGTH_LONG).show();
-                                SingletonConnection.getInstance().close();
                                 showProgress(false);
                             }
 
