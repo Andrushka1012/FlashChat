@@ -16,8 +16,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.andrii.flashchat.R;
-import com.example.andrii.flashchat.data.DB.MessageDb;
 import com.example.andrii.flashchat.data.Message;
+import com.example.andrii.flashchat.data.MessageItem;
 import com.example.andrii.flashchat.data.Person;
 import com.example.andrii.flashchat.tools.ImageTools;
 import com.example.andrii.flashchat.tools.QueryPreferences;
@@ -26,15 +26,13 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import io.realm.RealmResults;
-
 public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.MyRecycleViewHolder> {
     private static final String TAG = "ChatListAdapter";
     private Context context;
-    private List<MessageDb> mMessages;
+    private List<MessageItem> mMessages;
     private String mMyID;
 
-    public ChatListAdapter(Context con, RealmResults<MessageDb> list){
+    public ChatListAdapter(Context con, List<MessageItem> list){
         context = con;
         mMessages = list;
         mMyID = QueryPreferences.getActiveUserId(context);
@@ -89,7 +87,7 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.MyRecy
         }
     }
 
-    public void addMessage(MessageDb msg){
+    public void addMessage(MessageItem msg){
         mMessages.add(msg);
         notifyDataSetChanged();
 
@@ -113,7 +111,7 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.MyRecy
         }
 
 
-        void bindHolder(MessageDb msg) {
+        void bindHolder(MessageItem msg) {
             Log.d("qwe","length:" + getItemCount() +" myId:" + mMyID +  " sederId:" + msg.getSenderId() + " recipientId:" + msg.getRecipient_id());
             ImageTools tools = new ImageTools(context);
             Person p = new Person(msg.getSenderId(),"");

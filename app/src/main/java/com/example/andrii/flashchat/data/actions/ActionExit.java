@@ -15,9 +15,10 @@ public class ActionExit implements Action {
     public ActionExit(){
         this.action = "exit";
     }
-    public ActionExit(String action){
+    private ActionExit(String action){
         this.action = action;
     }
+
 
     @Override
     public void execute(PrintWriter out) {
@@ -37,6 +38,7 @@ public class ActionExit implements Action {
             @Override
             protected void onPostExecute(Void aVoid) {
                 SingletonConnection.getInstance().closeSocket();
+
             }
         };
         task.execute();

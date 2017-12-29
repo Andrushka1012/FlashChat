@@ -43,7 +43,7 @@
         android:layout_height="60dp"
         android:layout_width="60dp"
         android:layout_marginRight="5dp"
-        android:src="@drawable/andruszka_photo"
+        android:src="@drawable/ic_action_person"
         />
 
 

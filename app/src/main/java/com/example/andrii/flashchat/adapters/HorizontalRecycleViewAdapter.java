@@ -9,8 +9,10 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.andrii.flashchat.Activities.CorrespondenceListActivity;
 import com.example.andrii.flashchat.R;
 import com.example.andrii.flashchat.data.Person;
+import com.example.andrii.flashchat.tools.ImageTools;
 
 import java.util.List;
 
@@ -48,9 +50,15 @@ public class HorizontalRecycleViewAdapter extends RecyclerView.Adapter<Horizonta
             super(itemView);
             mIvPhoto = itemView.findViewById(R.id.iv_photo);
             mName = itemView.findViewById(R.id.tv_name);
+
+            itemView.setOnClickListener(v -> {
+                Person p = mPersons.get(getAdapterPosition());
+                context.startActivity(CorrespondenceListActivity.newIntent(context,p));
+            });
         }
         public void bindHolder(Person person) {
-            //mIvPhoto.setImageDrawable(new);
+            ImageTools tools = new ImageTools(context);
+            tools.downloadPersonImage(mIvPhoto,person);
             String name;
             if (person.getName().length() >=7) name = person.getName().substring(0,3) + "..";
             else name = person.getName();

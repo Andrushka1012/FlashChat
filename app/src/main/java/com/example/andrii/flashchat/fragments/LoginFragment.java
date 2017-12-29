@@ -24,7 +24,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.example.andrii.flashchat.Activities.MessagesListActivity;
+import com.example.andrii.flashchat.Activities.LoadingActivity;
 import com.example.andrii.flashchat.R;
 import com.example.andrii.flashchat.data.Person;
 import com.example.andrii.flashchat.data.SingletonConnection;
@@ -120,7 +120,9 @@ implements EmailHelper{
             public void onSuccess(LoginResult loginResult) {
                 Log.d(TAG,"onSuccess");
                         showProgress(true);
-                        Observable<String> graphConnectionObservable = Observable.just(loginResult).observeOn(Schedulers.io())
+
+
+                Observable<String> graphConnectionObservable = Observable.just(loginResult).observeOn(Schedulers.io())
                         .subscribeOn(Schedulers.io())
                         .map(loginResult1 -> {
                             AccessToken token = loginResult.getAccessToken();
@@ -182,9 +184,13 @@ implements EmailHelper{
                         .map(person -> {
                             ActionLoginFromFacebook action =
                                     new ActionLoginFromFacebook(person.getId(),person.getName(),person.getBirthDate(),person.getPhoneNumber(),person.getEmail(),person.getGender(),person.getPhotoUrl());
-                           SingletonConnection.getInstance().connect(getActivity());
-                           SingletonConnection.getInstance().executeAction(action);
-
+                            try {
+                                SingletonConnection.getInstance().connect();
+                            } catch (IOException e) {
+                                Log.e("qwe","Connection error",e);
+                                return "error";
+                            }
+                            SingletonConnection.getInstance().executeAction(action);
                             BufferedReader in = SingletonConnection.getInstance().getReader();
                             Log.d(TAG,"in = null:" + String.valueOf(in == null));
                             String answer = "";
@@ -209,7 +215,6 @@ implements EmailHelper{
 
                                     @Override
                                     public void onError(Throwable e) {
-                                        Log.d(TAG,"facebook onError");
                                         Log.e(TAG,"Facebook error",e);
                                         SingletonConnection.getInstance().close();
                                         showProgress(false);
@@ -276,8 +281,7 @@ implements EmailHelper{
 
     private void login(){
         if (QueryPreferences.getActiveUserId(getActivity()) != null){
-            String userId = QueryPreferences.getActiveUserId(getActivity());
-            Intent intent = MessagesListActivity.newIntent(getActivity(),userId);
+            Intent intent = LoadingActivity.newIntent(getActivity());
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             getActivity().startActivity(intent);
             getActivity().finish();
@@ -371,7 +375,7 @@ implements EmailHelper{
             ActionLogin actionLogin = new ActionLogin(email,password);
 
 
-            Observable<String> observable = QueryAction.executeAnswerQuery(getActivity(),actionLogin,TAG);
+            Observable<String> observable = QueryAction.executeAnswerQuery(actionLogin);
             observable.subscribe(new Observer<String>() {
                             @Override
                             public void onCompleted() {
@@ -411,18 +415,6 @@ implements EmailHelper{
         return password.length() >= 8 && password.length() <= 16;
     }
 
-    @Deprecated
-    public String read(){
-        BufferedReader in = SingletonConnection.getInstance().getReader();
-        Log.d(TAG,"in = null:" + String.valueOf(in == null));
-        String answer = "";
-        try {
-            answer = in.readLine();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return answer;
-    }
 
     /**
      * Shows the progress UI and hides the login form.

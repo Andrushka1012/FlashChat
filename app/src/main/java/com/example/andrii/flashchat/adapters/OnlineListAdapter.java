@@ -11,6 +11,7 @@ import android.widget.TextView;
 import com.example.andrii.flashchat.Activities.CorrespondenceListActivity;
 import com.example.andrii.flashchat.R;
 import com.example.andrii.flashchat.data.Person;
+import com.example.andrii.flashchat.tools.ImageTools;
 
 import java.util.List;
 
@@ -64,7 +65,8 @@ public class OnlineListAdapter  extends RecyclerView.Adapter<OnlineListAdapter.M
 
         public void bindHolder(Person person) {
             mName.setText(person.getName());
-            //loadPhoto
+            ImageTools tools = new ImageTools(context);
+            tools.downloadPersonImage(mPhoto,person);
         }
     }
 

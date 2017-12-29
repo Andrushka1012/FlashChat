@@ -3,6 +3,7 @@ package com.example.andrii.flashchat.tools;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -103,7 +104,7 @@ public class ImageTools {
                 }else {
                     Toast.makeText(context,"Downloading from server",Toast.LENGTH_LONG).show();
                     ActionLoadImage actionLoadImage = new ActionLoadImage(p.getId(),p.getId());
-                    QueryAction.executeAnswerQuery(context,actionLoadImage,TAG)
+                    QueryAction.executeAnswerQuery(actionLoadImage)
                             .subscribe(new Observer<String>() {
                                 @Override
                                 public void onCompleted() {
@@ -132,11 +133,18 @@ public class ImageTools {
                                         byte[] imageBytes = Base64.decode(endcodedString,Base64.DEFAULT);
                                         Bitmap image = BitmapFactory.decodeByteArray(imageBytes,0,imageBytes.length);
 
-                                        imageView.setImageBitmap(image);
+
+                                        Matrix matrix = new Matrix();
+                                        matrix.postRotate(-90);
+
+                                        Bitmap scaledBitmap = Bitmap.createScaledBitmap(image,image.getWidth(),image.getHeight(),true);
+
+                                        Bitmap rotated= Bitmap.createBitmap(scaledBitmap , 0, 0, scaledBitmap.getWidth(), scaledBitmap.getHeight(), matrix, true);
+
 
                                         String root = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES).getPath();
                                         File file = new File(root,p.getId() + ".jpg");
-                                        saveImage(file,image);
+                                        saveImage(file,rotated);
                                     }
                                 }
                             });
@@ -189,7 +197,7 @@ public class ImageTools {
 
                     return action;
                 });
-        QueryAction.executeAnswerQuery(context,actionObservable,TAG)
+        QueryAction.executeAnswerQuery(actionObservable)
                 .subscribe(new Observer<String>() {
                     @Override
                     public void onCompleted() {

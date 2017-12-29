@@ -1,18 +1,16 @@
-package com.example.andrii.flashchat.data.DB;
+package com.example.andrii.flashchat.data;
 
-import com.example.andrii.flashchat.data.Message;
-import com.example.andrii.flashchat.data.Person;
 
+import com.example.andrii.flashchat.data.DB.MessageDb;
+
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
-import io.realm.RealmObject;
-import io.realm.annotations.PrimaryKey;
-import io.realm.annotations.Required;
+import io.realm.RealmResults;
 
-public class MessageDb extends RealmObject{
+public class MessageItem {
 
-    @PrimaryKey
-    @Required
     private String msgID;
     private String text;
     private String senderId;
@@ -21,11 +19,17 @@ public class MessageDb extends RealmObject{
     private int read;
     private int type;
 
-    public MessageDb(){
-        super();
+    public MessageItem(String msgID, String text, String senderId, String recipient_id, Date date, int read, int type) {
+        this.msgID = msgID;
+        this.text = text;
+        this.senderId = senderId;
+        this.recipient_id = recipient_id;
+        this.date = date;
+        this.read = read;
+        this.type = type;
     }
 
-    public MessageDb(Message msg, Person recipient) {
+    public MessageItem(Message msg,Person recipient){
         msgID = msg.getID().toString();
         text = msg.getText();
         senderId = (msg.getFrom().getId());
@@ -33,6 +37,17 @@ public class MessageDb extends RealmObject{
         date = new Date();
         read = 0;
         type = msg.getType();
+    }
+
+    public MessageItem(MessageDb msg){
+        msgID = msg.getMsgID();
+        text = msg.getText();
+        senderId = msg.getSenderId();
+        recipient_id = msg.getRecipient_id();
+        date = msg.getDate();
+        read = msg.getRead();
+        type = msg.getType();
+
     }
 
     public String getMsgID() {
@@ -90,4 +105,15 @@ public class MessageDb extends RealmObject{
     public void setType(int type) {
         this.type = type;
     }
+
+    public static List<MessageItem>convertToList(RealmResults<MessageDb> result){
+        List<MessageItem> list = new ArrayList<>();
+        for (MessageDb msg:result){
+            MessageItem item = new MessageItem(msg);
+            list.add(item);
+        }
+        return list;
+    }
+
+
 }

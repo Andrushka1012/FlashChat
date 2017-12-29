@@ -16,7 +16,6 @@ import com.example.andrii.flashchat.Activities.ProfileActivity;
 import com.example.andrii.flashchat.R;
 import com.example.andrii.flashchat.data.Person;
 import com.example.andrii.flashchat.data.SearchItem;
-import com.example.andrii.flashchat.data.SingletonConnection;
 import com.example.andrii.flashchat.data.actions.ActionGetPersonData;
 import com.example.andrii.flashchat.tools.ImageTools;
 import com.example.andrii.flashchat.tools.QueryAction;
@@ -83,27 +82,26 @@ public class SearchListAdapter extends RecyclerView.Adapter<SearchListAdapter.My
                         case R.id.action_profile:
                             final Person[] person = new Person[1];
                             ActionGetPersonData action = new ActionGetPersonData(mItems.get(getAdapterPosition()).getId());
-                            Observable<String> observable = QueryAction.executeAnswerQuery(context,action, "qwe");
+                            Observable<String> observable = QueryAction.executeAnswerQuery(action);
                             observable.subscribe(new Observer<String>() {
                                 @Override
                                 public void onCompleted() {
-                                    SingletonConnection.getInstance().close();
                                     Intent intent = ProfileActivity.newIntent(context, person[0]);
                                     context.startActivity(intent);
                                 }
 
                                 @Override
                                 public void onError(Throwable e) {
-                                    SingletonConnection.getInstance().close();
                                 }
 
                                 @Override
                                 public void onNext(String s) {
-                                    if (s.equals("not found")) {
+                                    if (s.equals("error")) {
                                         Toast.makeText(context, "Server error", LENGTH_LONG).show();
                                     } else {
                                         Gson gson = new Gson();
                                         person[0] = gson.fromJson(s, Person.class);
+
                                     }
 
                                 }

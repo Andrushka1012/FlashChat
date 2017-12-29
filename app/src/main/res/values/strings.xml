@@ -45,5 +45,8 @@
     <string name="title_activity_search">Search</string>
     <string name="profile">Profile</string>
     <string name="the_search_has_not_given_any_results">The search has not given any results</string>
+    <string name="stop_polling">Stop polling</string>
+    <string name="polling_on">Start polling</string>
+
 
 </resources>

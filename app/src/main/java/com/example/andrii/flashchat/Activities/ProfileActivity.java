@@ -171,7 +171,7 @@ public class ProfileActivity extends AppCompatActivity{
                             etName.getText().toString(),etDate.getText().toString(),etEmail.getText().toString(),
                             etNumber.getText().toString(),genderSpinner.getSelectedItem().toString());
 
-                    Observable<String> observable = QueryAction.executeAnswerQuery(this,action,TAG);
+                    Observable<String> observable = QueryAction.executeAnswerQuery(action);
                     observable.subscribe(new Observer<String>() {
                         @Override
                         public void onCompleted() {

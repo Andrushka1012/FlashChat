@@ -83,7 +83,7 @@ public class RegisterFragment extends Fragment {
 
                 ActionRegister action = new ActionRegister(name,date,email,number,password,gender);
 
-                Observable<String> observable = QueryAction.executeAnswerQuery(getActivity(),action,TAG);
+                Observable<String> observable = QueryAction.executeAnswerQuery(action);
                         observable.subscribe(new Observer<String>() {
                             @SuppressLint("ShowToast")
                             @Override
@@ -102,6 +102,7 @@ public class RegisterFragment extends Fragment {
                             public void onNext(String answer) {
                                 Log.d(TAG,"OnNext s = " + answer);
                                 if (answer.equals("invalid")) Toast.makeText(getActivity(),"Invalid data",Toast.LENGTH_LONG).show();
+                                else if (answer.equals("error")) Toast.makeText(getActivity(),"Server error",Toast.LENGTH_LONG).show();
                                 else{
                                     Toast.makeText(getActivity(),"Your account was created",Toast.LENGTH_LONG).show();
                                     getActivity().onBackPressed();

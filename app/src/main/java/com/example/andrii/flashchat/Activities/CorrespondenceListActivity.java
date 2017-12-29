@@ -1,6 +1,5 @@
 package com.example.andrii.flashchat.Activities;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -23,6 +22,7 @@ import com.example.andrii.flashchat.Views.LinerLayoutWithMaxHeight;
 import com.example.andrii.flashchat.adapters.ChatListAdapter;
 import com.example.andrii.flashchat.data.DB.MessageDb;
 import com.example.andrii.flashchat.data.Message;
+import com.example.andrii.flashchat.data.MessageItem;
 import com.example.andrii.flashchat.data.Person;
 import com.example.andrii.flashchat.data.SingletonConnection;
 import com.example.andrii.flashchat.data.actions.ActionGetMessages;
@@ -55,7 +55,7 @@ public class CorrespondenceListActivity extends AppCompatActivity {
     private static final int MY_ACTIVITY_RESULT_REQUEST_CODE = 103;
     private static final int PICK_IMAGE_REQUEST_CODE = 1;
 
-    private static final String TAG = "CorrespondenceListActivity";
+    private static final String TAG = "CorrListAct";
     public static final String TITLE_EXTRA = "TITLE_EXTRA";
     public static final String PERSON_EXTRA = "PERSON_EXTRA";
 
@@ -94,7 +94,7 @@ public class CorrespondenceListActivity extends AppCompatActivity {
         getSupportActionBar().setTitle(subject.getName());
 
         mRecyclerView = findViewById(R.id.recycler_view);
-
+        setupRecyclerView();
 
         LinerLayoutWithMaxHeight mLlSend = findViewById(R.id.ll_write);
         mLlSend.setMaxHeight(158);
@@ -110,29 +110,31 @@ public class CorrespondenceListActivity extends AppCompatActivity {
 
             ActionSendMessage action = new ActionSendMessage(
                     msg.getID().toString(),msg.getText(),currentUser.getId(),subject.getId(),Message.MESSAGE_TEXT_TYPE);
-            QueryAction.executeAnswerQuery(this,action,TAG)
-                    .doOnUnsubscribe(()->{
-                        SingletonConnection.getInstance().close();
-                        updateDataBase();
-                    })
+            QueryAction.executeAnswerQuery(action)
+                    .doOnUnsubscribe(()->{})
                     .subscribe(new Observer<String>() {
                         @Override
                         public void onCompleted() {
+                            SingletonConnection.getInstance().close();
+                            updateDataBase();
                         }
 
                         @Override
                         public void onError(Throwable e) {
+                            Log.e(TAG,"onError:",e);
                             Toast.makeText(CorrespondenceListActivity.this,"Message was not sent.",LENGTH_LONG).show();
                         }
 
                         @Override
                         public void onNext(String s) {
-                            if (s.equals("error")) Toast.makeText(CorrespondenceListActivity.this,"Message was not sent.",LENGTH_LONG).show();
+                            if (s.equals("error")){
+                                onError(new Throwable(s));
+                            }
 
                         }
                     });
-            MessageDb msgDb = new MessageDb(msg,subject);
-            ((ChatListAdapter)mRecyclerView.getAdapter()).addMessage(msgDb);
+            MessageItem msgItem = new MessageItem(msg,subject);
+            ((ChatListAdapter)mRecyclerView.getAdapter()).addMessage(msgItem);
             mRecyclerView.scrollToPosition(mRecyclerView.getAdapter().getItemCount() - 1);
 
             mEtMessage.setText("");
@@ -150,6 +152,8 @@ public class CorrespondenceListActivity extends AppCompatActivity {
             startActivityForResult(intent, PICK_IMAGE_REQUEST_CODE);
             return true;
         });
+
+
     }
 
     @Override
@@ -162,8 +166,8 @@ public class CorrespondenceListActivity extends AppCompatActivity {
                 msg.setID(mId);
                 mId = null;
 
-                MessageDb msgDb = new MessageDb(msg,subject);
-                ((ChatListAdapter)mRecyclerView.getAdapter()).addMessage(msgDb);
+                MessageItem msgItem = new MessageItem(msg,subject);
+                ((ChatListAdapter)mRecyclerView.getAdapter()).addMessage(msgItem);
                 mRecyclerView.scrollToPosition(mRecyclerView.getAdapter().getItemCount() - 1);
 
                 ImageTools tools = new ImageTools(this);
@@ -171,7 +175,7 @@ public class CorrespondenceListActivity extends AppCompatActivity {
 
                 ActionSendMessage action = new ActionSendMessage
                         (msg.getID().toString(),"image message",currentUser.getId(),subject.getId(),Message.MESSAGE_IMAGE_TYPE);
-                QueryAction.executeAnswerQuery(this,action,TAG)
+                QueryAction.executeAnswerQuery(action)
                         .subscribe(new Observer<String>() {
                             @Override
                             public void onCompleted() {
@@ -221,8 +225,8 @@ public class CorrespondenceListActivity extends AppCompatActivity {
             String filePath = file.getPath();
             msg.setImagePath(filePath);
 
-            MessageDb msgDb = new MessageDb(msg,subject);
-            ((ChatListAdapter)mRecyclerView.getAdapter()).addMessage(msgDb);
+            MessageItem msgItem = new MessageItem(msg,subject);
+            ((ChatListAdapter)mRecyclerView.getAdapter()).addMessage(msgItem);
             mRecyclerView.scrollToPosition(mRecyclerView.getAdapter().getItemCount() - 1);
 
             ImageTools tools = new ImageTools(this);
@@ -230,7 +234,7 @@ public class CorrespondenceListActivity extends AppCompatActivity {
 
             ActionSendMessage action = new ActionSendMessage
                     (msg.getID().toString(),"image message",currentUser.getId(),subject.getId(),Message.MESSAGE_IMAGE_TYPE);
-            QueryAction.executeAnswerQuery(this,action,TAG)
+            QueryAction.executeAnswerQuery(action)
                     .subscribe(new Observer<String>() {
                         @Override
                         public void onCompleted() {
@@ -262,38 +266,19 @@ public class CorrespondenceListActivity extends AppCompatActivity {
 
     private void updateDataBase(){
         ActionGetMessages action = new ActionGetMessages(currentUser.getId(),subject.getId());
-        QueryAction.executeAnswerQuery(this,action,TAG)
+        QueryAction.executeAnswerQuery(action)
                 .timeout(10, TimeUnit.SECONDS, Schedulers.io())
                 .subscribe(new Observer<String>() {
                     @Override
                     public void onCompleted() {
-                        Toast.makeText(CorrespondenceListActivity.this,"OnComplited",LENGTH_LONG).show();
-
-                        RealmResults<MessageDb> results = realm.where(MessageDb.class)
-                                .equalTo("recipient_id",subject.getId())
-                                .and()
-                                .equalTo("senderId",currentUser.getId())
-                                .or()
-                                .equalTo("recipient_id",currentUser.getId())
-                                .and()
-                                .equalTo("senderId",subject.getId())
-                                .findAll();
-
-
-                        results.sort("date");
-                        mRecyclerView.setAdapter(new ChatListAdapter(
-                                CorrespondenceListActivity.this,results));
-                        mRecyclerView.getAdapter().notifyDataSetChanged();
-                        mRecyclerView.scrollToPosition(mRecyclerView.getAdapter().getItemCount() - 1);
-
                     }
 
                     @Override
                     public void onError(Throwable e) {
+                        Log.e("CorrespondenceActivity","OnError",e);
                         Toast.makeText(CorrespondenceListActivity.this,"Messages was not received.",LENGTH_LONG).show();
                     }
 
-                    @SuppressLint("LongLogTag")
                     @Override
                     public void onNext(String s) {
                         Log.d(TAG,s);
@@ -301,61 +286,61 @@ public class CorrespondenceListActivity extends AppCompatActivity {
                            Gson gson = new Gson();
                             Type listType = new TypeToken<List<MessageDb>>(){}.getType();
                             List<MessageDb> list = gson.fromJson(s,listType);
-                            //realm.beginTransaction();
-                            for (MessageDb m:list){
-                                Realm realmQuery = null;
-                                try {
-                                    realmQuery = Realm.getDefaultInstance();
-                                    realmQuery.executeTransaction(r -> {
-                                        MessageDb msgDb = r.where(MessageDb.class)
-                                                .equalTo("msgID", m.getMsgID())
-                                                .findFirst();
 
-                                        Log.d("qwe", String.valueOf(msgDb == null));
+                            realm.executeTransactionAsync(
+                                    r -> {
+                                        //transaction
+                                        for (MessageDb m:list){
+                                            r.insertOrUpdate(m);
 
-                                        r.insertOrUpdate(m);
+                                            if (m.getType() == 1){
+                                                String root = CorrespondenceListActivity.this
+                                                        .getExternalFilesDir(Environment.DIRECTORY_PICTURES).getPath();
+                                                File file = new File(root,m.getMsgID() + ".jpg");
+                                                if (!file.exists()) {
+                                                    String encodedString = m.getText();
+                                                    Log.d(TAG,"encoded string:" + encodedString);
 
-                                        /* MessageDb msgDb = r.where(MessageDb.class)
-                                                .equalTo("msgID", m.getMsgID())
-                                                .findFirst();
+                                                    byte[] imageBytes = Base64.decode(encodedString,Base64.DEFAULT);
+                                                    Bitmap image = BitmapFactory.decodeByteArray(imageBytes,0,imageBytes.length);
 
-                                       if (msgDb != null) {
-                                            msgDb.setRead(m.getRead());
-                                        } else {
-                                            msgDb = r.createObject(MessageDb.class, m.getMsgID());
-                                            //msgDb.setMsgID(m.getMsgID());
-                                            msgDb.setText(m.getText());
-                                            msgDb.setSenderId(m.getSenderId());
-                                            msgDb.setRecipient_id(m.getRecipient_id());
-                                            msgDb.setDate(m.getDate());
-                                            msgDb.setRead(m.getRead());
-                                            msgDb.setType(m.getType());
-                                        }*/
-                                    });
+                                                    ImageTools tools = new ImageTools(CorrespondenceListActivity.this);
+                                                    tools.saveImage(file, image);
+                                                }
+                                            }
+                                        }
+                                    },
+                                    () -> {
+                                        //onSuccess
+                                        Toast.makeText(CorrespondenceListActivity.this,"onCompleted",LENGTH_LONG).show();
 
-                                }finally {
-                                    if (realmQuery != null) realmQuery.close();
-                                }
+                                        RealmResults<MessageDb> results = realm.where(MessageDb.class)
+                                                .equalTo("recipient_id",subject.getId())
+                                                .and()
+                                                .equalTo("senderId",currentUser.getId())
+                                                .or()
+                                                .equalTo("recipient_id",currentUser.getId())
+                                                .and()
+                                                .equalTo("senderId",subject.getId())
+                                                .findAll();
 
-                                if (m.getType() == 1){
-                                    String root = CorrespondenceListActivity.this
-                                            .getExternalFilesDir(Environment.DIRECTORY_PICTURES).getPath();
-                                    File file = new File(root,m.getMsgID() + ".jpg");
-                                    if (!file.exists()) {
-                                        String encodedString = m.getText();
-                                        Log.d(TAG,"encoded string:" + encodedString);
 
-                                        byte[] imageBytes = Base64.decode(encodedString,Base64.DEFAULT);
-                                        Bitmap image = BitmapFactory.decodeByteArray(imageBytes,0,imageBytes.length);
-
-                                        ImageTools tools = new ImageTools(CorrespondenceListActivity.this);
-                                        tools.saveImage(file, image);
-                                    }
-                                }
-                            }
-                            //realm.commitTransaction();
-                        } else
+                                        results.sort("date");
+                                        List<MessageItem> itemsList = MessageItem.convertToList(results);
+                                        mRecyclerView.setAdapter(new ChatListAdapter(CorrespondenceListActivity.this,itemsList));
+                                        mRecyclerView.getAdapter().notifyDataSetChanged();
+                                        //mRecyclerView.scrollToPosition(mRecyclerView.getAdapter().getItemCount() - 1);
+                                    },
+                                    error -> {
+                                        //onError
+                                        Log.e(TAG,"Transaction error");
+                                        onError(error);
+                            });
+                        } else{
                             Toast.makeText(CorrespondenceListActivity.this,"Messages was not received.",LENGTH_LONG).show();
+                            onError(new Throwable(s));
+                        }
+
                     }
                 });
 
@@ -363,19 +348,18 @@ public class CorrespondenceListActivity extends AppCompatActivity {
 
     private void setUserData() {
         ActionGetPersonData actionGetPersonData = new ActionGetPersonData(QueryPreferences.getActiveUserId(this));
-        Observable<String> observable = QueryAction.executeAnswerQuery(this,actionGetPersonData,TAG);
-        observable
-                .doOnUnsubscribe(()->{
-                    SingletonConnection.getInstance().close();
-                    setupRecyclerView();})
+        Observable<String> observable = QueryAction.executeAnswerQuery(actionGetPersonData);
+        observable.doOnUnsubscribe(() ->{})
                 .subscribe(new Observer<String>() {
             @Override
             public void onCompleted() {
-
+                SingletonConnection.getInstance().close();
+                updateDataBase();
             }
 
             @Override
             public void onError(Throwable e) {
+                SingletonConnection.getInstance().close();
                 Toast.makeText(getApplicationContext(),"Server error", LENGTH_LONG).show();
                 currentUser = new Person(QueryPreferences.getActiveUserId(CorrespondenceListActivity.this),"");
             }
@@ -395,17 +379,17 @@ public class CorrespondenceListActivity extends AppCompatActivity {
         RealmResults<MessageDb> results = realm.where(MessageDb.class)
                 .equalTo("recipient_id",subject.getId())
                 .and()
-                .equalTo("senderId",currentUser.getId())
+                .equalTo("senderId",QueryPreferences.getActiveUserId(this))
                 .or()
-                .equalTo("recipient_id",currentUser.getId())
+                .equalTo("recipient_id",QueryPreferences.getActiveUserId(this))
                 .and()
                 .equalTo("senderId",subject.getId())
                 .findAll();
 
         Log.d("qwe","resultSize:" + results.size());
         results.sort("date");
-        mRecyclerView.setAdapter(new ChatListAdapter(
-                this,results));
+        List<MessageItem> itemsList = MessageItem.convertToList(results);
+        mRecyclerView.setAdapter(new ChatListAdapter(this,itemsList));
         mRecyclerView.getAdapter().notifyDataSetChanged();
         mRecyclerView.scrollToPosition(mRecyclerView.getAdapter().getItemCount() - 1);
 

@@ -97,7 +97,7 @@ public class SearchFragment extends Fragment {
                     }
 
                     ActionSearch actionSearch = new ActionSearch(s, QueryPreferences.getActiveUserId(getActivity()));
-                   Observable<String> observable = QueryAction.executeAnswerQuery(getActivity(),actionSearch,TAG);
+                   Observable<String> observable = QueryAction.executeAnswerQuery(actionSearch);
                    subscription = observable.subscribe(new Observer<String>() {
                        @Override
                        public void onCompleted() {

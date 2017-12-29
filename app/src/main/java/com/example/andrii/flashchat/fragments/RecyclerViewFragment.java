@@ -6,6 +6,7 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +17,7 @@ import com.example.andrii.flashchat.adapters.GroupsListAdapter;
 import com.example.andrii.flashchat.adapters.MessagesListAdapter;
 import com.example.andrii.flashchat.adapters.OnlineListAdapter;
 import com.example.andrii.flashchat.data.DB.MessageDb;
+import com.example.andrii.flashchat.data.MessagePersonItem;
 import com.example.andrii.flashchat.data.Person;
 import com.example.andrii.flashchat.data.TestData;
 import com.example.andrii.flashchat.data.actions.ActionGetOnlinePersonData;
@@ -25,8 +27,12 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
 
+import io.realm.Realm;
+import io.realm.RealmResults;
+import io.realm.Sort;
 import rx.Observer;
 
 public class RecyclerViewFragment extends Fragment{
@@ -37,8 +43,13 @@ public class RecyclerViewFragment extends Fragment{
     private static final String FRAGMENT_TYPE_ARGUMENT = "FRAGMENT_TYPE_ARGUMENT";
     private int type;
 
-    private RecyclerView mRecyclerView;
-    private TextView tvinformation;
+    private Realm mRealm;
+    private static List<Person> onlineList = new ArrayList<>();
+    private RecyclerView mRecyclerViewMessages;
+    private static RecyclerView mRecyclerViewOnline;
+    private RecyclerView mRecyclerViewGroup;
+    private TextView tvInformation;
+
 
     public static RecyclerViewFragment newInstance(int type){
         RecyclerViewFragment fragment = new RecyclerViewFragment();
@@ -54,15 +65,16 @@ public class RecyclerViewFragment extends Fragment{
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
         setHasOptionsMenu(true);
-
+        mRealm = Realm.getDefaultInstance();
         type = getArguments().getInt(FRAGMENT_TYPE_ARGUMENT);
+
     }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_recycler_view,container,false);
-        tvinformation = v.findViewById(R.id.tvInformation);
+        tvInformation = v.findViewById(R.id.tvInformation);
         initializeRecyclerView(v);
 
         return v;
@@ -71,19 +83,34 @@ public class RecyclerViewFragment extends Fragment{
     @Override
     public void onDestroy() {
         super.onDestroy();
+        mRealm.close();
     }
 
     private void initializeRecyclerView(View v){
-        mRecyclerView = v.findViewById(R.id.recycler_view);
-
         switch (type){
             case FRAGMENT_TYPE_MESSAGES:
-                mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-                mRecyclerView.setAdapter(new MessagesListAdapter(getActivity(),TestData.getPersons(10)));
+                mRecyclerViewMessages = v.findViewById(R.id.recycler_view);
+                mRecyclerViewMessages.setLayoutManager(new LinearLayoutManager(getActivity()));
+                RealmResults<MessageDb>resultsSender = mRealm.where(MessageDb.class)
+                        .distinctValues("senderId")
+                        .sort("date", Sort.DESCENDING)
+                        .findAll();
+                RealmResults<MessageDb>resultsRecipient = mRealm.where(MessageDb.class)
+                        .distinctValues("recipient_id")
+                        .sort("date", Sort.DESCENDING)
+                        .findAll();
+
+                Log.d(TAG,"ResultSenderSize:" + resultsSender.size());
+                Log.d(TAG,"ResultRecipientSize:" + resultsRecipient.size());
+                List<MessagePersonItem> list = MessagePersonItem.convertToList(resultsSender,resultsRecipient,QueryPreferences.getActiveUserId(getActivity()));
+                Log.d(TAG,"ResultListSize:" + list.size());
+                mRecyclerViewMessages.setAdapter(new MessagesListAdapter(getActivity(),list,onlineList));
+
                 break;
             case FRAGMENT_TYPE_ONLINE:
+                mRecyclerViewOnline = v.findViewById(R.id.recycler_view);
                 ActionGetOnlinePersonData action = new ActionGetOnlinePersonData(QueryPreferences.getActiveUserId(getActivity()));
-                QueryAction.executeAnswerQuery(getActivity(),action,TAG)
+                QueryAction.executeAnswerQuery(action)
                         .subscribe(new Observer<String>() {
                             @Override
                             public void onCompleted() {
@@ -92,23 +119,30 @@ public class RecyclerViewFragment extends Fragment{
 
                             @Override
                             public void onError(Throwable e) {
-                                tvinformation.setVisibility(View.VISIBLE);
-                                tvinformation.setText("Error with getting information about online users =(");
+                                Log.e(TAG,"OnError:",e);
+                                tvInformation.setVisibility(View.VISIBLE);
+                                tvInformation.setText("Error with getting information about online users =(");
+
                             }
 
                             @Override
                             public void onNext(String s) {
-                                if (!s.equals("error")){
+                                Log.d(TAG,"onNext:" + s);
+                                if (!s.equals("error") && s != null){
                                     Gson gson = new Gson();
-                                    Type listType = new TypeToken<List<MessageDb>>(){}.getType();
-                                    List<Person> list = gson.fromJson(s,listType);
-                                    tvinformation.setVisibility(list.size() == 0?View.VISIBLE:View.GONE);
-                                    if(list.size() == 0) tvinformation.setText("No user online");
-                                    mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-                                    mRecyclerView.setAdapter(new OnlineListAdapter(getActivity(),list));
+                                    Type listType = new TypeToken<List<Person>>(){}.getType();
+                                    onlineList = gson.fromJson(s,listType);
+
+                                    tvInformation.setVisibility(onlineList.size() == 0?View.VISIBLE:View.GONE);
+                                    if(onlineList.size() == 0) tvInformation.setText("No user online");
+                                    mRecyclerViewOnline.setLayoutManager(new LinearLayoutManager(getActivity()));
+                                    mRecyclerViewOnline.setAdapter(new OnlineListAdapter(getActivity(), onlineList));
+                                    if (mRecyclerViewMessages != null) mRecyclerViewMessages.getAdapter().notifyDataSetChanged();
                                 }else {
-                                    tvinformation.setVisibility(View.VISIBLE);
-                                    tvinformation.setText("Error with getting information about online users =(");
+                                    tvInformation.setVisibility(View.VISIBLE);
+                                    tvInformation.setText("Error with getting information about online users =(");
+
+
                                 }
 
 
@@ -117,8 +151,9 @@ public class RecyclerViewFragment extends Fragment{
 
                 break;
             case FRAGMENT_TYPE_GROUPS:
-                mRecyclerView.setLayoutManager(new GridLayoutManager(getActivity(),2));
-                mRecyclerView.setAdapter(new GroupsListAdapter(getActivity(),TestData.getPersons(10)));
+                mRecyclerViewGroup = v.findViewById(R.id.recycler_view);
+                mRecyclerViewGroup.setLayoutManager(new GridLayoutManager(getActivity(),2));
+                mRecyclerViewGroup.setAdapter(new GroupsListAdapter(getActivity(),TestData.getPersons(10)));
         }
     }
 
