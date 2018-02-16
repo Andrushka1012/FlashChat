@@ -17,17 +17,16 @@ import android.util.Log;
 import com.example.andrii.flashchat.Activities.CorrespondenceListActivity;
 import com.example.andrii.flashchat.R;
 import com.example.andrii.flashchat.data.Person;
+import com.example.andrii.flashchat.data.SingletonConnection;
 import com.example.andrii.flashchat.data.actions.ActionCheckNewMessages;
 import com.google.gson.Gson;
 
 import rx.Observer;
+import rx.Subscription;
 
 public class PollService extends IntentService {
     private static final String TAG = "PollService";
-    public static final int POLL_INTERVAL = 1000 * 60;
-    //public static final long POLL_INTERVAL = AlarmManager.INTERVAL_FIFTEEN_MINUTES;
-    private static final String IP_SERVER = "192.168.43.14";
-    private static final int PORT = 50000;
+    public static final long POLL_INTERVAL = AlarmManager.INTERVAL_FIFTEEN_MINUTES;
 
     public PollService() {
         super(TAG);
@@ -42,7 +41,7 @@ public class PollService extends IntentService {
 
     public static void setServiceAlarm(Context context, boolean isOn) {
         //Intent i = PollService.newIntent(context);
-        Intent i = new Intent("com.android.techtrainner");
+        Intent i = newIntent(context);
         PendingIntent pi = PendingIntent.getService(context,0,i,0);
 
         AlarmManager alarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
@@ -58,7 +57,7 @@ public class PollService extends IntentService {
 
     public static boolean isServiceAlarmOn(Context context){
         //Intent i = PollService.newIntent(context);
-        Intent i = new Intent("com.android.techtrainner");
+        Intent i = newIntent(context);
         PendingIntent pi = PendingIntent
                 .getService(context,0,i,PendingIntent.FLAG_NO_CREATE);
         return pi != null;
@@ -66,14 +65,13 @@ public class PollService extends IntentService {
 
     protected void onHandleIntent(@Nullable Intent intent) {
         Log.d(TAG,"onHandleIntent");
-        /*if (!isNetworkAvailableAndConnected() && QueryPreferences.getActiveUserId(this) == null){
+        if (!isNetworkAvailableAndConnected() && QueryPreferences.getActiveUserId(this) == null){
             Log.e(TAG,"Network is not available or no set active user");
             return;
-        }*/
-
+        }
 
         ActionCheckNewMessages action = new ActionCheckNewMessages(QueryPreferences.getActiveUserId(this));
-        QueryAction.executeAnswerQuery(action)
+        Subscription subscription = QueryAction.executeAnswerQuery(action)
                 .subscribe(new Observer<String>() {
                     @Override
                     public void onCompleted() {
@@ -95,7 +93,7 @@ public class PollService extends IntentService {
                             NotificationItem item = gson.fromJson(s,NotificationItem.class);
 
                             Person person = new Person(item.senderId,item.senderName);
-                            Intent i = CorrespondenceListActivity.newIntent(PollService.this,person);
+                            Intent i = CorrespondenceListActivity.newIntent(PollService.this,person,false);
                             PendingIntent pi = PendingIntent.getActivity(PollService.this,0,i,0);
                             int count = item.getCount();
                             Uri alarSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
@@ -118,13 +116,12 @@ public class PollService extends IntentService {
 
                     }
                 });
-
+        QueryAction.addSubscription(subscription);
     }
 
 
     private boolean isNetworkAvailableAndConnected(){
-        //return SingletonConnection.getInstance().isConnectionAvailable(TAG);
-        return true;
+        return SingletonConnection.getInstance().isConnectionAvailable(TAG);
     }
 
 

@@ -1,16 +1,14 @@
 package com.example.andrii.flashchat.Activities;
 
-import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
@@ -28,35 +26,38 @@ import android.widget.Toast;
 
 import com.example.andrii.flashchat.R;
 import com.example.andrii.flashchat.adapters.ViewPagerAdapter;
+import com.example.andrii.flashchat.data.DB.MessageDb;
 import com.example.andrii.flashchat.data.DB.UserNamesBd;
 import com.example.andrii.flashchat.data.Person;
 import com.example.andrii.flashchat.data.actions.ActionGetPersonData;
 import com.example.andrii.flashchat.fragments.RecyclerViewFragment;
 import com.example.andrii.flashchat.tools.ImageTools;
-import com.example.andrii.flashchat.tools.MyService;
-import com.example.andrii.flashchat.tools.PollService;
 import com.example.andrii.flashchat.tools.QueryAction;
 import com.example.andrii.flashchat.tools.QueryPreferences;
 import com.google.gson.Gson;
 
+import java.io.File;
 import java.util.Date;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import io.realm.Realm;
+import io.realm.RealmResults;
 import rx.Observable;
 import rx.Observer;
+import rx.Subscription;
 
 import static android.widget.Toast.LENGTH_LONG;
 
 public class MessagesListActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener{
     private final String TAG = "MessagesListActivity";
     private static final String USER_ID_ARG_KEY = "USER_ID_ARG_KEY";
+    private static final String USER_KAY = "USER_KAY";
     private ViewPager mViewPager;
     private Person currentUser;
     private CircleImageView ivProfilePhoto;
     private TextView tvUserName;
-    private Intent serviceIntent;
+    private Bundle savedInstance = null;
 
     public static Intent newIntent(Context context,String userId){
         Intent intent = new Intent(context,MessagesListActivity.class);
@@ -70,43 +71,19 @@ public class MessagesListActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_messages_list);
-        serviceIntent = new Intent(this,MyService.class);
+        savedInstance = savedInstanceState;
+        setupLayout();
 
-         startService(serviceIntent);
+        String userId = QueryPreferences.getActiveUserId(this);
+        Realm realm = Realm.getDefaultInstance();
+        UserNamesBd user = realm.where(UserNamesBd.class).equalTo("userId",userId).findFirst();
+        if (user != null) tvUserName.setText(user.getName());
 
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
-        FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(view -> Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show());
-
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.setDrawerListener(toggle);
-        toggle.syncState();
-
-        NavigationView navigationView = findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
-
-        View hView = navigationView.getHeaderView(0);
-
-        ivProfilePhoto = hView.findViewById(R.id.imageView);
-        tvUserName = hView.findViewById(R.id.textView);
-        LinearLayout ll = hView.findViewById(R.id.ll_nav_header);
-        Bitmap bitmap = BitmapFactory.decodeResource(getResources(),R.drawable.nav_header);
-
-        Bitmap scaledBitmap = Bitmap.createScaledBitmap(bitmap,500,400,true);
-        BitmapDrawable bitmapDrawable = new BitmapDrawable(getResources(),scaledBitmap);
-        ll.setBackground(bitmapDrawable);
-
-
-        TabLayout mTabLayout = findViewById(R.id.tabs);
-        mViewPager = findViewById(R.id.viewPager);
-        setUpViewPager();
-        mTabLayout.setupWithViewPager(mViewPager);
-
+        ImageTools tools = new ImageTools(this);
+        String root = this.getExternalFilesDir(Environment.DIRECTORY_PICTURES).getPath();
+        File file = new File(root,userId + ".jpg");
+        if (file.exists()) tools.downloadPersonImage(ivProfilePhoto,new Person(userId,""));
+        tools.downloadFromServer(ivProfilePhoto,new Person(userId,""));
 
     }
 
@@ -117,9 +94,15 @@ public class MessagesListActivity extends AppCompatActivity
     }
 
     @Override
-    protected void onDestroy() {
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelable(USER_KAY,currentUser);
+    }
 
+    @Override
+    protected void onDestroy() {
         super.onDestroy();
+        QueryAction.unsubscribeAll();
     }
 
     @Override
@@ -134,10 +117,7 @@ public class MessagesListActivity extends AppCompatActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.messages_list, menu);
-        MenuItem toggleItem = menu.findItem(R.id.action_toggle_polling);
-        toggleItem.setTitle(PollService.isServiceAlarmOn(this)?R.string.stop_polling:R.string.polling_on);
+        getMenuInflater().inflate(R.menu.messages_list,menu);
 
         return true;
     }
@@ -148,16 +128,11 @@ public class MessagesListActivity extends AppCompatActivity
         int id = item.getItemId();
 
         switch (id){
-            case R.id.action_settings:
-                startActivity(new Intent(this,SearchActivity.class));
-                return true;
-            case R.id.item_search:
-                startActivity(new Intent(this,SearchActivity.class));
+            case R.id.action_search:
+                startActivity(SearchActivity.newIntent(this,false));
             return true;
-            case R.id.action_toggle_polling:
-                boolean shouldStartAlarm = !PollService.isServiceAlarmOn(this);
-                PollService.setServiceAlarm(this,shouldStartAlarm);
-                this.invalidateOptionsMenu();
+            case R.id.action_speech:
+                startActivity(SearchActivity.newIntent(this,true));
                 return true;
          default:
              return super.onOptionsItemSelected(item);
@@ -173,15 +148,22 @@ public class MessagesListActivity extends AppCompatActivity
         int id = item.getItemId();
         switch (id){
             case R.id.nav_profile:
-                intent = ProfileActivity.newIntent(this,currentUser);
-                startActivity(intent);
+                ProfileActivity.startActivity(this,QueryPreferences.getActiveUserId(this));
                 break;
             case R.id.nav_manage:
+               intent = SettingActivity.newIntent(this);
+                startActivity(intent);
                 break;
             case R.id.nav_exit:
                 Realm realm = Realm.getDefaultInstance();
                 realm.executeTransactionAsync(r -> {
-                    r.deleteAll();
+                    RealmResults<MessageDb> resultsMessages = r.where(MessageDb.class).findAll();
+                    resultsMessages.deleteAllFromRealm();
+                    for(MessageDb messageDb:resultsMessages){messageDb.deleteFromRealm();}
+                    RealmResults<UserNamesBd> resultsUsers = r.where(UserNamesBd.class).findAll();
+                    for(UserNamesBd userNamesBd:resultsUsers){userNamesBd.deleteFromRealm();}
+                    resultsUsers.deleteAllFromRealm();
+
                     r.close();
                 });
 
@@ -200,12 +182,57 @@ public class MessagesListActivity extends AppCompatActivity
         return true;
     }
 
+    private void setupLayout(){
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.setDrawerListener(toggle);
+        toggle.syncState();
+
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
+
+        View hView = navigationView.getHeaderView(0);
+
+        ivProfilePhoto = hView.findViewById(R.id.imageView);
+        tvUserName = hView.findViewById(R.id.textView);
+
+
+        LinearLayout ll = hView.findViewById(R.id.ll_nav_header);
+        Bitmap bitmap = BitmapFactory.decodeResource(getResources(),R.drawable.nav_header);
+
+        Bitmap scaledBitmap = Bitmap.createScaledBitmap(bitmap,500,400,true);
+        BitmapDrawable bitmapDrawable = new BitmapDrawable(getResources(),scaledBitmap);
+        ll.setBackground(bitmapDrawable);
+
+
+        TabLayout mTabLayout = findViewById(R.id.tabs);
+        mViewPager = findViewById(R.id.viewPager);
+        setUpViewPager();
+        mTabLayout.setupWithViewPager(mViewPager);
+
+
+    }
+
     private void setUpUserData(String userId) {
+        if (savedInstance != null){
+            Person person = savedInstance.getParcelable(USER_KAY);
+            if (person != null){
+                currentUser = person;
+                setInformation();
+                return;
+            }
+        }
+
         ActionGetPersonData actionGetPersonData = new ActionGetPersonData(userId);
 
-
         Observable<String> observable = QueryAction.executeAnswerQuery(actionGetPersonData);
-        observable.subscribe(new Observer<String>() {
+        Subscription subscription = observable.subscribe(new Observer<String>() {
                     @Override
                     public void onCompleted() {
                         Log.d(TAG,"onCompleted");
@@ -214,25 +241,7 @@ public class MessagesListActivity extends AppCompatActivity
 
                     @Override
                     public void onError(Throwable e) {
-                        /*if(e.getClass() == TimeoutException.class || e.getClass() == SocketException.class){
-                            String root = getApplicationContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES).getPath();
-                            File file = new File(root,QueryPreferences.getActiveUserId(getApplicationContext()) + ".jpg");
-                            if (file.exists()) {
-                                String path = file.getPath();
-                                Uri uri = Uri.fromFile(new File(path));
-                                Bitmap image;
-                                try {
-                                    image = MediaStore.Images.Media.getBitmap(getApplicationContext().getContentResolver(), uri);
-                                } catch (IOException ex) {
-                                    Log.e(TAG,"IOException",ex);
-                                    image = BitmapFactory.decodeResource(getApplicationContext().getResources(),R.drawable.ic_action_person);
-                                }
-                                ivProfilePhoto.setImageBitmap(image);
-                            }
-                        }else{
-                            Bitmap image = BitmapFactory.decodeResource(getApplicationContext().getResources(),R.drawable.ic_action_person);
-                            ivProfilePhoto.setImageBitmap(image);
-                        }*/
+
                         Log.e(TAG,"OnError",e);
 
                         Toast.makeText(getApplicationContext(),"Server error", LENGTH_LONG).show();
@@ -264,7 +273,7 @@ public class MessagesListActivity extends AppCompatActivity
                         }
                     }
                 });
-
+        QueryAction.addSubscription(subscription);
     }
 
     private void setInformation(){
@@ -280,12 +289,12 @@ public class MessagesListActivity extends AppCompatActivity
         ViewPagerAdapter mAdapter = new ViewPagerAdapter(getSupportFragmentManager());
         mAdapter.addFragment(RecyclerViewFragment.newInstance(RecyclerViewFragment.FRAGMENT_TYPE_MESSAGES),"Messages");
         mAdapter.addFragment(RecyclerViewFragment.newInstance(RecyclerViewFragment.FRAGMENT_TYPE_ONLINE),"Online");
-        mAdapter.addFragment(RecyclerViewFragment.newInstance(RecyclerViewFragment.FRAGMENT_TYPE_GROUPS),"Groups");
+        //mAdapter.addFragment(RecyclerViewFragment.newInstance(RecyclerViewFragment.FRAGMENT_TYPE_GROUPS),"Groups");
 
         mViewPager.setAdapter(mAdapter);
     }
 
-    private boolean isMyServiceAlive(Class<?> serviceClass){
+  /*  private boolean isMyServiceAlive(Class<?> serviceClass){
         ActivityManager manager = (ActivityManager)getSystemService(Context.ACTIVITY_SERVICE);
         for(ActivityManager.RunningServiceInfo service: manager.getRunningServices(Integer.MAX_VALUE)){
             Log.d(TAG,"My service running:" + true);
@@ -294,6 +303,6 @@ public class MessagesListActivity extends AppCompatActivity
         Log.d(TAG,"My service running:" + false);
         return false;
     }
-
+*/
 
 }

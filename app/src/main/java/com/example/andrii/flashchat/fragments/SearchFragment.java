@@ -37,12 +37,21 @@ import static android.widget.Toast.LENGTH_LONG;
 
 
 public class SearchFragment extends Fragment {
-    private static final String TAG = "SearchFragment";
+    /*private static final String TAG = "SearchFragment";
+    public static final String IsSpeechOn_EXTRA = "IsSpeechOn_EXTRA";
+    private boolean isSpeechOn = false;
     private Subscription subscription;
     private RecyclerView mRecyclerView;
     private ProgressBar mProgressBar;
     private TextView tvEmpty;
-    public static SearchFragment newInstance(){return new SearchFragment();}
+    public static SearchFragment newInstance(boolean isSpeechOn){
+        SearchFragment fragment = new SearchFragment();
+        Bundle bundle = new Bundle();
+        bundle.putBoolean(IsSpeechOn_EXTRA,isSpeechOn);
+        fragment.setArguments(bundle);
+
+        return fragment;
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -51,7 +60,7 @@ public class SearchFragment extends Fragment {
         setHasOptionsMenu(true);
 
 
-        View v = inflater.inflate(R.layout.fragment_search, container, false);
+        View v = inflater.inflate(R.layout.fragment_sexarch, container, false);
         mProgressBar = v.findViewById(R.id.progress_bar);
         tvEmpty = v.findViewById(R.id.empty_search_view);
 
@@ -60,6 +69,8 @@ public class SearchFragment extends Fragment {
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         List<SearchItem> list = new ArrayList<>();
         mRecyclerView.setAdapter(new SearchListAdapter(getActivity(), list));
+
+
 
 
         return v;
@@ -138,5 +149,5 @@ public class SearchFragment extends Fragment {
     private void showProgress(boolean b) {
         mRecyclerView.setVisibility(b?View.GONE:View.VISIBLE);
         mProgressBar.setVisibility(b?View.VISIBLE:View.GONE);
-    }
+    }*/
 }

@@ -1,8 +1,8 @@
 package com.example.andrii.flashchat.adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -11,20 +11,37 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.example.andrii.flashchat.Activities.AttachmentsActivity;
+import com.example.andrii.flashchat.Activities.MessagesListActivity;
+import com.example.andrii.flashchat.Activities.PhotoPagerActivity;
+import com.example.andrii.flashchat.Activities.ProfileActivity;
 import com.example.andrii.flashchat.R;
+import com.example.andrii.flashchat.data.DB.UserNamesBd;
 import com.example.andrii.flashchat.data.Message;
 import com.example.andrii.flashchat.data.MessageItem;
 import com.example.andrii.flashchat.data.Person;
+import com.example.andrii.flashchat.data.actions.ActionGetPersonData;
 import com.example.andrii.flashchat.tools.ImageTools;
+import com.example.andrii.flashchat.tools.QueryAction;
 import com.example.andrii.flashchat.tools.QueryPreferences;
+import com.google.gson.Gson;
+import com.squareup.picasso.Picasso;
 
 import java.io.File;
-import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+
+import io.realm.Realm;
+import rx.Observable;
+import rx.Observer;
+
+import static android.widget.Toast.LENGTH_LONG;
 
 public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.MyRecycleViewHolder> {
     private static final String TAG = "ChatListAdapter";
@@ -36,6 +53,16 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.MyRecy
         context = con;
         mMessages = list;
         mMyID = QueryPreferences.getActiveUserId(context);
+    }
+
+    public Intent addAttachments(){
+        List<MessageItem> list = new ArrayList<>();
+        for (MessageItem item:mMessages){
+            if (item.getType() == Message.MESSAGE_IMAGE_TYPE) list.add(item);
+        }
+        Gson gson = new Gson();
+        String photos = gson.toJson(list);
+        return AttachmentsActivity.newIntent(context,photos);
     }
 
     @Override
@@ -96,29 +123,35 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.MyRecy
 
     class MyRecycleViewHolder extends RecyclerView.ViewHolder{
 
-        private FrameLayout mFrameLayout;
-        private ImageView mPhoto;
         private TextView mText;
         private ImageView mIvPhotoMessage;
 
         MyRecycleViewHolder(View itemView) {
             super(itemView);
 
-            mFrameLayout = itemView.findViewById(R.id.framelayout);
-            mPhoto = itemView.findViewById(R.id.iv_photo);
             mText = itemView.findViewById(R.id.tv_text);
             mIvPhotoMessage = itemView.findViewById(R.id.iv_photo_message);
+
+            mIvPhotoMessage.setOnClickListener(view -> {
+                List<MessageItem> list = new ArrayList<>();
+                MessageItem msgItemStart = null;
+                for (MessageItem item:mMessages){
+                    if (item.getType() == Message.MESSAGE_IMAGE_TYPE) {
+                        list.add(item);
+                        if(mMessages.get(getAdapterPosition()).getMsgID().equals(item.getMsgID()))msgItemStart = item;
+                    }
+                }
+                int msgPosition = list.indexOf(msgItemStart);
+                Gson gson = new Gson();
+                String photos = gson.toJson(list);
+                Intent intent = PhotoPagerActivity.newIntent(context,photos,msgPosition);
+                context.startActivity(intent);
+            });
         }
 
 
         void bindHolder(MessageItem msg) {
             Log.d("qwe","length:" + getItemCount() +" myId:" + mMyID +  " sederId:" + msg.getSenderId() + " recipientId:" + msg.getRecipient_id());
-            ImageTools tools = new ImageTools(context);
-            Person p = new Person(msg.getSenderId(),"");
-
-            if ((getItemViewType() == 0 || getItemViewType() == 2) && msg.getRead() == 0) mFrameLayout.setBackground(context.getResources().getDrawable(R.color.grey));
-
-            if (getItemViewType() == 0 || getItemViewType() == 1)  tools.downloadPersonImage(mPhoto,p);
 
             if (msg.getType() == Message.MESSAGE_TEXT_TYPE) {
                 mText.setVisibility(View.VISIBLE);
@@ -128,31 +161,30 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.MyRecy
             }else{
                 mText.setVisibility(View.GONE);
                 mIvPhotoMessage.setVisibility(View.VISIBLE);
+
                 String root = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES).getPath();
                 File file = new File(root,msg.getMsgID() + ".jpg");
-
                 Uri uri = Uri.fromFile(file);
-            mIvPhotoMessage.post(() -> {
+
+                mIvPhotoMessage.post(() -> {
                 try {
                     Bitmap origin = MediaStore.Images.Media.getBitmap(context.getContentResolver(), uri);
-                    Matrix matrix = new Matrix();
+                    int originWidth = origin.getWidth();
+                    int originHeight = origin.getHeight();
 
-                    int x = origin.getWidth()/mIvPhotoMessage.getWidth();
-                    double height = origin.getHeight()/x;
                     int width = mIvPhotoMessage.getWidth();
+                    int height = originHeight*width/originWidth;
 
-                    if (origin.getHeight()<origin.getWidth()){
-                        matrix.postRotate(-90);
-                        height = width;
-                        width = (int) (mIvPhotoMessage.getWidth()*1.3);
-                    }
+                    Bitmap finishBitmap = Bitmap.createScaledBitmap(origin,width,height,true);
 
-                    Bitmap scaledBitmap = Bitmap.createScaledBitmap(origin,width, Math.toIntExact(Math.round(height)),true);
+                    mIvPhotoMessage.setImageBitmap(ImageTools.roundCorners(finishBitmap));
 
-                    Bitmap rotated= Bitmap.createBitmap(scaledBitmap , 0, 0, scaledBitmap.getWidth(), scaledBitmap.getHeight(), matrix, true);
-                    mIvPhotoMessage.setImageBitmap(rotated);
-                } catch (IOException e) {
+                } catch (Exception e) {
                     Log.e(TAG,"Error with taking bitmap from uri",e);
+                    Picasso.with(context)
+                            .load(R.drawable.ic_image_broke)
+                            .into(mIvPhotoMessage);
+
                 }
             });
 

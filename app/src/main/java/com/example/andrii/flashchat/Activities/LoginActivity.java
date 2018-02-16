@@ -18,16 +18,14 @@ import com.example.andrii.flashchat.data.interfaces.EmailHelper;
 import com.example.andrii.flashchat.data.interfaces.LoginHelper;
 import com.example.andrii.flashchat.fragments.LoginFragment;
 import com.example.andrii.flashchat.fragments.RegisterFragment;
+import com.example.andrii.flashchat.tools.QueryAction;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class LoginActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>,
-        LoginHelper{
+public class LoginActivity extends AppCompatActivity
+        implements LoginHelper{
 
-    private EmailHelper mHelper;
-    private String mFragmentTag = "";
-    private int stackSize = 0;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -45,83 +43,35 @@ public class LoginActivity extends AppCompatActivity implements LoaderManager.Lo
             fragment = LoginFragment.newInstance();
             fm.beginTransaction().add(R.id.fragmentContainer,fragment).commit();
         }
-        mHelper = (EmailHelper) fragment;
 
 
     }
 
-
     @Override
-    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
-        return new CursorLoader(this,
-                // Retrieve data rows for the device user's 'profile' contact.
-                Uri.withAppendedPath(ContactsContract.Profile.CONTENT_URI,
-                        ContactsContract.Contacts.Data.CONTENT_DIRECTORY), ProfileQuery.PROJECTION,
+    public void changeFragment() {
 
-                // Select only email addresses.
-                ContactsContract.Contacts.Data.MIMETYPE +
-                        " = ?", new String[]{ContactsContract.CommonDataKinds.Email
-                .CONTENT_ITEM_TYPE},
-
-                // Show primary email addresses first. Note that there won't be
-                // a primary email address if the user hasn't specified one.
-                ContactsContract.Contacts.Data.IS_PRIMARY + " DESC");
-    }
-
-    @Override
-    public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
-        List<String> emails = new ArrayList<>();
-        cursor.moveToFirst();
-        while (!cursor.isAfterLast()) {
-            emails.add(cursor.getString(ProfileQuery.ADDRESS));
-            cursor.moveToNext();
-        }
-
-        mHelper.addEmailsToAutoComplete(emails);
-    }
-
-    @Override
-    public void onLoaderReset(Loader<Cursor> cursorLoader) {
-
-    }
-
-    @Override
-    public void changeFragment(int fragmentType) {
-        switch (fragmentType){
-            case LOGIN_FRAGMENT:
-                mFragmentTag = "FragmentLogin";
-                //String type = "";
-                break;
-            case REGISTER_FRAGMENT:
-                mFragmentTag = "FragmentRegister";
-                break;
-
-        }
             getSupportFragmentManager()
                     .beginTransaction()
-                    .replace(R.id.fragmentContainer, RegisterFragment .newInstance(),mFragmentTag)
                     .addToBackStack("LoginFragment")
+                    .replace(R.id.fragmentContainer, RegisterFragment.newInstance(),"RegisterFragment")
                     .commit();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        QueryAction.unsubscribeAll();
     }
 
     @Override
     public void onBackPressed() {
 
-        if (getSupportFragmentManager().findFragmentByTag(mFragmentTag) != null){
-            getSupportFragmentManager().popBackStack(mFragmentTag,FragmentManager.POP_BACK_STACK_INCLUSIVE);
-            mFragmentTag = "";
+        if (getSupportFragmentManager().findFragmentByTag("RegisterFragment") != null){
+            getSupportFragmentManager().popBackStack("RegisterFragment",FragmentManager.POP_BACK_STACK_INCLUSIVE);
         }else super.onBackPressed();
     }
 
-    private interface ProfileQuery {
-        String[] PROJECTION = {
-                ContactsContract.CommonDataKinds.Email.ADDRESS,
-                ContactsContract.CommonDataKinds.Email.IS_PRIMARY,
-        };
 
-        int ADDRESS = 0;
-        int IS_PRIMARY = 1;
-    }
 
 
 

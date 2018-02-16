@@ -6,21 +6,83 @@
     android:layout_height="match_parent"
     tools:context="com.example.andrii.flashchat.Activities.CorrespondenceListActivity"
     android:orientation="vertical">
+    <android.support.design.widget.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/AppTheme.AppBarOverlay">
 
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            app:popupTheme="@style/AppTheme.PopupOverlay">
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            >
+            <de.hdodenhof.circleimageview.CircleImageView
+                xmlns:android="http://schemas.android.com/apk/res/android"
+                android:id="@+id/iv_photo"
+                android:layout_height="45dp"
+                android:layout_width="45dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginLeft="5dp"
+                android:src="@drawable/andruszka_photo"
+                />
+            <LinearLayout
+                android:layout_marginLeft="10dp"
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                >
+                <TextView
+                    android:id="@+id/tv_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textStyle="bold"
+                    android:textSize="20sp"
+                    android:text="@string/app_search"
+                    />
+                <TextView
+                    android:text="@string/app_search"
+                    android:id="@+id/tv_online"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="15sp"
+                    />
+            </LinearLayout>
+
+
+            </LinearLayout>
+
+
+        </android.support.v7.widget.Toolbar>
+    </android.support.design.widget.AppBarLayout>
+
+    <com.omadahealth.github.swipyrefreshlayout.library.SwipyRefreshLayout
+        android:id="@+id/SwipyRefreshLayout"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        app:srl_direction="bottom"
+        android:layout_weight="1"
+        >
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recycler_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="1" />
-
+        />
+    </com.omadahealth.github.swipyrefreshlayout.library.SwipyRefreshLayout>
     <android.support.v7.widget.CardView
+
         app:cardElevation="2.5dp"
         android:paddingBottom="24dp"
         app:cardCornerRadius="5dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:cardUseCompatPadding="true">
-    <com.example.andrii.flashchat.Views.LinerLayoutWithMaxHeight
+    <LinearLayout
         android:id="@+id/ll_write"
         android:background="@color/background"
         android:layout_width="match_parent"
@@ -32,7 +94,7 @@
             android:layout_width="50dp"
             android:layout_height="match_parent"
             android:layout_gravity="center_vertical"
-            android:src="@drawable/ic_camera_alt_black_24dp"
+            app:srcCompat="@drawable/ic_camera_alt_black_24dp"
             android:background="@drawable/button_selector"
             />
         <android.support.v7.widget.CardView
@@ -58,7 +120,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:minHeight="40dp"
-                android:inputType="textMultiLine"
                 android:hint="@string/enter_your_message"
                 android:background="@android:color/transparent"
                 />
@@ -69,12 +130,12 @@
             android:layout_width="50dp"
             android:layout_height="match_parent"
             android:foregroundGravity="bottom"
-            android:src="@drawable/ic_send_black_24dp"
+            app:srcCompat="@drawable/ic_send_black_24dp"
             android:layout_gravity="center_vertical"
             android:background="@drawable/button_selector"
             android:clickable="false"
             />
-    </com.example.andrii.flashchat.Views.LinerLayoutWithMaxHeight>
+    </LinearLayout>
     </android.support.v7.widget.CardView>
 </LinearLayout>
 

@@ -7,18 +7,23 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.speech.RecognizerIntent;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.Base64;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.andrii.flashchat.R;
-import com.example.andrii.flashchat.Views.LinerLayoutWithMaxHeight;
 import com.example.andrii.flashchat.adapters.ChatListAdapter;
 import com.example.andrii.flashchat.data.DB.MessageDb;
 import com.example.andrii.flashchat.data.Message;
@@ -33,38 +38,55 @@ import com.example.andrii.flashchat.tools.QueryAction;
 import com.example.andrii.flashchat.tools.QueryPreferences;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.omadahealth.github.swipyrefreshlayout.library.SwipyRefreshLayout;
+import com.omadahealth.github.swipyrefreshlayout.library.SwipyRefreshLayoutDirection;
+import com.squareup.picasso.Picasso;
 
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+import de.hdodenhof.circleimageview.CircleImageView;
 import io.realm.Realm;
 import io.realm.RealmResults;
 import rx.Observable;
 import rx.Observer;
+import rx.Subscriber;
+import rx.Subscription;
 import rx.schedulers.Schedulers;
 
 import static android.widget.Toast.LENGTH_LONG;
 
 public class CorrespondenceListActivity extends AppCompatActivity {
+    private static final int SPEECH_REQ = 12;
     private static final int MY_ACTIVITY_RESULT_REQUEST_CODE = 103;
     private static final int PICK_IMAGE_REQUEST_CODE = 1;
 
     private static final String TAG = "CorrListAct";
     public static final String TITLE_EXTRA = "TITLE_EXTRA";
+    public static final String ONLINE_EXTRA = "ONLINE_EXTRA";
     public static final String PERSON_EXTRA = "PERSON_EXTRA";
+    private static final String TEXT_KAY = "TEXT_KAY";
+    private static final String USER_KAY = "USER_KAY";
 
     private Realm realm;
+    private SwipyRefreshLayout refreshLayout;
     private RecyclerView mRecyclerView;
     private EditText mEtMessage;
     private Person currentUser;
     private Person subject;
     private UUID mId;
+    final Handler handler = new Handler();
+    private Subscription subscription;
+    private Runnable runnable;
 
     @Deprecated
     public static Intent newIntent(Context context, String title) {
@@ -74,9 +96,10 @@ public class CorrespondenceListActivity extends AppCompatActivity {
         return intent;
     }
 
-    public static Intent newIntent(Context context, Person p) {
+    public static Intent newIntent(Context context, Person p,boolean online) {
         Intent intent = new Intent(context, CorrespondenceListActivity.class);
         intent.putExtra(PERSON_EXTRA, p);
+        intent.putExtra(ONLINE_EXTRA, online);
 
         return intent;
     }
@@ -85,23 +108,56 @@ public class CorrespondenceListActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_correspondence_list);
-        //realm = SingletonRealm.getInstance().getRealm(this);
 
         realm = Realm.getDefaultInstance();
-        setUserData();
+        currentUser = new Person(QueryPreferences.getActiveUserId(CorrespondenceListActivity.this),"");
+
+        String text = null;
+        Person person = null;
+        if (savedInstanceState != null){
+            text = savedInstanceState.getString(TEXT_KAY);
+            person = savedInstanceState.getParcelable(USER_KAY);
+        }
+        if (person != null){
+            currentUser = person;
+        } else setUserData();
+
 
         subject = getIntent().getParcelableExtra(PERSON_EXTRA);
-        getSupportActionBar().setTitle(subject.getName());
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        TextView tvName = toolbar.findViewById(R.id.tv_name);
+        TextView tvOnline = toolbar.findViewById(R.id.tv_online);
+        CircleImageView ivPhoto = toolbar.findViewById(R.id.iv_photo);
+
+        tvName.setText(subject.getName());
+        String online = getIntent().getBooleanExtra(ONLINE_EXTRA,false)?"Online":"Offline";
+        tvOnline.setText(online);
+        ImageTools tools = new ImageTools(this);
+        tools.downloadPersonImage(ivPhoto,subject);
+        ivPhoto.setOnClickListener(v ->{
+            Intent intent = ProfileActivity.newIntent(this,currentUser);
+            startActivity(intent);
+        });
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+
+        refreshLayout = findViewById(R.id.SwipyRefreshLayout);
+        refreshLayout.setOnRefreshListener(direction -> {
+            updateDataBase();
+            setupRecyclerView();
+        });
 
         mRecyclerView = findViewById(R.id.recycler_view);
         setupRecyclerView();
 
-        LinerLayoutWithMaxHeight mLlSend = findViewById(R.id.ll_write);
-        mLlSend.setMaxHeight(158);
+
 
         ImageButton mIbSend = findViewById(R.id.ib_send);
         ImageButton mIbTakePhoto = findViewById(R.id.ib_take_photo);
         mEtMessage = findViewById(R.id.et_message);
+        if (text != null) mEtMessage.setText(text);
         mEtMessage.setOnClickListener(v -> mRecyclerView.scrollToPosition(mRecyclerView.getAdapter().getItemCount() - 1));
 
         mIbSend.setOnClickListener((View view) -> {
@@ -110,7 +166,7 @@ public class CorrespondenceListActivity extends AppCompatActivity {
 
             ActionSendMessage action = new ActionSendMessage(
                     msg.getID().toString(),msg.getText(),currentUser.getId(),subject.getId(),Message.MESSAGE_TEXT_TYPE);
-            QueryAction.executeAnswerQuery(action)
+          Subscription subscription = QueryAction.executeAnswerQuery(action)
                     .doOnUnsubscribe(()->{})
                     .subscribe(new Observer<String>() {
                         @Override
@@ -133,11 +189,24 @@ public class CorrespondenceListActivity extends AppCompatActivity {
 
                         }
                     });
+            QueryAction.addSubscription(subscription);
             MessageItem msgItem = new MessageItem(msg,subject);
             ((ChatListAdapter)mRecyclerView.getAdapter()).addMessage(msgItem);
             mRecyclerView.scrollToPosition(mRecyclerView.getAdapter().getItemCount() - 1);
 
             mEtMessage.setText("");
+        });
+
+        mIbSend.setOnLongClickListener(view -> {
+            Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+            intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+            Locale[] languages  = {Locale.getDefault(), Locale.ENGLISH} ;
+            intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE,languages);
+            intent.putExtra(RecognizerIntent.EXTRA_PROMPT,"Say something:");
+
+            startActivityForResult(intent,SPEECH_REQ);
+
+            return true;
         });
 
         mIbTakePhoto.setOnClickListener(view -> {
@@ -153,12 +222,49 @@ public class CorrespondenceListActivity extends AppCompatActivity {
             return true;
         });
 
+        setRenew(10* 1000);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString(TEXT_KAY,mEtMessage.getText().toString());
+        outState.putParcelable(USER_KAY,currentUser);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.correspondence_list_menu,menu);
+
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.item_adds:
+               Intent intent = ((ChatListAdapter)(mRecyclerView.getAdapter())).addAttachments();
+               startActivity(intent);
+                return true;
+            case R.id.to_profile:
+                ProfileActivity.startActivity(this,subject.getId());
+                return true;
+            default:return super.onOptionsItemSelected(item);
+        }
 
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
+            if(requestCode == SPEECH_REQ && resultCode == RESULT_OK && null != data){
+                ArrayList<String> result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+                String text = result.get(0);
+
+                mEtMessage.setText(text);
+            }
+
         if (requestCode == MY_ACTIVITY_RESULT_REQUEST_CODE) {
             if (resultCode == Activity.RESULT_OK) {
                 String filePath = data.getStringExtra("Path");
@@ -175,11 +281,13 @@ public class CorrespondenceListActivity extends AppCompatActivity {
 
                 ActionSendMessage action = new ActionSendMessage
                         (msg.getID().toString(),"image message",currentUser.getId(),subject.getId(),Message.MESSAGE_IMAGE_TYPE);
-                QueryAction.executeAnswerQuery(action)
+                Subscription subscription = QueryAction.executeAnswerQuery(action)
+                        .doOnUnsubscribe(() ->{})
                         .subscribe(new Observer<String>() {
                             @Override
                             public void onCompleted() {
-
+                                SingletonConnection.getInstance().close();
+                                updateDataBase();
                             }
 
                             @Override
@@ -192,6 +300,7 @@ public class CorrespondenceListActivity extends AppCompatActivity {
 
                             }
                         });
+                QueryAction.addSubscription(subscription);
             }
         }
         if (requestCode == PICK_IMAGE_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
@@ -234,11 +343,13 @@ public class CorrespondenceListActivity extends AppCompatActivity {
 
             ActionSendMessage action = new ActionSendMessage
                     (msg.getID().toString(),"image message",currentUser.getId(),subject.getId(),Message.MESSAGE_IMAGE_TYPE);
-            QueryAction.executeAnswerQuery(action)
+           Subscription subscription = QueryAction.executeAnswerQuery(action)
+                    .doOnUnsubscribe(() ->{})
                     .subscribe(new Observer<String>() {
                         @Override
                         public void onCompleted() {
-
+                            SingletonConnection.getInstance().close();
+                            updateDataBase();
                         }
 
                         @Override
@@ -251,7 +362,7 @@ public class CorrespondenceListActivity extends AppCompatActivity {
 
                         }
                     });
-
+            QueryAction.addSubscription(subscription);
         }
 
 
@@ -260,23 +371,53 @@ public class CorrespondenceListActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        //SingletonRealm.getInstance().close();
         realm.close();
+        if (runnable != null) handler.removeCallbacks(runnable);
+          QueryAction.unsubscribeAll();
+
+    }
+
+
+    private void setUserData() {
+        ActionGetPersonData actionGetPersonData = new ActionGetPersonData(QueryPreferences.getActiveUserId(this));
+        Observable<String> observable = QueryAction.executeAnswerQuery(actionGetPersonData);
+        Subscription sub = observable.doOnUnsubscribe(() ->{})
+                .subscribe(new Observer<String>() {
+                    @Override
+                    public void onCompleted() {
+                        SingletonConnection.getInstance().close();
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        SingletonConnection.getInstance().close();
+                        Toast.makeText(getApplicationContext(),"Server error", LENGTH_LONG).show();
+                        currentUser = new Person(QueryPreferences.getActiveUserId(CorrespondenceListActivity.this),"");
+                    }
+
+                    @Override
+                    public void onNext(String s) {
+                        Gson gson = new Gson();
+                        currentUser = gson.fromJson(s,Person.class);
+                    }
+                });
+        QueryAction.addSubscription(sub);
     }
 
     private void updateDataBase(){
         ActionGetMessages action = new ActionGetMessages(currentUser.getId(),subject.getId());
-        QueryAction.executeAnswerQuery(action)
+        Subscription subscription = QueryAction.executeAnswerQuery(action)
                 .timeout(10, TimeUnit.SECONDS, Schedulers.io())
                 .subscribe(new Observer<String>() {
                     @Override
                     public void onCompleted() {
+
                     }
 
                     @Override
                     public void onError(Throwable e) {
                         Log.e("CorrespondenceActivity","OnError",e);
-                        Toast.makeText(CorrespondenceListActivity.this,"Messages was not received.",LENGTH_LONG).show();
+
                     }
 
                     @Override
@@ -312,24 +453,6 @@ public class CorrespondenceListActivity extends AppCompatActivity {
                                     },
                                     () -> {
                                         //onSuccess
-                                        Toast.makeText(CorrespondenceListActivity.this,"onCompleted",LENGTH_LONG).show();
-
-                                        RealmResults<MessageDb> results = realm.where(MessageDb.class)
-                                                .equalTo("recipient_id",subject.getId())
-                                                .and()
-                                                .equalTo("senderId",currentUser.getId())
-                                                .or()
-                                                .equalTo("recipient_id",currentUser.getId())
-                                                .and()
-                                                .equalTo("senderId",subject.getId())
-                                                .findAll();
-
-
-                                        results.sort("date");
-                                        List<MessageItem> itemsList = MessageItem.convertToList(results);
-                                        mRecyclerView.setAdapter(new ChatListAdapter(CorrespondenceListActivity.this,itemsList));
-                                        mRecyclerView.getAdapter().notifyDataSetChanged();
-                                        //mRecyclerView.scrollToPosition(mRecyclerView.getAdapter().getItemCount() - 1);
                                     },
                                     error -> {
                                         //onError
@@ -337,45 +460,16 @@ public class CorrespondenceListActivity extends AppCompatActivity {
                                         onError(error);
                             });
                         } else{
-                            Toast.makeText(CorrespondenceListActivity.this,"Messages was not received.",LENGTH_LONG).show();
+
                             onError(new Throwable(s));
                         }
 
                     }
                 });
-
+        QueryAction.addSubscription(subscription);
     }
 
-    private void setUserData() {
-        ActionGetPersonData actionGetPersonData = new ActionGetPersonData(QueryPreferences.getActiveUserId(this));
-        Observable<String> observable = QueryAction.executeAnswerQuery(actionGetPersonData);
-        observable.doOnUnsubscribe(() ->{})
-                .subscribe(new Observer<String>() {
-            @Override
-            public void onCompleted() {
-                SingletonConnection.getInstance().close();
-                updateDataBase();
-            }
-
-            @Override
-            public void onError(Throwable e) {
-                SingletonConnection.getInstance().close();
-                Toast.makeText(getApplicationContext(),"Server error", LENGTH_LONG).show();
-                currentUser = new Person(QueryPreferences.getActiveUserId(CorrespondenceListActivity.this),"");
-            }
-
-            @Override
-            public void onNext(String s) {
-                Gson gson = new Gson();
-                currentUser = gson.fromJson(s,Person.class);
-            }
-        });
-
-    }
-
-
-    private void setupRecyclerView(){
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+    private List<MessageItem> getMessagesFromDB(){
         RealmResults<MessageDb> results = realm.where(MessageDb.class)
                 .equalTo("recipient_id",subject.getId())
                 .and()
@@ -386,12 +480,106 @@ public class CorrespondenceListActivity extends AppCompatActivity {
                 .equalTo("senderId",subject.getId())
                 .findAll();
 
-        Log.d("qwe","resultSize:" + results.size());
+        Log.d(TAG,"resultSize:" + results.size());
         results.sort("date");
         List<MessageItem> itemsList = MessageItem.convertToList(results);
+        return itemsList;
+    }
+
+    private void setupRecyclerView(){
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        List<MessageItem> itemsList = getMessagesFromDB();
         mRecyclerView.setAdapter(new ChatListAdapter(this,itemsList));
+        refreshLayout.setRefreshing(false);
         mRecyclerView.getAdapter().notifyDataSetChanged();
         mRecyclerView.scrollToPosition(mRecyclerView.getAdapter().getItemCount() - 1);
-
     }
+
+    private void setRenew(int delay){
+        final boolean[] renew = {false};
+        runnable = () -> {
+
+            ActionGetMessages action = new ActionGetMessages(currentUser.getId(),subject.getId());
+            subscription = QueryAction.executeAnswerQuery(action)
+                    .timeout(10, TimeUnit.SECONDS, Schedulers.io())
+                    .subscribe(new Observer<String>() {
+                        @Override
+                        public void onCompleted() {
+                            setRenew(delay);
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+                            Log.e("CorrespondenceActivity","OnError",e);
+
+                            setRenew(delay);
+                        }
+
+                        @Override
+                        public void onNext(String s) {
+                            Log.d(TAG,s);
+                            if (!s.equals("error")) {
+                                Gson gson = new Gson();
+                                Type listType = new TypeToken<List<MessageDb>>(){}.getType();
+                                List<MessageDb> list = gson.fromJson(s,listType);
+                                int size = realm.where(MessageDb.class)
+                                        .equalTo("recipient_id",subject.getId())
+                                        .and()
+                                        .equalTo("senderId",QueryPreferences.getActiveUserId(CorrespondenceListActivity.this))
+                                        .or()
+                                        .equalTo("recipient_id",QueryPreferences.getActiveUserId(CorrespondenceListActivity.this))
+                                        .and()
+                                        .equalTo("senderId",subject.getId())
+                                        .findAll()
+                                        .size();
+                                Log.d(TAG,"size:" + size + " realmSize:" + list.size());
+                                if (size < list.size()){
+                                    renew[0] = true;
+                                }
+
+                                realm.executeTransactionAsync(
+                                        r -> {
+                                            //transaction
+                                            for (MessageDb m:list){
+                                                r.insertOrUpdate(m);
+
+                                                if (m.getType() == 1){
+                                                    String root = CorrespondenceListActivity.this
+                                                            .getExternalFilesDir(Environment.DIRECTORY_PICTURES).getPath();
+                                                    File file = new File(root,m.getMsgID() + ".jpg");
+                                                    if (!file.exists()) {
+                                                        String encodedString = m.getText();
+                                                        Log.d(TAG,"encoded string:" + encodedString);
+
+                                                        byte[] imageBytes = Base64.decode(encodedString,Base64.DEFAULT);
+                                                        Bitmap image = BitmapFactory.decodeByteArray(imageBytes,0,imageBytes.length);
+
+                                                        ImageTools tools = new ImageTools(CorrespondenceListActivity.this);
+                                                        tools.saveImage(file, image);
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        () -> {
+                                            //onSuccess
+                                            if (renew[0])setupRecyclerView();
+                                        },
+                                        error -> {
+                                            //onError
+                                            Log.e(TAG,"Transaction error");
+                                            onError(error);
+                                        });
+                            } else{
+
+                                onError(new Throwable(s));
+                            }
+
+                        }
+                    });
+            QueryAction.addSubscription(subscription);
+
+        };
+        handler.postDelayed(runnable,delay);
+    }
+
 }

@@ -70,7 +70,11 @@
                     android:hint="@string/name"
                     android:inputType="text"
                     android:maxLines="1"
-                    android:singleLine="true" />
+                    android:singleLine="true"
+                    android:imeOptions="actionNext"
+                    android:ems="10"
+                    android:nextFocusForward="@id/date_of_birth"
+                    />
 
             </android.support.design.widget.TextInputLayout>
         </LinearLayout>
@@ -103,7 +107,11 @@
                         android:hint="@string/date_of_birth"
                         android:inputType="date"
                         android:maxLines="1"
-                        android:singleLine="true" />
+                        android:singleLine="true"
+                        android:imeOptions="actionNext"
+                        android:ems="10"
+                        android:nextFocusForward="@id/email"
+                        />
                 </android.support.design.widget.TextInputLayout>
             </LinearLayout>
             <LinearLayout
@@ -148,7 +156,11 @@
                     android:hint="@string/prompt_email"
                     android:inputType="textEmailAddress"
                     android:maxLines="1"
-                    android:singleLine="true" />
+                    android:singleLine="true"
+                    android:imeOptions="actionNext"
+                    android:ems="10"
+                    android:nextFocusForward="@id/phone_number"
+                    />
             </android.support.design.widget.TextInputLayout>
         </LinearLayout>
         <LinearLayout
@@ -175,7 +187,11 @@
                     android:hint="@string/phone_number"
                     android:inputType="phone"
                     android:maxLines="1"
-                    android:singleLine="true" />
+                    android:singleLine="true"
+                    android:imeOptions="actionNext"
+                    android:ems="10"
+                    android:nextFocusForward="@id/password"
+                    />
             </android.support.design.widget.TextInputLayout>
         </LinearLayout>
         <LinearLayout
@@ -202,7 +218,11 @@
                     android:hint="@string/password"
                     android:inputType="textPassword"
                     android:maxLines="1"
-                    android:singleLine="true" />
+                    android:singleLine="true"
+                    android:imeOptions="actionNext"
+                    android:ems="10"
+                    android:nextFocusForward="@id/confirm_password"
+                    />
             </android.support.design.widget.TextInputLayout>
         </LinearLayout>
         <LinearLayout

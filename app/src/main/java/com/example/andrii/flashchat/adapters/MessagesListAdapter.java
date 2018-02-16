@@ -5,27 +5,40 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.andrii.flashchat.Activities.CorrespondenceListActivity;
+import com.example.andrii.flashchat.Activities.ProfileActivity;
 import com.example.andrii.flashchat.R;
 import com.example.andrii.flashchat.data.DB.UserNamesBd;
 import com.example.andrii.flashchat.data.MessagePersonItem;
 import com.example.andrii.flashchat.data.Person;
+import com.example.andrii.flashchat.data.actions.ActionGetPersonData;
 import com.example.andrii.flashchat.tools.ImageTools;
+import com.example.andrii.flashchat.tools.QueryAction;
 import com.example.andrii.flashchat.tools.QueryPreferences;
+import com.google.gson.Gson;
 
+import java.util.Date;
 import java.util.List;
 
 import io.realm.Realm;
+import rx.Observable;
+import rx.Observer;
+
+import static android.widget.Toast.LENGTH_LONG;
 
 public class MessagesListAdapter extends RecyclerView.Adapter<MessagesListAdapter.MyRecycleViewHolder> {
     private Context context;
     private List<MessagePersonItem> mItems;
+    private RecyclerView mHorizontalRecyclerView;
     private List<Person> mOnlineList;
 
     public MessagesListAdapter(Context con, List<MessagePersonItem> itemsList, List<Person> onlineList){
@@ -66,6 +79,17 @@ public class MessagesListAdapter extends RecyclerView.Adapter<MessagesListAdapte
             return 1;
     }
 
+    public void setHorizontalRecycleViewList(List<Person> personList){
+        mOnlineList = personList;
+        if (mHorizontalRecyclerView != null){
+            mHorizontalRecyclerView.setAdapter(new HorizontalRecycleViewAdapter(context,mOnlineList));
+            mHorizontalRecyclerView.getAdapter().notifyDataSetChanged();
+        }
+
+
+    }
+
+
     class MyRecycleViewHolder extends RecyclerView.ViewHolder{
 
         private ImageView mOnline;
@@ -74,7 +98,7 @@ public class MessagesListAdapter extends RecyclerView.Adapter<MessagesListAdapte
         private TextView mLastMessage;
         private ImageView mRead;
         private TextView mDate;
-        private RecyclerView mHorizontalRecyclerView;
+
 
 
         MyRecycleViewHolder(View itemView) {
@@ -102,22 +126,44 @@ public class MessagesListAdapter extends RecyclerView.Adapter<MessagesListAdapte
                 String name = unbd == null?null:unbd.getName();
 
                 Person person = new Person(id,name);
-                Intent intent = CorrespondenceListActivity.newIntent(context, person);
+                Intent intent = CorrespondenceListActivity.newIntent(context, person,mOnline.getVisibility() == View.VISIBLE);
                 context.startActivity(intent);
             });
+
+            itemView.setOnLongClickListener(view ->{
+                PopupMenu popupMenu = new PopupMenu(view.getContext(),view);
+                popupMenu.inflate(R.menu.profile_context_menu);
+                popupMenu.setOnMenuItemClickListener(menuItem -> {
+                    switch (menuItem.getItemId()) {
+                        case R.id.action_profile:
+                            ProfileActivity.startActivity(context,mItems.get(getAdapterPosition()-1).getSenderId());
+                            return true;
+                        default:
+                            return false;
+                    }
+
+                });
+                popupMenu.show();
+                return true;
+            });
+
+
         }
 
 
         void bindHolder(MessagePersonItem item) {
             ImageTools tools = new ImageTools(context);
-            Person person = new Person(item.getSenderId(),"");
-            person.setPhotoUrl("no_facebook_url");
+            String id = item.getSenderId();
+            if (id.equals(QueryPreferences.getActiveUserId(context))) id = item.getRecipient_id();
+
+            Person person = new Person(id,item.getName());
             tools.downloadPersonImage(mPhoto,person);
 
 
             mName.setText(item.getName() == null?"Error with getting name":item.getName());
 
-            mLastMessage.setText(item.getText());
+            mLastMessage.setText(item.getText().length() <= 30 ?item.getText():"Message.");
+
             if (item.getSenderId().equals(QueryPreferences.getActiveUserId(context))){
                 if (item.getRead() == 1){
                     tools.downloadPersonImage(mRead,new Person(item.getSenderId(),""));

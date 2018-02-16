@@ -9,6 +9,7 @@ public class UserNamesBd extends RealmObject {
     @Required
     private String userId;
     private String name;
+    private String imageSrc;
 
     public String getUserId() {
         return userId;
@@ -24,5 +25,13 @@ public class UserNamesBd extends RealmObject {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getImageSrc() {
+        return imageSrc;
+    }
+
+    public void setImageSrc(String imageSrc) {
+        this.imageSrc = imageSrc;
     }
 }

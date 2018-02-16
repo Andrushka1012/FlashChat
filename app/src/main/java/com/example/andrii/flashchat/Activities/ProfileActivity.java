@@ -31,19 +31,30 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.example.andrii.flashchat.R;
+import com.example.andrii.flashchat.data.DB.UserNamesBd;
 import com.example.andrii.flashchat.data.Person;
+import com.example.andrii.flashchat.data.actions.ActionGetPersonData;
 import com.example.andrii.flashchat.data.actions.ActionSaveProfileChanges;
 import com.example.andrii.flashchat.tools.ImageTools;
 import com.example.andrii.flashchat.tools.QueryAction;
 import com.example.andrii.flashchat.tools.QueryPreferences;
+import com.google.gson.Gson;
 import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
+import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import io.realm.Realm;
 import rx.Observable;
 import rx.Observer;
+import rx.Subscriber;
+import rx.Subscription;
+import rx.schedulers.Schedulers;
+
+import static android.widget.Toast.LENGTH_LONG;
 
 public class ProfileActivity extends AppCompatActivity{
     private static final String TAG = "ProfileActivity";
@@ -70,12 +81,49 @@ public class ProfileActivity extends AppCompatActivity{
         return intent;
     }
 
+    public static void startActivity(Context context,String personId){
+        Realm realm = Realm.getDefaultInstance();
+        String name = realm.where(UserNamesBd.class).equalTo("userId",personId).findFirst().getName();
+        if (name == null) name = "";
+        final Person[] subject = {new Person(personId,name)};
+        Subscription subscription = QueryAction.executeAnswerQuery(new ActionGetPersonData(personId))
+                .timeout(1, TimeUnit.SECONDS, Schedulers.io())
+                .subscribe(new Subscriber<String>() {
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        subject[0] = new Person(
+                                subject[0].getId(), subject[0].getName(),new Date().toString(),"Number","email@email.com","gender","offline");
+                        Intent intent = ProfileActivity.newIntent(context,subject[0]);
+                        context.startActivity(intent);
+                    }
+
+                    @Override
+                    public void onNext(String answer) {
+                        if (answer.equals("error")){
+                            Toast.makeText(context,"Server error", LENGTH_LONG).show();
+                            onError(new Throwable(answer));
+                        }else{
+                            Gson gson = new Gson();
+                            subject[0] = gson.fromJson(answer,Person.class);
+                            Intent intent = ProfileActivity.newIntent(context, subject[0]);
+                            context.startActivity(intent);
+                        }
+                    }
+                });
+        QueryAction.addSubscription(subscription);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            Window w = getWindow();
-            w.setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+            getWindow().setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
         }
         setContentView(R.layout.activity_profile);
 
@@ -87,6 +135,9 @@ public class ProfileActivity extends AppCompatActivity{
         setPhoto();
 
         Toolbar toolbar = findViewById(R.id.my_toolbar);
+        /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            toolbar.setPadding(0, getStatusBarHeight(),0,0);
+        }*/
         setSupportActionBar(toolbar);
 
         toolbar.setNavigationOnClickListener(view -> onBackPressed());
@@ -115,7 +166,7 @@ public class ProfileActivity extends AppCompatActivity{
             getMenuInflater().inflate(R.menu.profile_menu, menu);
             itemSave = menu.getItem(0);
             itemSave.setEnabled(false);
-            if (person.getPhotoUrl().equals("offline")) setNotClickable();
+            if (person.getPhotoUrl() == null ||person.getPhotoUrl().equals("offline")) setNotClickable();
             if (!person.getId().equals(QueryPreferences.getActiveUserId(this))) itemSave.setVisible(false);
 
             return true;
@@ -172,7 +223,7 @@ public class ProfileActivity extends AppCompatActivity{
                             etNumber.getText().toString(),genderSpinner.getSelectedItem().toString());
 
                     Observable<String> observable = QueryAction.executeAnswerQuery(action);
-                    observable.subscribe(new Observer<String>() {
+                   Subscription subscription = observable.subscribe(new Observer<String>() {
                         @Override
                         public void onCompleted() {
                             dataChanged = false;
@@ -190,11 +241,18 @@ public class ProfileActivity extends AppCompatActivity{
                             else  Toast.makeText(getApplicationContext(),"Server Error.",Toast.LENGTH_LONG).show();
                         }
                     });
+                    QueryAction.addSubscription(subscription);
                 }
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        QueryAction.unsubscribeAll();
     }
 
     private boolean checkValidData() {
@@ -279,7 +337,7 @@ public class ProfileActivity extends AppCompatActivity{
         etEmail.setText(person.getEmail());
         etNumber.setText(person.getPhoneNumber());
 
-        if (person.getGender().equals("female")) genderSpinner.setSelection(2);
+       if (person.getGender() != null && person.getGender().equals("female")) genderSpinner.setSelection(2);
 
 
         TextWatcher textWatcher = new TextWatcher() {
@@ -334,4 +392,12 @@ public class ProfileActivity extends AppCompatActivity{
     }
 
 
+    private int getStatusBarHeight() {
+        int result = 0;
+        int resourceId = getResources().getIdentifier("status_bar_height","dimen","android");
+        if (resourceId>0){
+            result = getResources().getDimensionPixelSize(resourceId);
+        }
+        return result;
+    }
 }

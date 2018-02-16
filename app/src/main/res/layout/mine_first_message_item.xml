@@ -6,40 +6,30 @@
     android:layout_height="wrap_content">
     <LinearLayout
         android:layout_marginTop="35dp"
-        android:layout_marginLeft="63dp"
+
         android:orientation="vertical"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
-        <View
-            android:layout_marginLeft="5dp"
-            android:layout_width="200dp"
-            android:layout_height="20dp"
-            android:background="@drawable/mine_first"
-            >
-        </View>
+
         <TextView
-            android:layout_marginLeft="29dp"
+            android:layout_marginLeft="5dp"
             android:id="@+id/tv_text"
             android:gravity="center"
-            android:layout_width="176dp"
+            android:layout_width="200dp"
             android:layout_height="wrap_content"
-            android:background="@color/grey2"
+            android:background="@drawable/mine_first"
             />
         <ImageView
             android:id="@+id/iv_photo_message"
             android:visibility="gone"
-            android:layout_marginLeft="29dp"
-            android:layout_width="176dp"
+            android:layout_marginLeft="5dp"
+            android:layout_width="245dp"
             android:layout_height="wrap_content"
-            />
-        <View
-            android:layout_marginLeft="29dp"
-            android:layout_width="176dp"
-            android:layout_height="20dp"
-            android:background="@drawable/mine_bot"
+
             />
     </LinearLayout>
     <de.hdodenhof.circleimageview.CircleImageView xmlns:android="http://schemas.android.com/apk/res/android"
+        android:visibility="gone"
         android:id="@+id/iv_photo"
         android:layout_height="60dp"
         android:layout_width="60dp"

@@ -75,7 +75,13 @@
                     android:hint="@string/prompt_email"
                     android:inputType="textEmailAddress"
                     android:maxLines="1"
-                    android:singleLine="true" />
+                    android:singleLine="true"
+                    android:imeOptions="actionNext"
+                    android:ems="10"
+                    android:nextFocusForward="@id/password"
+                    >
+                    <requestFocus/>
+                </AutoCompleteTextView>
 
             </android.support.design.widget.TextInputLayout>
             </LinearLayout>
@@ -119,20 +125,10 @@
                 android:textSize="18sp"
                 android:textStyle="italic" />
 
-            <TextView
-                android:layout_gravity="center_horizontal"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/forgotPassword"
-                android:textSize="18sp"
-                android:textColor="@color/colorPrimary"
-                android:textStyle="italic"
-                android:paddingTop="10dp"
-                />
         </LinearLayout>
     </ScrollView>
         <LinearLayout
-            android:layout_marginTop="270dp"
+            android:layout_marginTop="245dp"
             android:layout_gravity="bottom"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">

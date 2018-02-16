@@ -35,11 +35,11 @@ import java.util.concurrent.TimeUnit;
 
 import io.realm.Realm;
 import rx.Observer;
+import rx.Subscription;
 import rx.schedulers.Schedulers;
 
 public class LoadingActivity extends AppCompatActivity {
     private static String TAG = "LoadingActivity";
-    private ProgressBar progressBar;
     private Realm realm;
     
     public static Intent newIntent(Context context){
@@ -55,8 +55,7 @@ public class LoadingActivity extends AppCompatActivity {
         Log.d(TAG,"Loading activity start");
         
         realm = Realm.getDefaultInstance();
-        
-        progressBar = findViewById(R.id.progress_bar);
+
         Typeface typeface = Typeface.createFromAsset(getAssets(),"fonts/MISTRAL.TTF");
         TextView tvAppName = findViewById(R.id.tv_app_name);
         tvAppName.setTypeface(typeface);
@@ -68,6 +67,7 @@ public class LoadingActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         realm.close();
+        QueryAction.unsubscribeAll();
     }
     
     
@@ -75,7 +75,7 @@ public class LoadingActivity extends AppCompatActivity {
     private void downloadMessages() {
         String id = QueryPreferences.getActiveUserId(this);
         ActionGetAllMessages action = new ActionGetAllMessages(id);
-        QueryAction.executeAnswerQuery(action)
+        Subscription subscription = QueryAction.executeAnswerQuery(action)
                 .timeout(10, TimeUnit.SECONDS, Schedulers.io())
                 .doOnUnsubscribe(() -> {})
                 .subscribe(new Observer<String>() {
@@ -142,11 +142,12 @@ public class LoadingActivity extends AppCompatActivity {
                         }
                     }
                 });
+        QueryAction.addSubscription(subscription);
     }
 
     private void downloadNames(){
         ActionGetNames action = new ActionGetNames(QueryPreferences.getActiveUserId(this));
-        QueryAction.executeAnswerQuery(action)
+        Subscription subscription = QueryAction.executeAnswerQuery(action)
                 .timeout(10, TimeUnit.SECONDS, Schedulers.io())
                 .subscribe(new Observer<String>() {
                     @Override
@@ -199,6 +200,6 @@ public class LoadingActivity extends AppCompatActivity {
                         }
                     }
                 });
-
+        QueryAction.addSubscription(subscription);
     }
 }

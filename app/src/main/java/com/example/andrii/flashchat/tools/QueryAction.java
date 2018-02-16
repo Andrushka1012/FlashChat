@@ -9,15 +9,30 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import rx.Observable;
+import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 
 public class QueryAction {
+    private static List<Subscription>subscriptions = new ArrayList<>();
+
+    public static void unsubscribeAll(){
+        for (Subscription sub:subscriptions){
+            if (sub != null && !sub.isUnsubscribed())sub.unsubscribe();
+        }
+        subscriptions.clear();
+    }
+
+    public static void addSubscription(Subscription subscription){
+        subscriptions.add(subscription);
+    }
+
     /**
      * @param action which be executed
      * @return Observable that emits {@link String} answer.Answer timeout 5 sec.
