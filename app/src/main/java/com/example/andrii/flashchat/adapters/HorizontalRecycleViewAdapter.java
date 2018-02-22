@@ -72,7 +72,10 @@ public class HorizontalRecycleViewAdapter extends RecyclerView.Adapter<Horizonta
                 context.startActivity(CorrespondenceListActivity.newIntent(context,p,true));
             });
 
-            itemView.setOnClickListener(v -> ProfileActivity.startActivity(context,mPersons.get(getAdapterPosition()).getId()));
+            itemView.setOnClickListener(v -> {
+                Intent intent = CorrespondenceListActivity.newIntent(context,mPersons.get(getAdapterPosition()),true);
+                context.startActivity(intent);
+            });
 
 
             itemView.setOnLongClickListener(view ->{
@@ -137,7 +140,7 @@ public class HorizontalRecycleViewAdapter extends RecyclerView.Adapter<Horizonta
         }
         public void bindHolder(Person person) {
             ImageTools tools = new ImageTools(context);
-            tools.downloadPersonImage(mIvPhoto,person);
+            tools.downloadPersonImage(mIvPhoto,person,false);
             String name;
             if (person.getName().length() >=7) name = person.getName().substring(0,3) + "..";
             else name = person.getName();

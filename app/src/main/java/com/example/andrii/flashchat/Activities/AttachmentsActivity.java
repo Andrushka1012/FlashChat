@@ -18,14 +18,15 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
 
 public class AttachmentsActivity extends AppCompatActivity {
     private static String PHOTOS_EXTRA = "PHOTOS_EXTRA";
 
-    public static Intent newIntent(Context context,String photos){
+    public static Intent newIntent(Context context,ArrayList<String> photos){
         Intent intent = new Intent(context,AttachmentsActivity.class);
-        intent.putExtra(PHOTOS_EXTRA,photos);
+        intent.putStringArrayListExtra(PHOTOS_EXTRA,photos);
 
         return intent;
     }
@@ -37,11 +38,8 @@ public class AttachmentsActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
 
-        String json = getIntent().getStringExtra(PHOTOS_EXTRA);
-        Log.d("qwe",json);
-        Gson gson = new Gson();
-        Type type = new TypeToken<List<MessageItem>>(){}.getType();
-        List<MessageItem> photos = gson.fromJson(json,type);
+        ArrayList<String> photosId = getIntent().getStringArrayListExtra(PHOTOS_EXTRA);
+
         RecyclerView recyclerView = findViewById(R.id.recycler_view);
         GridLayoutManager gridLayoutManager = new GridLayoutManager(this,4);
         gridLayoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
@@ -60,7 +58,7 @@ public class AttachmentsActivity extends AppCompatActivity {
                 outRect.top = 10;
             }
         });
-        recyclerView.setAdapter(new AttachmentsAdapter(this,photos));
+        recyclerView.setAdapter(new AttachmentsAdapter(this,photosId));
 
     }
 

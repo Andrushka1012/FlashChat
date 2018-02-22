@@ -62,6 +62,7 @@
             android:theme="@style/NoActionBar" />
         <activity
             android:name=".Activities.LoadingActivity"
+            android:screenOrientation="portrait"
             android:theme="@style/NoActionBar" />
         <activity
             android:name=".Activities.LoginActivity"
@@ -76,7 +77,8 @@
             android:name=".Activities.SearchActivity"
             android:label=""
             android:parentActivityName=".Activities.MessagesListActivity"
-            android:theme="@style/DarkGreenTheme.NoActionBar" />
+            android:theme="@style/DarkGreenTheme.NoActionBar"
+            />
         <activity
             android:name=".Activities.AttachmentsActivity"
             android:label="Attachments"

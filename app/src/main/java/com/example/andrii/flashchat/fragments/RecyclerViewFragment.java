@@ -121,7 +121,7 @@ public class RecyclerViewFragment extends Fragment{
             case FRAGMENT_TYPE_ONLINE:
                 mRecyclerViewOnline = v.findViewById(R.id.recycler_view);
                 ActionGetOnlinePersonData action = new ActionGetOnlinePersonData(QueryPreferences.getActiveUserId(getActivity()));
-               Subscription subscription =  QueryAction.executeAnswerQuery(action)
+                Subscription subscription =  QueryAction.executeAnswerQuery(action)
                         .subscribe(new Observer<String>() {
                             @Override
                             public void onCompleted() {

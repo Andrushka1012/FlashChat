@@ -17,10 +17,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.andrii.flashchat.Activities.AttachmentsActivity;
+import com.example.andrii.flashchat.Activities.LoadingActivity;
 import com.example.andrii.flashchat.Activities.MessagesListActivity;
 import com.example.andrii.flashchat.Activities.PhotoPagerActivity;
 import com.example.andrii.flashchat.Activities.ProfileActivity;
 import com.example.andrii.flashchat.R;
+import com.example.andrii.flashchat.data.DB.MessageDb;
 import com.example.andrii.flashchat.data.DB.UserNamesBd;
 import com.example.andrii.flashchat.data.Message;
 import com.example.andrii.flashchat.data.MessageItem;
@@ -34,6 +36,7 @@ import com.squareup.picasso.Picasso;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
@@ -51,18 +54,31 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.MyRecy
 
     public ChatListAdapter(Context con, List<MessageItem> list){
         context = con;
+        list.sort((messageItem, t1) -> {
+            Date date1 = messageItem.getDate();
+            Date date2 = t1.getDate();
+
+            boolean before = date1.before(date2);
+
+            return before?-1:date1.equals(date2)?0:1;
+        });
         mMessages = list;
         mMyID = QueryPreferences.getActiveUserId(context);
     }
 
     public Intent addAttachments(){
-        List<MessageItem> list = new ArrayList<>();
+        Realm realm = Realm.getDefaultInstance();
+        ArrayList<String> list = new ArrayList<>();
         for (MessageItem item:mMessages){
-            if (item.getType() == Message.MESSAGE_IMAGE_TYPE) list.add(item);
+            if (item.getType() == Message.MESSAGE_IMAGE_TYPE){
+                MessageDb message = realm.where(MessageDb.class).equalTo("msgID",item.getMsgID()).findFirst();
+                if (message != null){
+                    list.add(item.getMsgID());
+                }
+            }
         }
-        Gson gson = new Gson();
-        String photos = gson.toJson(list);
-        return AttachmentsActivity.newIntent(context,photos);
+        realm.close();
+        return AttachmentsActivity.newIntent(context,list);
     }
 
     @Override
@@ -133,18 +149,22 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.MyRecy
             mIvPhotoMessage = itemView.findViewById(R.id.iv_photo_message);
 
             mIvPhotoMessage.setOnClickListener(view -> {
-                List<MessageItem> list = new ArrayList<>();
-                MessageItem msgItemStart = null;
+                ArrayList<String> list = new ArrayList<>();
+                String msgItemStartId = "";
+                Realm realm = Realm.getDefaultInstance();
                 for (MessageItem item:mMessages){
                     if (item.getType() == Message.MESSAGE_IMAGE_TYPE) {
-                        list.add(item);
-                        if(mMessages.get(getAdapterPosition()).getMsgID().equals(item.getMsgID()))msgItemStart = item;
+                        MessageDb message = realm.where(MessageDb.class).equalTo("msgID",item.getMsgID()).findFirst();
+                        if (message != null){
+                            list.add(item.getMsgID());
+                            if(mMessages.get(getAdapterPosition()).getMsgID().equals(item.getMsgID()))msgItemStartId = item.getMsgID();
+                        }
+
                     }
                 }
-                int msgPosition = list.indexOf(msgItemStart);
-                Gson gson = new Gson();
-                String photos = gson.toJson(list);
-                Intent intent = PhotoPagerActivity.newIntent(context,photos,msgPosition);
+                int msgPosition = list.indexOf(msgItemStartId);
+                realm.close();
+                Intent intent = PhotoPagerActivity.newIntent(context,list,msgPosition);
                 context.startActivity(intent);
             });
         }

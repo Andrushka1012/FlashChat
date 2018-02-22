@@ -233,12 +233,23 @@ public class ProfileActivity extends AppCompatActivity{
                         @Override
                         public void onError(Throwable e) {
                             Log.e(TAG,"onError",e);
+                            itemSave.setEnabled(false);
+                            dataChanged = false;
                         }
 
                         @Override
                         public void onNext(String s) {
-                            if (!s.equals("error")) Toast.makeText(getApplicationContext(),"Data was changed.",Toast.LENGTH_LONG).show();
-                            else  Toast.makeText(getApplicationContext(),"Server Error.",Toast.LENGTH_LONG).show();
+                            if (!s.equals("error")){
+                                Toast.makeText(getApplicationContext(),"Data was changed.",Toast.LENGTH_LONG).show();
+
+                                Realm realm = Realm.getDefaultInstance();
+                                UserNamesBd userNamesBd = realm.where(UserNamesBd.class)
+                                        .equalTo("userId",person.getId())
+                                        .findFirst();
+                                if (userNamesBd != null)userNamesBd.setName(etName.getText().toString());
+                                realm.commitTransaction();
+                                realm.close();
+                            } else  Toast.makeText(getApplicationContext(),"Server Error.",Toast.LENGTH_LONG).show();
                         }
                     });
                     QueryAction.addSubscription(subscription);
@@ -312,6 +323,11 @@ public class ProfileActivity extends AppCompatActivity{
             image = BitmapFactory.decodeResource(getApplicationContext().getResources(), R.drawable.ic_action_person);
             civPhoto.setImageBitmap(image);
         }
+
+       if (!QueryPreferences.getActiveUserId(this).equals(person.getId())){
+           ImageTools tools = new ImageTools(this);
+           tools.downloadFromServer(civPhoto,person);
+       }
     }
 
     private void setNotClickable() {

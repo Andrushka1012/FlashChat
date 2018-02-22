@@ -77,6 +77,8 @@ public class SearchActivity extends AppCompatActivity {
                 etSearch.setText(text);
             }
         }
+
+
         etSearch.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {

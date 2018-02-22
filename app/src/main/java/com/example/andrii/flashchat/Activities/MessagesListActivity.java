@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.NonNull;
@@ -35,6 +36,8 @@ import com.example.andrii.flashchat.tools.ImageTools;
 import com.example.andrii.flashchat.tools.QueryAction;
 import com.example.andrii.flashchat.tools.QueryPreferences;
 import com.google.gson.Gson;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
 import java.io.File;
 import java.util.Date;
@@ -58,6 +61,7 @@ public class MessagesListActivity extends AppCompatActivity
     private CircleImageView ivProfilePhoto;
     private TextView tvUserName;
     private Bundle savedInstance = null;
+    private Realm realm;
 
     public static Intent newIntent(Context context,String userId){
         Intent intent = new Intent(context,MessagesListActivity.class);
@@ -75,22 +79,24 @@ public class MessagesListActivity extends AppCompatActivity
         setupLayout();
 
         String userId = QueryPreferences.getActiveUserId(this);
-        Realm realm = Realm.getDefaultInstance();
+        realm = Realm.getDefaultInstance();
         UserNamesBd user = realm.where(UserNamesBd.class).equalTo("userId",userId).findFirst();
-        if (user != null) tvUserName.setText(user.getName());
+        if (user != null) {
+            tvUserName.setText(user.getName());
+            currentUser = new Person(userId,user.getName());
+        }else{
+            currentUser = new Person(userId,"");
+        }
 
         ImageTools tools = new ImageTools(this);
-        String root = this.getExternalFilesDir(Environment.DIRECTORY_PICTURES).getPath();
-        File file = new File(root,userId + ".jpg");
-        if (file.exists()) tools.downloadPersonImage(ivProfilePhoto,new Person(userId,""));
-        tools.downloadFromServer(ivProfilePhoto,new Person(userId,""));
+        tools.downloadPersonImage(ivProfilePhoto,new Person(userId,""),true);
 
     }
 
     @Override
     protected void onResume() {
-        setUpUserData(getIntent().getStringExtra(USER_ID_ARG_KEY));
         super.onResume();
+        setUpUserData(getIntent().getStringExtra(USER_ID_ARG_KEY));
     }
 
     @Override
@@ -103,6 +109,7 @@ public class MessagesListActivity extends AppCompatActivity
     protected void onDestroy() {
         super.onDestroy();
         QueryAction.unsubscribeAll();
+        realm.close();
     }
 
     @Override
@@ -155,7 +162,6 @@ public class MessagesListActivity extends AppCompatActivity
                 startActivity(intent);
                 break;
             case R.id.nav_exit:
-                Realm realm = Realm.getDefaultInstance();
                 realm.executeTransactionAsync(r -> {
                     RealmResults<MessageDb> resultsMessages = r.where(MessageDb.class).findAll();
                     resultsMessages.deleteAllFromRealm();
@@ -202,15 +208,6 @@ public class MessagesListActivity extends AppCompatActivity
         ivProfilePhoto = hView.findViewById(R.id.imageView);
         tvUserName = hView.findViewById(R.id.textView);
 
-
-        LinearLayout ll = hView.findViewById(R.id.ll_nav_header);
-        Bitmap bitmap = BitmapFactory.decodeResource(getResources(),R.drawable.nav_header);
-
-        Bitmap scaledBitmap = Bitmap.createScaledBitmap(bitmap,500,400,true);
-        BitmapDrawable bitmapDrawable = new BitmapDrawable(getResources(),scaledBitmap);
-        ll.setBackground(bitmapDrawable);
-
-
         TabLayout mTabLayout = findViewById(R.id.tabs);
         mViewPager = findViewById(R.id.viewPager);
         setUpViewPager();
@@ -226,59 +223,17 @@ public class MessagesListActivity extends AppCompatActivity
                 currentUser = person;
                 setInformation();
                 return;
+            }else{
+                currentUser = new Person(userId,"");
             }
+        }else{
+            currentUser = new Person(userId,"");
         }
-
-        ActionGetPersonData actionGetPersonData = new ActionGetPersonData(userId);
-
-        Observable<String> observable = QueryAction.executeAnswerQuery(actionGetPersonData);
-        Subscription subscription = observable.subscribe(new Observer<String>() {
-                    @Override
-                    public void onCompleted() {
-                        Log.d(TAG,"onCompleted");
-                        setInformation();
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-
-                        Log.e(TAG,"OnError",e);
-
-                        Toast.makeText(getApplicationContext(),"Server error", LENGTH_LONG).show();
-                        Realm realm = Realm.getDefaultInstance();
-
-                        UserNamesBd unbd = realm.where(UserNamesBd.class)
-                                .equalTo("userId",QueryPreferences.getActiveUserId(MessagesListActivity.this))
-                                .findFirst();
-                        String name = unbd == null?null:unbd.getName();
-
-                        currentUser = new Person(
-                                QueryPreferences.getActiveUserId(MessagesListActivity.this),name,new Date().toString(),"Number","email@email.com","gender","offline");
-                        setInformation();
-                    }
-
-                    @Override
-                    public void onNext(String answer) {
-                        Log.d(TAG,"OnNext");
-                        Log.d(TAG,answer);
-
-
-                        if (answer.equals("error")){
-                            Toast.makeText(getApplicationContext(),"Server error", LENGTH_LONG).show();
-                            onError(new Throwable(answer));
-                        }else{
-                            Gson gson = new Gson();
-                            currentUser = gson.fromJson(answer,Person.class);
-
-                        }
-                    }
-                });
-        QueryAction.addSubscription(subscription);
     }
 
     private void setInformation(){
         ImageTools tools = new ImageTools(this);
-        tools.downloadPersonImage(ivProfilePhoto,currentUser);
+        tools.downloadPersonImage(ivProfilePhoto,currentUser,false);
 
         tvUserName.setText(currentUser.getName());
     }
@@ -294,15 +249,5 @@ public class MessagesListActivity extends AppCompatActivity
         mViewPager.setAdapter(mAdapter);
     }
 
-  /*  private boolean isMyServiceAlive(Class<?> serviceClass){
-        ActivityManager manager = (ActivityManager)getSystemService(Context.ACTIVITY_SERVICE);
-        for(ActivityManager.RunningServiceInfo service: manager.getRunningServices(Integer.MAX_VALUE)){
-            Log.d(TAG,"My service running:" + true);
-            return true;
-        }
-        Log.d(TAG,"My service running:" + false);
-        return false;
-    }
-*/
 
 }

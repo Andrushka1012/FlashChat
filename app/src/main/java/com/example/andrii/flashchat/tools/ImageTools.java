@@ -20,6 +20,7 @@ import android.util.Log;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.example.andrii.flashchat.Activities.LoadingActivity;
 import com.example.andrii.flashchat.R;
 import com.example.andrii.flashchat.data.DB.UserNamesBd;
 import com.example.andrii.flashchat.data.Person;
@@ -39,6 +40,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import io.realm.Realm;
@@ -51,12 +54,13 @@ import rx.schedulers.Schedulers;
 public class ImageTools {
     private final String TAG = "ImageTools";
     private Context context;
+    private static List<String> downloaded = new ArrayList<>();
 
     public ImageTools(Context context) {
         this.context = context;
     }
 
-    public void downloadPersonImage(ImageView imageView, Person p) {
+    public void downloadPersonImage(ImageView imageView, Person p,boolean downloadFromServer) {
             Log.d(TAG,p.getId() + " " + p.getName());
             String root = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES).getPath();
             File file = new File(root,p.getId() + ".jpg");
@@ -69,7 +73,13 @@ public class ImageTools {
                         .load(new File(path))
                         .memoryPolicy(MemoryPolicy.NO_CACHE,MemoryPolicy.NO_STORE)
                         .into(imageView);
-            }else downloadFromServer(imageView,p);
+            }else
+                if (downloadFromServer){
+                    downloadFromServer(imageView,p);
+                } else{
+                    Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(),R.drawable.ic_action_person);
+                    imageView.setImageBitmap(bitmap);
+                }
     }
 
     public void downloadFromServer(ImageView imageView, Person p){
@@ -134,8 +144,9 @@ public class ImageTools {
                         }
                     });
         }else {
-            Toast.makeText(context,"Downloading from server",Toast.LENGTH_LONG).show();
+
             ActionLoadImage actionLoadImage = new ActionLoadImage(p.getId(),p.getId());
+
            Subscription subscription = QueryAction.executeAnswerQuery(actionLoadImage)
                     .subscribe(new Observer<String>() {
                         @Override
@@ -144,25 +155,27 @@ public class ImageTools {
 
                         @Override
                         public void onError(Throwable e) {
-                            Toast.makeText(context,"Error with downloading photo from server.",Toast.LENGTH_LONG).show();
+
                         }
 
                         @Override
                         public void onNext(String s) {
+                            if (s.equals("not found")){
+                                Log.d(TAG,"not found image");
+                                Picasso.with(context).load(R.drawable.ic_action_person).into(imageView);
+                            }
                             if (s.equals("error")) {
-                                Toast.makeText(context,"Error with downloading photo from server.",Toast.LENGTH_LONG).show();
                                 Picasso.with(context).load(R.drawable.ic_action_person).into(imageView);
                             }
                             else{
-                                Toast.makeText(context,"Complete",Toast.LENGTH_LONG).show();
                                 Log.d(TAG,"String:" + s);
                                 Log.d(TAG,"len:" + s.length());
                                 JsonParser jsonParser = new JsonParser();
                                 JsonObject obj = (JsonObject) jsonParser.parse(s);
-                                String endcodedString = obj.get("str").getAsString();
-                                Log.d(TAG,endcodedString);
+                                String encodedString = obj.get("str").getAsString();
+                                Log.d(TAG,encodedString);
 
-                                byte[] imageBytes = Base64.decode(endcodedString,Base64.DEFAULT);
+                                byte[] imageBytes = Base64.decode(encodedString,Base64.DEFAULT);
                                 Bitmap image = BitmapFactory.decodeByteArray(imageBytes,0,imageBytes.length);
 
 
@@ -185,6 +198,43 @@ public class ImageTools {
 
 
     }
+
+    public void downloadMessageImageAndSave(String userID,String msgID,File file){
+        ActionLoadImage actionLoadImage = new ActionLoadImage(userID,msgID);
+        QueryAction.executeAnswerQuery(actionLoadImage)
+                .subscribe(new Observer<String>() {
+                    @Override
+                    public void onCompleted() {
+                        Log.d(TAG,"Image " + msgID + " was downloaded");
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.e(TAG,"Error:",e);
+                    }
+
+                    @Override
+                    public void onNext(String s) {
+                        if (s.equals("not found")){
+                            onError(new Throwable("Not found image"));
+                        }
+                        if (s.equals("error")){
+                            onError(new Throwable("Error with downloading image"));
+
+                        }else{
+                            JsonParser jsonParser = new JsonParser();
+                            JsonObject obj = (JsonObject) jsonParser.parse(s);
+                            String encodedString = obj.get("str").getAsString();
+                            Log.d(TAG,"imageString:" + encodedString);
+
+                            byte[] imageBytes = Base64.decode(encodedString,Base64.DEFAULT);
+                            Bitmap image = BitmapFactory.decodeByteArray(imageBytes,0,imageBytes.length);
+                            saveImage(file, image);
+                        }
+                    }
+                });
+    }
+
     public void saveImage(File file,Bitmap image){
         Observable.just(image)
                 .observeOn(Schedulers.io())

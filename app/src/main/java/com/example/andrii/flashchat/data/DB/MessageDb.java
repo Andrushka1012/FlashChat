@@ -90,4 +90,9 @@ public class MessageDb extends RealmObject{
     public void setType(int type) {
         this.type = type;
     }
+
+    @Override
+    public String toString() {
+        return msgID + " " + text + " " + date + " " + type;
+    }
 }

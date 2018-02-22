@@ -39,8 +39,6 @@ import com.example.andrii.flashchat.tools.QueryPreferences;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.omadahealth.github.swipyrefreshlayout.library.SwipyRefreshLayout;
-import com.omadahealth.github.swipyrefreshlayout.library.SwipyRefreshLayoutDirection;
-import com.squareup.picasso.Picasso;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -48,7 +46,6 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
@@ -59,7 +56,6 @@ import io.realm.Realm;
 import io.realm.RealmResults;
 import rx.Observable;
 import rx.Observer;
-import rx.Subscriber;
 import rx.Subscription;
 import rx.schedulers.Schedulers;
 
@@ -125,111 +121,26 @@ public class CorrespondenceListActivity extends AppCompatActivity {
 
         subject = getIntent().getParcelableExtra(PERSON_EXTRA);
 
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        TextView tvName = toolbar.findViewById(R.id.tv_name);
-        TextView tvOnline = toolbar.findViewById(R.id.tv_online);
-        CircleImageView ivPhoto = toolbar.findViewById(R.id.iv_photo);
-
-        tvName.setText(subject.getName());
-        String online = getIntent().getBooleanExtra(ONLINE_EXTRA,false)?"Online":"Offline";
-        tvOnline.setText(online);
-        ImageTools tools = new ImageTools(this);
-        tools.downloadPersonImage(ivPhoto,subject);
-        ivPhoto.setOnClickListener(v ->{
-            Intent intent = ProfileActivity.newIntent(this,currentUser);
-            startActivity(intent);
-        });
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
-
-        refreshLayout = findViewById(R.id.SwipyRefreshLayout);
-        refreshLayout.setOnRefreshListener(direction -> {
-            updateDataBase();
-            setupRecyclerView();
-        });
-
-        mRecyclerView = findViewById(R.id.recycler_view);
-        setupRecyclerView();
-
-
-
-        ImageButton mIbSend = findViewById(R.id.ib_send);
-        ImageButton mIbTakePhoto = findViewById(R.id.ib_take_photo);
         mEtMessage = findViewById(R.id.et_message);
         if (text != null) mEtMessage.setText(text);
         mEtMessage.setOnClickListener(v -> mRecyclerView.scrollToPosition(mRecyclerView.getAdapter().getItemCount() - 1));
-
-        mIbSend.setOnClickListener((View view) -> {
-            if (mEtMessage.getText().toString().equals("")) return;
-            Message msg = new Message(mEtMessage.getText().toString(), currentUser,Message.MESSAGE_TEXT_TYPE);
-
-            ActionSendMessage action = new ActionSendMessage(
-                    msg.getID().toString(),msg.getText(),currentUser.getId(),subject.getId(),Message.MESSAGE_TEXT_TYPE);
-          Subscription subscription = QueryAction.executeAnswerQuery(action)
-                    .doOnUnsubscribe(()->{})
-                    .subscribe(new Observer<String>() {
-                        @Override
-                        public void onCompleted() {
-                            SingletonConnection.getInstance().close();
-                            updateDataBase();
-                        }
-
-                        @Override
-                        public void onError(Throwable e) {
-                            Log.e(TAG,"onError:",e);
-                            Toast.makeText(CorrespondenceListActivity.this,"Message was not sent.",LENGTH_LONG).show();
-                        }
-
-                        @Override
-                        public void onNext(String s) {
-                            if (s.equals("error")){
-                                onError(new Throwable(s));
-                            }
-
-                        }
-                    });
-            QueryAction.addSubscription(subscription);
-            MessageItem msgItem = new MessageItem(msg,subject);
-            ((ChatListAdapter)mRecyclerView.getAdapter()).addMessage(msgItem);
-            mRecyclerView.scrollToPosition(mRecyclerView.getAdapter().getItemCount() - 1);
-
-            mEtMessage.setText("");
-        });
-
-        mIbSend.setOnLongClickListener(view -> {
-            Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-            intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-            Locale[] languages  = {Locale.getDefault(), Locale.ENGLISH} ;
-            intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE,languages);
-            intent.putExtra(RecognizerIntent.EXTRA_PROMPT,"Say something:");
-
-            startActivityForResult(intent,SPEECH_REQ);
-
-            return true;
-        });
-
-        mIbTakePhoto.setOnClickListener(view -> {
-            Message msg = new Message("", currentUser,Message.MESSAGE_IMAGE_TYPE);
-            Intent intent = PhotoActivity.newIntent(this, msg.getID().toString());
-            mId =  msg.getID();
-            startActivityForResult(intent, MY_ACTIVITY_RESULT_REQUEST_CODE);
-        });
-        mIbTakePhoto.setOnLongClickListener(v -> {
-            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-            intent.setType("image/*");
-            startActivityForResult(intent, PICK_IMAGE_REQUEST_CODE);
-            return true;
-        });
+        inicializeview();
 
         setRenew(10* 1000);
     }
+
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putString(TEXT_KAY,mEtMessage.getText().toString());
         outState.putParcelable(USER_KAY,currentUser);
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
     }
 
     @Override
@@ -287,7 +198,7 @@ public class CorrespondenceListActivity extends AppCompatActivity {
                             @Override
                             public void onCompleted() {
                                 SingletonConnection.getInstance().close();
-                                updateDataBase();
+                                updateDataBase(false);
                             }
 
                             @Override
@@ -349,7 +260,7 @@ public class CorrespondenceListActivity extends AppCompatActivity {
                         @Override
                         public void onCompleted() {
                             SingletonConnection.getInstance().close();
-                            updateDataBase();
+                            updateDataBase(false);
                         }
 
                         @Override
@@ -375,6 +286,99 @@ public class CorrespondenceListActivity extends AppCompatActivity {
         if (runnable != null) handler.removeCallbacks(runnable);
           QueryAction.unsubscribeAll();
 
+    }
+
+    private void inicializeview() {
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        TextView tvName = toolbar.findViewById(R.id.tv_name);
+        TextView tvOnline = toolbar.findViewById(R.id.tv_online);
+        CircleImageView ivPhoto = toolbar.findViewById(R.id.iv_photo);
+
+        tvName.setText(subject.getName());
+        String online = getIntent().getBooleanExtra(ONLINE_EXTRA,false)?"Online":"Offline";
+        tvOnline.setText(online);
+        ImageTools tools = new ImageTools(this);
+        tools.downloadPersonImage(ivPhoto,subject,false);
+        ivPhoto.setOnClickListener(v ->{
+            Intent intent = ProfileActivity.newIntent(this,subject);
+            startActivity(intent);
+        });
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+
+        refreshLayout = findViewById(R.id.SwipyRefreshLayout);
+        refreshLayout.setOnRefreshListener(direction -> {
+            updateDataBase(true);
+        });
+
+        mRecyclerView = findViewById(R.id.recycler_view);
+        setupRecyclerView();
+
+
+
+        ImageButton mIbSend = findViewById(R.id.ib_send);
+        ImageButton mIbTakePhoto = findViewById(R.id.ib_take_photo);
+
+        mIbSend.setOnClickListener((View view) -> {
+            if (mEtMessage.getText().toString().equals("")) return;
+            Message msg = new Message(mEtMessage.getText().toString(), currentUser,Message.MESSAGE_TEXT_TYPE);
+
+            ActionSendMessage action = new ActionSendMessage(
+                    msg.getID().toString(),msg.getText(),currentUser.getId(),subject.getId(),Message.MESSAGE_TEXT_TYPE);
+            Subscription subscription = QueryAction.executeAnswerQuery(action)
+                    .subscribe(new Observer<String>() {
+                        @Override
+                        public void onCompleted() {
+                            updateDataBase(false);
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+                            Log.e(TAG,"onError:",e);
+                            Toast.makeText(CorrespondenceListActivity.this,"Message was not sent.",LENGTH_LONG).show();
+                        }
+
+                        @Override
+                        public void onNext(String s) {
+                            if (s.equals("error")){
+                                onError(new Throwable(s));
+                            }
+
+                        }
+                    });
+            QueryAction.addSubscription(subscription);
+            MessageItem msgItem = new MessageItem(msg,subject);
+            ((ChatListAdapter)mRecyclerView.getAdapter()).addMessage(msgItem);
+            mRecyclerView.scrollToPosition(mRecyclerView.getAdapter().getItemCount() - 1);
+
+            mEtMessage.setText("");
+        });
+
+        mIbSend.setOnLongClickListener(view -> {
+            Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+            intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+            Locale[] languages  = {Locale.getDefault(), Locale.ENGLISH} ;
+            intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE,languages);
+            intent.putExtra(RecognizerIntent.EXTRA_PROMPT,"Say something:");
+
+            startActivityForResult(intent,SPEECH_REQ);
+
+            return true;
+        });
+
+        mIbTakePhoto.setOnClickListener(view -> {
+            Message msg = new Message("", currentUser,Message.MESSAGE_IMAGE_TYPE);
+            Intent intent = PhotoActivity.newIntent(this, msg.getID().toString());
+            mId =  msg.getID();
+            startActivityForResult(intent, MY_ACTIVITY_RESULT_REQUEST_CODE);
+        });
+        mIbTakePhoto.setOnLongClickListener(v -> {
+            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+            intent.setType("image/*");
+            startActivityForResult(intent, PICK_IMAGE_REQUEST_CODE);
+            return true;
+        });
     }
 
 
@@ -404,14 +408,13 @@ public class CorrespondenceListActivity extends AppCompatActivity {
         QueryAction.addSubscription(sub);
     }
 
-    private void updateDataBase(){
+    private void updateDataBase(boolean setupRecyclerView){
         ActionGetMessages action = new ActionGetMessages(currentUser.getId(),subject.getId());
         Subscription subscription = QueryAction.executeAnswerQuery(action)
-                .timeout(10, TimeUnit.SECONDS, Schedulers.io())
                 .subscribe(new Observer<String>() {
                     @Override
                     public void onCompleted() {
-
+                        if (setupRecyclerView) setupRecyclerView();
                     }
 
                     @Override
@@ -439,14 +442,8 @@ public class CorrespondenceListActivity extends AppCompatActivity {
                                                         .getExternalFilesDir(Environment.DIRECTORY_PICTURES).getPath();
                                                 File file = new File(root,m.getMsgID() + ".jpg");
                                                 if (!file.exists()) {
-                                                    String encodedString = m.getText();
-                                                    Log.d(TAG,"encoded string:" + encodedString);
-
-                                                    byte[] imageBytes = Base64.decode(encodedString,Base64.DEFAULT);
-                                                    Bitmap image = BitmapFactory.decodeByteArray(imageBytes,0,imageBytes.length);
-
-                                                    ImageTools tools = new ImageTools(CorrespondenceListActivity.this);
-                                                    tools.saveImage(file, image);
+                                                   ImageTools tools = new ImageTools(CorrespondenceListActivity.this);
+                                                   tools.downloadMessageImageAndSave(currentUser.getId(),m.getMsgID(),file);
                                                 }
                                             }
                                         }

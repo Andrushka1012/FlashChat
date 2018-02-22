@@ -60,6 +60,11 @@ public class MessagesListAdapter extends RecyclerView.Adapter<MessagesListAdapte
         }
     }
 
+    public void setContent(List<MessagePersonItem> items,List<Person> onlineList){
+        mItems = items;
+        mOnlineList = onlineList;
+    }
+
     @Override
     public void onBindViewHolder(MyRecycleViewHolder holder, int position) {
         if (position == 0) return;
@@ -78,7 +83,7 @@ public class MessagesListAdapter extends RecyclerView.Adapter<MessagesListAdapte
         else
             return 1;
     }
-
+    
     public void setHorizontalRecycleViewList(List<Person> personList){
         mOnlineList = personList;
         if (mHorizontalRecyclerView != null){
@@ -91,15 +96,12 @@ public class MessagesListAdapter extends RecyclerView.Adapter<MessagesListAdapte
 
 
     class MyRecycleViewHolder extends RecyclerView.ViewHolder{
-
         private ImageView mOnline;
         private ImageView mPhoto;
         private TextView mName;
         private TextView mLastMessage;
         private ImageView mRead;
         private TextView mDate;
-
-
 
         MyRecycleViewHolder(View itemView) {
             super(itemView);
@@ -157,7 +159,7 @@ public class MessagesListAdapter extends RecyclerView.Adapter<MessagesListAdapte
             if (id.equals(QueryPreferences.getActiveUserId(context))) id = item.getRecipient_id();
 
             Person person = new Person(id,item.getName());
-            tools.downloadPersonImage(mPhoto,person);
+            tools.downloadPersonImage(mPhoto,person,true);
 
 
             mName.setText(item.getName() == null?"Error with getting name":item.getName());
@@ -166,7 +168,7 @@ public class MessagesListAdapter extends RecyclerView.Adapter<MessagesListAdapte
 
             if (item.getSenderId().equals(QueryPreferences.getActiveUserId(context))){
                 if (item.getRead() == 1){
-                    tools.downloadPersonImage(mRead,new Person(item.getSenderId(),""));
+                    tools.downloadPersonImage(mRead,new Person(item.getSenderId(),""),true);
                     mRead.setVisibility(View.VISIBLE);
                 }else mRead.setVisibility(View.GONE);
             }else mRead.setVisibility(View.GONE);

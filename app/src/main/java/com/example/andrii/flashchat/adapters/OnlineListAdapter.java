@@ -101,7 +101,7 @@ public class OnlineListAdapter  extends RecyclerView.Adapter<OnlineListAdapter.M
         public void bindHolder(Person person) {
             mName.setText(person.getName());
             ImageTools tools = new ImageTools(context);
-            tools.downloadPersonImage(mPhoto,person);
+            tools.downloadPersonImage(mPhoto,person,false);
         }
     }
 

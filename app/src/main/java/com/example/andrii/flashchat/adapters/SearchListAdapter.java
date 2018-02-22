@@ -151,7 +151,7 @@ public class SearchListAdapter extends RecyclerView.Adapter<SearchListAdapter.My
             mOnline.setVisibility(item.isOnline()?View.VISIBLE:View.GONE);
             Person p = new Person(item.getId(),item.getName(),"","","","",item.getImageSrc());
             ImageTools tools = new ImageTools(context);
-            tools.downloadPersonImage(mPhoto,p);
+            tools.downloadPersonImage(mPhoto,p,true);
 
         }
     }

@@ -10,6 +10,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageButton;
@@ -17,6 +18,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.andrii.flashchat.R;
+import com.example.andrii.flashchat.data.DB.MessageDb;
 import com.example.andrii.flashchat.data.DB.UserNamesBd;
 import com.example.andrii.flashchat.data.MessageItem;
 import com.example.andrii.flashchat.fragments.PhotoPagerFragment;
@@ -27,6 +29,7 @@ import com.squareup.picasso.Picasso;
 
 import java.io.File;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -40,11 +43,11 @@ public class PhotoPagerActivity extends AppCompatActivity {
     private TextView tvDate;
     private CircleImageView imageView;
     private int currentPosition;
-    private List<MessageItem> photos;
+    private List<MessageItem> photos = new ArrayList<>();
 
-    public static Intent newIntent(Context context,String photos,int startPosition){
+    public static Intent newIntent(Context context, ArrayList<String> photos, int startPosition){
         Intent intent = new Intent(context,PhotoPagerActivity.class);
-        intent.putExtra(PHOTOS_EXTRAS,photos);
+        intent.putStringArrayListExtra(PHOTOS_EXTRAS,photos);
         intent.putExtra(START_POSITION_EXTRAS,startPosition);
 
         return intent;
@@ -57,16 +60,26 @@ public class PhotoPagerActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        ImageButton imageButton = findViewById(R.id.ibtn_back);
+        imageButton.setOnClickListener(v ->onBackPressed());
+
         tvIndex = toolbar.findViewById(R.id.tv_current_index);
         imageView = findViewById(R.id.profile_photo);
         tvName = findViewById(R.id.tv_name);
         tvDate = findViewById(R.id.tv_date);
 
-        String json = getIntent().getStringExtra(PHOTOS_EXTRAS);
+        ArrayList<String> idList = getIntent().getStringArrayListExtra(PHOTOS_EXTRAS);
         ViewPager viewPager = findViewById(R.id.pager);
-        Gson gson = new Gson();
-        Type type = new TypeToken<List<MessageItem>>(){}.getType();
-        photos = gson.fromJson(json,type);
+        Realm realm = Realm.getDefaultInstance();
+        for (String str :idList){
+            MessageDb db = realm.where(MessageDb.class).equalTo("msgID",str).findFirst();
+            MessageItem messageItem =
+                    new MessageItem(db.getMsgID(),"image Item",db.getSenderId(),db.getRecipient_id(),db.getDate(),1,1);
+            photos.add(messageItem);
+
+        }
+        realm.close();
+
         currentPosition = getIntent().getIntExtra(START_POSITION_EXTRAS,0);
 
         viewPager.setAdapter(new MyPagerAdapter(getSupportFragmentManager(),photos));
@@ -92,9 +105,9 @@ public class PhotoPagerActivity extends AppCompatActivity {
         imSave.setOnClickListener(v ->{
             ImageTools tools = new ImageTools(this);
             tools.saveToGallery(photos.get(currentPosition).getMsgID());
-            Toast.makeText(this,"Image was saved",0).show();
+            Toast.makeText(this,"Image was saved",Toast.LENGTH_SHORT).show();
         });
-
+        Log.d("asd",currentPosition + " " + photos.size());
         updateUI(currentPosition);
     }
 

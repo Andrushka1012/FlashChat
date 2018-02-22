@@ -66,8 +66,8 @@ public class LoginActivity extends AppCompatActivity
     @Override
     public void onBackPressed() {
 
-        if (getSupportFragmentManager().findFragmentByTag("RegisterFragment") != null){
-            getSupportFragmentManager().popBackStack("RegisterFragment",FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        if (getSupportFragmentManager().findFragmentByTag("LoginFragment") != null){
+            getSupportFragmentManager().popBackStack("LoginFragment",FragmentManager.POP_BACK_STACK_INCLUSIVE);
         }else super.onBackPressed();
     }
 

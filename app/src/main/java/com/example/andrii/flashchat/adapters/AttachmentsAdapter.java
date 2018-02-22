@@ -2,11 +2,8 @@ package com.example.andrii.flashchat.adapters;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
 import android.os.Environment;
 import android.support.v7.widget.RecyclerView;
-import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -15,32 +12,26 @@ import android.widget.LinearLayout;
 import com.example.andrii.flashchat.Activities.PhotoPagerActivity;
 import com.example.andrii.flashchat.R;
 import com.example.andrii.flashchat.data.MessageItem;
-import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.Comparator;
+import java.util.ArrayList;
 import java.util.List;
-
-import rx.Observable;
-import rx.functions.Func1;
-import rx.schedulers.Schedulers;
 
 public class AttachmentsAdapter extends RecyclerView.Adapter<AttachmentsAdapter.MyHolder>{
     private Context context;
-    private List<MessageItem>photos;
+    private ArrayList<String> photosId;
 
-    public AttachmentsAdapter(Context context, List<MessageItem> photos) {
+    public AttachmentsAdapter(Context context, ArrayList<String> photos) {
         this.context = context;
-        this.photos = photos;
+        this.photosId = photos;
         photos.sort((messageItem, t1) -> {
             long lSize,rSize;
             String root = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES).getPath();
-            File file = new File(root,messageItem.getMsgID() + ".jpg");
+            File file = new File(root,messageItem + ".jpg");
             if (file.exists()){
                 lSize = file.length();
-                file = new File(root,t1.getMsgID() + ".jpg");
+                file = new File(root,t1 + ".jpg");
                 if (file.exists()){
                     rSize = file.length();
                 }else return 0;
@@ -60,12 +51,12 @@ public class AttachmentsAdapter extends RecyclerView.Adapter<AttachmentsAdapter.
 
     @Override
     public void onBindViewHolder(MyHolder holder, int position) {
-        holder.bindHolder(photos.get(position).getMsgID());
+        holder.bindHolder(photosId.get(position));
     }
 
     @Override
     public int getItemCount() {
-        return photos.size();
+        return photosId.size();
     }
 
 
@@ -75,9 +66,7 @@ public class AttachmentsAdapter extends RecyclerView.Adapter<AttachmentsAdapter.
             super(itemView);
             imageView = (ImageView) itemView;
             imageView.setOnClickListener((view)->{
-                Gson gson = new Gson();
-                String json = gson.toJson(photos);
-                Intent intent = PhotoPagerActivity.newIntent(context,json,getAdapterPosition());
+                Intent intent = PhotoPagerActivity.newIntent(context,photosId,getAdapterPosition());
                 context.startActivity(intent);
             });
         }

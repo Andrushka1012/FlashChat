@@ -23,6 +23,8 @@ import com.example.andrii.flashchat.R;
 import com.example.andrii.flashchat.data.actions.ActionRegister;
 import com.example.andrii.flashchat.tools.QueryAction;
 
+import java.io.File;
+
 import rx.Observable;
 import rx.Observer;
 import rx.Subscription;

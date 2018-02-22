@@ -10,7 +10,6 @@ import java.util.List;
 import io.realm.RealmResults;
 
 public class MessageItem {
-
     private String msgID;
     private String text;
     private String senderId;
@@ -49,6 +48,7 @@ public class MessageItem {
         type = msg.getType();
 
     }
+
 
     public String getMsgID() {
         return msgID;
