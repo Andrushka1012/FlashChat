@@ -1,2 +1,2 @@
 FlashChat
-<a href="https://imgur.com/8s7pBFU"><img src="https://imgur.com/8s7pBFU" title="ProfileGif"/></a>
+<a href="https://imgflip.com/gif/257uyp"><img src="https://i.imgflip.com/257uyp.gif" title="made at imgflip.com"/></a>
