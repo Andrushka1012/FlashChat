@@ -7,3 +7,7 @@ Użytkownik ma możliwość tworzenia nowego konta,również jak i logowania prz
 <a href="https://imgflip.com/gif/257wwk"><img src="https://i.imgflip.com/257wwk.gif" title="made at imgflip.com"/></a><br />
 Użytkownik w łatwy sposób może zmienić dane osobiste oraz zdjęcie konta.<br />
 <a href="https://imgflip.com/gif/257v1f"><img src="https://i.imgflip.com/257v1f.gif" title="made at imgflip.com"/></a><br />
+Program ma prosty interfejs dla użytkownika gdzie on w łatwy sposób może wysłać wiadomość w formacie tekstowiej, oraz w formacie zdjęcia.
+Jest możliwość wyboru zdjęcia z galerii oraz tworzenia nowego przy pomocy kamery dostępnej w aplikacji.<br />
+<a href="https://imgflip.com/gif/257y53"><img src="https://i.imgflip.com/257y53.gif" title="made at imgflip.com"/></a>
+<a href="https://imgflip.com/gif/257y9q"><img src="https://i.imgflip.com/257y9q.gif" title="made at imgflip.com"/></a>
