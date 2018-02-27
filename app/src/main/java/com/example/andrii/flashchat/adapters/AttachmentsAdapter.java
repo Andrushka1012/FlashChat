@@ -11,12 +11,10 @@ import android.widget.LinearLayout;
 
 import com.example.andrii.flashchat.Activities.PhotoPagerActivity;
 import com.example.andrii.flashchat.R;
-import com.example.andrii.flashchat.data.MessageItem;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.List;
 
 public class AttachmentsAdapter extends RecyclerView.Adapter<AttachmentsAdapter.MyHolder>{
     private Context context;

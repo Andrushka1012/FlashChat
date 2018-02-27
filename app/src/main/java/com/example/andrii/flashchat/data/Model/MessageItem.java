@@ -1,4 +1,4 @@
-package com.example.andrii.flashchat.data;
+package com.example.andrii.flashchat.data.Model;
 
 
 import com.example.andrii.flashchat.data.DB.MessageDb;

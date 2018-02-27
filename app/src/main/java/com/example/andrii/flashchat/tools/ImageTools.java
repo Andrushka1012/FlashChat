@@ -1,7 +1,6 @@
 package com.example.andrii.flashchat.tools;
 
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -11,7 +10,6 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.RectF;
-import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -20,10 +18,9 @@ import android.util.Log;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.example.andrii.flashchat.Activities.LoadingActivity;
 import com.example.andrii.flashchat.R;
 import com.example.andrii.flashchat.data.DB.UserNamesBd;
-import com.example.andrii.flashchat.data.Person;
+import com.example.andrii.flashchat.data.Model.Person;
 import com.example.andrii.flashchat.data.actions.Action;
 import com.example.andrii.flashchat.data.actions.ActionLoadImage;
 import com.example.andrii.flashchat.data.actions.ActionSendImage;
@@ -39,7 +36,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;

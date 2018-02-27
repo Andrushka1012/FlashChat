@@ -9,7 +9,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.andrii.flashchat.R;
-import com.example.andrii.flashchat.data.Person;
+import com.example.andrii.flashchat.data.Model.Person;
 
 import java.util.List;
 

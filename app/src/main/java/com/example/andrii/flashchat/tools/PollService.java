@@ -16,7 +16,7 @@ import android.util.Log;
 
 import com.example.andrii.flashchat.Activities.CorrespondenceListActivity;
 import com.example.andrii.flashchat.R;
-import com.example.andrii.flashchat.data.Person;
+import com.example.andrii.flashchat.data.Model.Person;
 import com.example.andrii.flashchat.data.SingletonConnection;
 import com.example.andrii.flashchat.data.actions.ActionCheckNewMessages;
 import com.google.gson.Gson;

@@ -11,8 +11,6 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -20,15 +18,12 @@ import android.widget.Toast;
 import com.example.andrii.flashchat.R;
 import com.example.andrii.flashchat.data.DB.MessageDb;
 import com.example.andrii.flashchat.data.DB.UserNamesBd;
-import com.example.andrii.flashchat.data.MessageItem;
+import com.example.andrii.flashchat.data.Model.MessageItem;
 import com.example.andrii.flashchat.fragments.PhotoPagerFragment;
 import com.example.andrii.flashchat.tools.ImageTools;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 

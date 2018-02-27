@@ -57,12 +57,11 @@ public class RegisterFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.fragment_register,container,false);
-        initializeView(v);
-        return v;
+        return initializeView(inflater,container);
     }
 
-    private void initializeView(View v){
+    private View initializeView(LayoutInflater inflater,ViewGroup container){
+        View v = inflater.inflate(R.layout.fragment_register,container,false);
 
         mName = v.findViewById(R.id.name);
         mBirthDate = v.findViewById(R.id.date_of_birth);
@@ -92,18 +91,18 @@ public class RegisterFragment extends Fragment {
                 ActionRegister action = new ActionRegister(name,date,email,number,password,gender);
 
                 Observable<String> observable = QueryAction.executeAnswerQuery(action);
-                Subscription subscription = observable.subscribe(new Observer<String>() {
+                Subscription subscription = observable
+                        .doOnSubscribe(() ->showProgress(true))
+                        .doOnTerminate(() ->showProgress(false))
+                        .subscribe(new Observer<String>() {
                     @SuppressLint("ShowToast")
                     @Override
-                    public void onCompleted() {
-                        showProgress(false);
-                    }
+                    public void onCompleted() {}
 
                     @SuppressLint("ShowToast")
                     @Override
                     public void onError(Throwable e) {
                         Toast.makeText(getActivity(),"Error with connecting to server",Toast.LENGTH_LONG).show();
-                        showProgress(false);
                     }
 
                     @Override
@@ -127,6 +126,8 @@ public class RegisterFragment extends Fragment {
             }
         });
         mLogin.setOnClickListener(view -> getActivity().onBackPressed());
+
+        return v;
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)

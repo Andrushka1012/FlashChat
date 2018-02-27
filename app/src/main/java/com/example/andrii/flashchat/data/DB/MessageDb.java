@@ -1,7 +1,7 @@
 package com.example.andrii.flashchat.data.DB;
 
-import com.example.andrii.flashchat.data.Message;
-import com.example.andrii.flashchat.data.Person;
+import com.example.andrii.flashchat.data.Model.Message;
+import com.example.andrii.flashchat.data.Model.Person;
 
 import java.util.Date;
 

@@ -1,5 +1,8 @@
 package com.example.andrii.flashchat.data;
 
+import com.example.andrii.flashchat.data.Model.Message;
+import com.example.andrii.flashchat.data.Model.Person;
+
 import java.util.ArrayList;
 import java.util.List;
 

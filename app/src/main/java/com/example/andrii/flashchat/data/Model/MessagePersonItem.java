@@ -1,4 +1,4 @@
-package com.example.andrii.flashchat.data;
+package com.example.andrii.flashchat.data.Model;
 
 import com.example.andrii.flashchat.data.DB.MessageDb;
 import com.example.andrii.flashchat.data.DB.UserNamesBd;
@@ -6,7 +6,6 @@ import com.example.andrii.flashchat.data.DB.UserNamesBd;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 
 import io.realm.Realm;
 import io.realm.RealmResults;

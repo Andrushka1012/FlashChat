@@ -17,7 +17,7 @@ import com.example.andrii.flashchat.Activities.CorrespondenceListActivity;
 import com.example.andrii.flashchat.Activities.ProfileActivity;
 import com.example.andrii.flashchat.R;
 import com.example.andrii.flashchat.data.DB.UserNamesBd;
-import com.example.andrii.flashchat.data.Person;
+import com.example.andrii.flashchat.data.Model.Person;
 import com.example.andrii.flashchat.data.actions.ActionGetPersonData;
 import com.example.andrii.flashchat.tools.ImageTools;
 import com.example.andrii.flashchat.tools.QueryAction;

@@ -20,7 +20,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -32,7 +31,7 @@ import android.widget.Toast;
 
 import com.example.andrii.flashchat.R;
 import com.example.andrii.flashchat.data.DB.UserNamesBd;
-import com.example.andrii.flashchat.data.Person;
+import com.example.andrii.flashchat.data.Model.Person;
 import com.example.andrii.flashchat.data.actions.ActionGetPersonData;
 import com.example.andrii.flashchat.data.actions.ActionSaveProfileChanges;
 import com.example.andrii.flashchat.tools.ImageTools;

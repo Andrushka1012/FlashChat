@@ -1,12 +1,6 @@
 package com.example.andrii.flashchat.Activities;
 
-import android.app.LoaderManager;
-import android.content.CursorLoader;
-import android.content.Loader;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -14,17 +8,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.WindowManager;
 
 import com.example.andrii.flashchat.R;
-import com.example.andrii.flashchat.data.interfaces.EmailHelper;
-import com.example.andrii.flashchat.data.interfaces.LoginHelper;
+import com.example.andrii.flashchat.data.interfaces.LoginChanger;
 import com.example.andrii.flashchat.fragments.LoginFragment;
 import com.example.andrii.flashchat.fragments.RegisterFragment;
 import com.example.andrii.flashchat.tools.QueryAction;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class LoginActivity extends AppCompatActivity
-        implements LoginHelper{
+        implements LoginChanger {
 
 
     @Override

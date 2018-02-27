@@ -5,35 +5,26 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.andrii.flashchat.Activities.CorrespondenceListActivity;
 import com.example.andrii.flashchat.Activities.ProfileActivity;
 import com.example.andrii.flashchat.R;
 import com.example.andrii.flashchat.data.DB.UserNamesBd;
-import com.example.andrii.flashchat.data.MessagePersonItem;
-import com.example.andrii.flashchat.data.Person;
-import com.example.andrii.flashchat.data.actions.ActionGetPersonData;
+import com.example.andrii.flashchat.data.Model.MessagePersonItem;
+import com.example.andrii.flashchat.data.Model.Person;
 import com.example.andrii.flashchat.tools.ImageTools;
-import com.example.andrii.flashchat.tools.QueryAction;
 import com.example.andrii.flashchat.tools.QueryPreferences;
-import com.google.gson.Gson;
 
-import java.util.Date;
+import java.util.ArrayList;
 import java.util.List;
 
 import io.realm.Realm;
-import rx.Observable;
-import rx.Observer;
-
-import static android.widget.Toast.LENGTH_LONG;
 
 public class MessagesListAdapter extends RecyclerView.Adapter<MessagesListAdapter.MyRecycleViewHolder> {
     private Context context;
@@ -44,7 +35,8 @@ public class MessagesListAdapter extends RecyclerView.Adapter<MessagesListAdapte
     public MessagesListAdapter(Context con, List<MessagePersonItem> itemsList, List<Person> onlineList){
         context = con;
         mItems = itemsList;
-        mOnlineList = onlineList;
+        if (onlineList == null) mOnlineList = new ArrayList<>();
+        else mOnlineList = onlineList;
     }
 
     @Override

@@ -1,4 +1,4 @@
-package com.example.andrii.flashchat.data;
+package com.example.andrii.flashchat.data.Model;
 
 import android.annotation.SuppressLint;
 import android.graphics.Bitmap;

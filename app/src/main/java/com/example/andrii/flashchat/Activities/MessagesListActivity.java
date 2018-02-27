@@ -2,12 +2,7 @@ package com.example.andrii.flashchat.Activities;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
@@ -17,39 +12,26 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.andrii.flashchat.R;
 import com.example.andrii.flashchat.adapters.ViewPagerAdapter;
 import com.example.andrii.flashchat.data.DB.MessageDb;
 import com.example.andrii.flashchat.data.DB.UserNamesBd;
-import com.example.andrii.flashchat.data.Person;
-import com.example.andrii.flashchat.data.actions.ActionGetPersonData;
+import com.example.andrii.flashchat.data.Model.Person;
 import com.example.andrii.flashchat.fragments.RecyclerViewFragment;
 import com.example.andrii.flashchat.tools.ImageTools;
+import com.example.andrii.flashchat.tools.MessagesListLoader;
 import com.example.andrii.flashchat.tools.QueryAction;
 import com.example.andrii.flashchat.tools.QueryPreferences;
-import com.google.gson.Gson;
-import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
-
-import java.io.File;
-import java.util.Date;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import io.realm.Realm;
 import io.realm.RealmResults;
 import rx.Observable;
-import rx.Observer;
-import rx.Subscription;
-
-import static android.widget.Toast.LENGTH_LONG;
 
 public class MessagesListActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener{
@@ -62,6 +44,7 @@ public class MessagesListActivity extends AppCompatActivity
     private TextView tvUserName;
     private Bundle savedInstance = null;
     private Realm realm;
+    private MessagesListLoader loader;
 
     public static Intent newIntent(Context context,String userId){
         Intent intent = new Intent(context,MessagesListActivity.class);
@@ -97,6 +80,13 @@ public class MessagesListActivity extends AppCompatActivity
     protected void onResume() {
         super.onResume();
         setUpUserData(getIntent().getStringExtra(USER_ID_ARG_KEY));
+        loader.startLoading();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (loader.isLoading()) loader.stopLoading();
     }
 
     @Override
@@ -222,7 +212,6 @@ public class MessagesListActivity extends AppCompatActivity
             if (person != null){
                 currentUser = person;
                 setInformation();
-                return;
             }else{
                 currentUser = new Person(userId,"");
             }
@@ -240,13 +229,18 @@ public class MessagesListActivity extends AppCompatActivity
 
 
     private void setUpViewPager(){
+        RecyclerViewFragment fragmentMessages = RecyclerViewFragment.newInstance(RecyclerViewFragment.FRAGMENT_TYPE_MESSAGES);
+        RecyclerViewFragment fragmentOnline = RecyclerViewFragment.newInstance(RecyclerViewFragment.FRAGMENT_TYPE_ONLINE);
 
         ViewPagerAdapter mAdapter = new ViewPagerAdapter(getSupportFragmentManager());
-        mAdapter.addFragment(RecyclerViewFragment.newInstance(RecyclerViewFragment.FRAGMENT_TYPE_MESSAGES),"Messages");
-        mAdapter.addFragment(RecyclerViewFragment.newInstance(RecyclerViewFragment.FRAGMENT_TYPE_ONLINE),"Online");
-        //mAdapter.addFragment(RecyclerViewFragment.newInstance(RecyclerViewFragment.FRAGMENT_TYPE_GROUPS),"Groups");
-
+        mAdapter.addFragment(fragmentMessages,"Messages");
+        mAdapter.addFragment(fragmentOnline,"Online");
         mViewPager.setAdapter(mAdapter);
+
+        Observable<RecyclerViewFragment> fragmentObservable = Observable.just(fragmentMessages,fragmentOnline);
+        loader = new MessagesListLoader(this,fragmentObservable);
+
+
     }
 
 

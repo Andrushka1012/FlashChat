@@ -7,19 +7,13 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 
 import com.example.andrii.flashchat.R;
 import com.example.andrii.flashchat.adapters.AttachmentsAdapter;
-import com.example.andrii.flashchat.data.MessageItem;
 import com.example.andrii.flashchat.tools.QueryAction;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.List;
 
 public class AttachmentsActivity extends AppCompatActivity {
     private static String PHOTOS_EXTRA = "PHOTOS_EXTRA";

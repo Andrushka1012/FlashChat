@@ -1,35 +1,21 @@
 package com.example.andrii.flashchat.adapters;
 
 import android.content.Context;
-import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.andrii.flashchat.Activities.CorrespondenceListActivity;
 import com.example.andrii.flashchat.Activities.ProfileActivity;
 import com.example.andrii.flashchat.R;
-import com.example.andrii.flashchat.data.DB.UserNamesBd;
-import com.example.andrii.flashchat.data.Person;
-import com.example.andrii.flashchat.data.actions.ActionGetPersonData;
+import com.example.andrii.flashchat.data.Model.Person;
 import com.example.andrii.flashchat.tools.ImageTools;
-import com.example.andrii.flashchat.tools.QueryAction;
-import com.google.gson.Gson;
 
-import java.util.Date;
 import java.util.List;
-
-import io.realm.Realm;
-import rx.Observable;
-import rx.Observer;
-
-import static android.widget.Toast.LENGTH_LONG;
 
 public class OnlineListAdapter  extends RecyclerView.Adapter<OnlineListAdapter.MyHolder> {
 
