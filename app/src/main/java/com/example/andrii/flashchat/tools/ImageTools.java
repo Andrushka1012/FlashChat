@@ -289,7 +289,7 @@ public class ImageTools {
 
                     @Override
                     public void onNext(String s) {
-                        if (s.equals("error")) Toast.makeText(context,"Error with sanding photo.",Toast.LENGTH_LONG).show();
+                        if (s == null||s.equals("error")) Toast.makeText(context,"Error with sanding photo.",Toast.LENGTH_LONG).show();
                     }
                 });
         QueryAction.addSubscription(subscription);
