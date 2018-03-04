@@ -1,6 +1,6 @@
 # **FlashChat**
-Jest to mój pierwszy projekt który zrobiłem w celu nauczenia i podsumowania otrzymanej widzy z programowania na platformę Android.<br />
-Projekt jest implementacją mobilnego komunikatora internetowego z wykorzystaniem nowych bibliotek zewnętsznych oraz różnych API  systemowych tak i zewnętsznych.<br />
+Jest to mój pierwszy projekt który zrobiłem w celu nauczenia i podsumowania otrzymanej wiedzy z programowania na platformę Android.<br />
+Projekt jest implementacją mobilnego komunikatora internetowego z wykorzystaniem nowych bibliotek zewnętsznych oraz różnych API  (systemowych tak i zewnętsznych).<br />
 Dla umożliwienia komunikacji między użytkownikami,korzystałem z serwisu Amazon AWS EC2.<br />
 # **Krótki opis**
 Użytkownik ma możliwość tworzenia nowego konta,również jak i logowania przy pomocy swogo kąta Facebook.<br />
