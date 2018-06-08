@@ -38,8 +38,10 @@ public class MessagesListActivity extends AppCompatActivity
     private final String TAG = "MessagesListActivity";
     private static final String USER_ID_ARG_KEY = "USER_ID_ARG_KEY";
     private static final String USER_KAY = "USER_KAY";
+
     private ViewPager mViewPager;
     private Person currentUser;
+    private String userId = QueryPreferences.getActiveUserId(this);
     private CircleImageView ivProfilePhoto;
     private TextView tvUserName;
     private Bundle savedInstance = null;
@@ -61,7 +63,6 @@ public class MessagesListActivity extends AppCompatActivity
         savedInstance = savedInstanceState;
         setupLayout();
 
-        String userId = QueryPreferences.getActiveUserId(this);
         realm = Realm.getDefaultInstance();
         UserNamesBd user = realm.where(UserNamesBd.class).equalTo("userId",userId).findFirst();
         if (user != null) {
@@ -207,14 +208,9 @@ public class MessagesListActivity extends AppCompatActivity
     }
 
     private void setUpUserData(String userId) {
-        if (savedInstance != null){
-            Person person = savedInstance.getParcelable(USER_KAY);
-            if (person != null){
-                currentUser = person;
+        if (savedInstance != null && savedInstance.getParcelable(USER_KAY) != null){
+            currentUser = savedInstance.getParcelable(USER_KAY);
                 setInformation();
-            }else{
-                currentUser = new Person(userId,"");
-            }
         }else{
             currentUser = new Person(userId,"");
         }
@@ -237,9 +233,8 @@ public class MessagesListActivity extends AppCompatActivity
         mAdapter.addFragment(fragmentOnline,"Online");
         mViewPager.setAdapter(mAdapter);
 
-        Observable<RecyclerViewFragment> fragmentObservable = Observable.just(fragmentMessages,fragmentOnline);
+        Observable<RecyclerViewFragment> fragmentObservable = Observable.just(fragmentOnline);
         loader = new MessagesListLoader(this,fragmentObservable);
-
 
     }
 

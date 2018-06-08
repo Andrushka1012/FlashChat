@@ -146,4 +146,18 @@ public class Person implements Parcelable {
             return new Person[i];
         }
     };
+
+    @Override
+    public boolean equals(Object object) {
+        if (!(object instanceof Person)) return false;
+        Person person = (Person) object;
+
+        return id.equals(person.id)
+                && name.equals(person.name)
+                && birthDate.equals(person.birthDate)
+                && phoneNumber.equals(person.phoneNumber)
+                && email.equals(person.email)
+                && gender.equals(person.gender)
+                && photoUrl.equals(person.photoUrl);
+    }
 }

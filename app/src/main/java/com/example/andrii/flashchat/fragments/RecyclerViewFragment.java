@@ -1,5 +1,7 @@
 package com.example.andrii.flashchat.fragments;
 
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -16,6 +18,7 @@ import com.example.andrii.flashchat.adapters.OnlineListAdapter;
 import com.example.andrii.flashchat.data.DB.MessageDb;
 import com.example.andrii.flashchat.data.Model.MessagePersonItem;
 import com.example.andrii.flashchat.data.Model.Person;
+import com.example.andrii.flashchat.tools.ListActivityViewModel;
 import com.example.andrii.flashchat.tools.QueryPreferences;
 
 import java.util.List;
@@ -33,6 +36,7 @@ public class RecyclerViewFragment extends Fragment{
     private Realm mRealm;
     private RecyclerView mRecyclerView;
     private TextView tvInformation;
+    private ListActivityViewModel listActivityViewModel;
 
 
     public static RecyclerViewFragment newInstance(int type){
@@ -40,6 +44,7 @@ public class RecyclerViewFragment extends Fragment{
         Bundle bundle = new Bundle();
         bundle.putInt(FRAGMENT_TYPE_ARGUMENT,type);
         fragment.setArguments(bundle);
+
 
         return fragment;
     }
@@ -51,6 +56,7 @@ public class RecyclerViewFragment extends Fragment{
         setHasOptionsMenu(true);
         mRealm = Realm.getDefaultInstance();
         type = getArguments().getInt(FRAGMENT_TYPE_ARGUMENT);
+        listActivityViewModel = ViewModelProviders.of(getActivity()).get(ListActivityViewModel.class);
 
     }
 
@@ -78,6 +84,7 @@ public class RecyclerViewFragment extends Fragment{
                 break;
             case FRAGMENT_TYPE_ONLINE:
                 setUpOnlineList(onlineList);
+                listActivityViewModel.setData(onlineList);
                 break;
         }
     }
@@ -88,6 +95,8 @@ public class RecyclerViewFragment extends Fragment{
                 mRecyclerView = v.findViewById(R.id.recycler_view);
                 mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
                 setUpMessagesList(null);
+
+                listActivityViewModel.getData().observe(getActivity(), this::updateUi);
                 break;
             case FRAGMENT_TYPE_ONLINE:
                 mRecyclerView = v.findViewById(R.id.recycler_view);
