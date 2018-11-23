@@ -189,15 +189,9 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.MyRecy
                     Picasso.with(context)
                             .load(R.drawable.ic_image_broke)
                             .into(mIvPhotoMessage);
-
                 }
             });
-
-            }
         }
-
-
-
-
         }
+    }
 }

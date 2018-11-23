@@ -6,6 +6,7 @@
     <color name="white">#ffffff</color>
     <color name="online">#04a863</color>
     <color name="background">#eeeeee</color>
+    <color name="backgroundMessage">#949494</color>
     <color name="grey">#808080</color>
     <color name="grey2">#95989A</color>
     <color name="black">#000000</color>

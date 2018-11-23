@@ -13,7 +13,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Base64;
 import android.util.Log;
 import android.view.WindowManager;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -23,18 +22,14 @@ import com.example.andrii.flashchat.data.DB.UserNamesBd;
 import com.example.andrii.flashchat.data.SingletonConnection;
 import com.example.andrii.flashchat.data.actions.ActionGetAllMessages;
 import com.example.andrii.flashchat.data.actions.ActionGetNames;
-import com.example.andrii.flashchat.data.actions.ActionLoadImage;
 import com.example.andrii.flashchat.tools.ImageTools;
 import com.example.andrii.flashchat.tools.QueryAction;
 import com.example.andrii.flashchat.tools.QueryPreferences;
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 
 import java.io.File;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -75,13 +70,11 @@ public class LoadingActivity extends AppCompatActivity {
         QueryAction.unsubscribeAll();
     }
 
-
-
     private void downloadMessages() {
         String id = QueryPreferences.getActiveUserId(this);
         ActionGetAllMessages action = new ActionGetAllMessages(id);
         Subscription subscription = QueryAction.executeAnswerQuery(action)
-                .timeout(10, TimeUnit.SECONDS, Schedulers.io())
+                .timeout(100, TimeUnit.SECONDS, Schedulers.io())
                 .subscribe(new Observer<String>() {
                     @Override
                     public void onCompleted() {
@@ -107,12 +100,12 @@ public class LoadingActivity extends AppCompatActivity {
                             Gson gson = new Gson();
                             Type listType = new TypeToken<List<MessageDb>>(){}.getType();
                             List<MessageDb> list = gson.fromJson(s,listType);
+                            String root = LoadingActivity.this
+                                    .getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+                                    .getPath();
                             realm.executeTransactionAsync(
                                     r -> {
                                         //transaction
-                                        String root = LoadingActivity.this
-                                                .getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-                                                .getPath();
                                         for (MessageDb m:list){
                                             Log.d(TAG,m.toString());
                                             if (m.getType() == 1){
@@ -150,7 +143,7 @@ public class LoadingActivity extends AppCompatActivity {
     private void downloadNames(){
         ActionGetNames action = new ActionGetNames(QueryPreferences.getActiveUserId(this));
         Subscription subscription = QueryAction.executeAnswerQuery(action)
-                .timeout(10, TimeUnit.SECONDS, Schedulers.io())
+                .timeout(100, TimeUnit.SECONDS, Schedulers.io())
                 .subscribe(new Observer<String>() {
                     @Override
                     public void onCompleted() {
@@ -197,7 +190,6 @@ public class LoadingActivity extends AppCompatActivity {
                                                     ImageTools tools = new ImageTools(LoadingActivity.this);
                                                     tools.saveImage(file, rotated);
                                                     m.setImageSrc("no_facebook_url");
-
                                                 }
                                             }
                                             r.insertOrUpdate(m);

@@ -86,10 +86,17 @@
         <activity
             android:name=".Activities.PhotoPagerActivity"
             android:theme="@style/BlackTheme" />
+        <service android:name=".tools.FirebaseIDService">
+            <intent-filter>
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
+            </intent-filter>
+        </service>
 
-        <service android:name=".tools.PollService"
-            android:exported="true"
-            />
+        <service android:name=".tools.MyFirebaseMessaging">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+            </intent-filter>
+        </service>
         <activity
             android:theme="@style/DarkGreenTheme"
             android:name=".Activities.SettingActivity"

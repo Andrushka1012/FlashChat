@@ -6,14 +6,10 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
-import android.widget.CompoundButton;
-import android.widget.Switch;
 import android.widget.Toast;
 
 import com.example.andrii.flashchat.R;
-import com.example.andrii.flashchat.data.SingletonConnection;
 import com.example.andrii.flashchat.data.actions.ActionChanePassword;
-import com.example.andrii.flashchat.tools.PollService;
 import com.example.andrii.flashchat.tools.QueryAction;
 import com.example.andrii.flashchat.tools.QueryPreferences;
 
@@ -32,14 +28,6 @@ public class SettingActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_setting);
-
-        Switch pollingSwitch = findViewById(R.id.poll_switch);
-        pollingSwitch.setChecked(PollService.isServiceAlarmOn(this));
-        pollingSwitch.setOnCheckedChangeListener((compoundButton, b) -> {
-            boolean shouldStartAlarm = !PollService.isServiceAlarmOn(this);
-            PollService.setServiceAlarm(this,shouldStartAlarm);
-            pollingSwitch.setChecked(PollService.isServiceAlarmOn(SettingActivity.this));
-        });
 
         oldPassword = findViewById(R.id.old_password);
         newPassword = findViewById(R.id.new_password);

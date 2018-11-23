@@ -1,14 +1,16 @@
 package com.example.andrii.flashchat.Activities;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Handler;
 import android.speech.RecognizerIntent;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -34,6 +36,7 @@ import com.example.andrii.flashchat.data.actions.ActionGetMessages;
 import com.example.andrii.flashchat.data.actions.ActionGetPersonData;
 import com.example.andrii.flashchat.data.actions.ActionSendMessage;
 import com.example.andrii.flashchat.tools.ImageTools;
+import com.example.andrii.flashchat.tools.MyFirebaseMessaging;
 import com.example.andrii.flashchat.tools.QueryAction;
 import com.example.andrii.flashchat.tools.QueryPreferences;
 import com.google.gson.Gson;
@@ -80,9 +83,8 @@ public class CorrespondenceListActivity extends AppCompatActivity {
     private Person currentUser;
     private Person subject;
     private UUID mId;
-    final Handler handler = new Handler();
     private Subscription subscription;
-    private Runnable runnable;
+    private BroadcastReceiver broadcastReceiver;
 
     @Deprecated
     public static Intent newIntent(Context context, String title) {
@@ -124,9 +126,22 @@ public class CorrespondenceListActivity extends AppCompatActivity {
         mEtMessage = findViewById(R.id.et_message);
         if (text != null) mEtMessage.setText(text);
         mEtMessage.setOnClickListener(v -> mRecyclerView.scrollToPosition(mRecyclerView.getAdapter().getItemCount() - 1));
-        inicializeview();
 
-        setRenew(10* 1000);
+        registerBroadcast();
+        inicializeView();
+    }
+
+    private void registerBroadcast() {
+        broadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if (intent.getExtras().getString("senderId").equals(subject.getId())){
+                    fetchNewMessages();
+                }
+            }
+        };
+        LocalBroadcastManager.getInstance(this)
+                .registerReceiver(broadcastReceiver, new IntentFilter(MyFirebaseMessaging.NEW_MESSAGE_KEY));
     }
 
 
@@ -283,12 +298,11 @@ public class CorrespondenceListActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         realm.close();
-        if (runnable != null) handler.removeCallbacks(runnable);
-          QueryAction.unsubscribeAll();
-
+        QueryAction.unsubscribeAll();
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(broadcastReceiver);
     }
 
-    private void inicializeview() {
+    private void inicializeView() {
         Toolbar toolbar = findViewById(R.id.toolbar);
         TextView tvName = toolbar.findViewById(R.id.tv_name);
         TextView tvOnline = toolbar.findViewById(R.id.tv_online);
@@ -492,24 +506,19 @@ public class CorrespondenceListActivity extends AppCompatActivity {
         mRecyclerView.scrollToPosition(mRecyclerView.getAdapter().getItemCount() - 1);
     }
 
-    private void setRenew(int delay){
+    private void fetchNewMessages(){
         final boolean[] renew = {false};
-        runnable = () -> {
-
             ActionGetMessages action = new ActionGetMessages(currentUser.getId(),subject.getId());
             subscription = QueryAction.executeAnswerQuery(action)
                     .timeout(10, TimeUnit.SECONDS, Schedulers.io())
                     .subscribe(new Observer<String>() {
                         @Override
                         public void onCompleted() {
-                            setRenew(delay);
                         }
 
                         @Override
                         public void onError(Throwable e) {
                             Log.e("CorrespondenceActivity","OnError",e);
-
-                            setRenew(delay);
                         }
 
                         @Override
@@ -567,16 +576,11 @@ public class CorrespondenceListActivity extends AppCompatActivity {
                                             onError(error);
                                         });
                             } else{
-
                                 onError(new Throwable(s));
                             }
-
                         }
                     });
             QueryAction.addSubscription(subscription);
-
-        };
-        handler.postDelayed(runnable,delay);
     }
 
 }

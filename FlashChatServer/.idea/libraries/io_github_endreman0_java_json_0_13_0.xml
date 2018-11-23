@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="io.github.endreman0:java-json:0.13.0" type="repository">
+    <properties maven-id="io.github.endreman0:java-json:0.13.0" />
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/java-json-0.13.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

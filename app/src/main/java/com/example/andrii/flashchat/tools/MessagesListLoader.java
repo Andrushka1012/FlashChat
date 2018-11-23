@@ -19,10 +19,8 @@ import rx.Subscription;
 
 public class MessagesListLoader {
     private static String TAG = "MessagesListLoader";
-    final Handler handler = new Handler();
     private Runnable runnable;
     private Subscription subscription;
-    private boolean loading = false;
 
     public MessagesListLoader(Context context,Observable<RecyclerViewFragment> fragmentObservable) {
 
@@ -34,7 +32,6 @@ public class MessagesListLoader {
                     .subscribe(new Observer<String>() {
                         @Override
                         public void onCompleted() {
-                            setRenew();
                         }
 
                         @Override
@@ -43,7 +40,6 @@ public class MessagesListLoader {
                             subscription = fragmentObservable.subscribe(recyclerViewFragment ->
                                     recyclerViewFragment.updateUi(null)
                             );
-                            setRenew();
                         }
 
                         @Override
@@ -65,25 +61,8 @@ public class MessagesListLoader {
         };
     }
 
-    public boolean isLoading() {
-        return loading;
-    }
-
-    public void startLoading(){
-        handler.postDelayed(runnable,3000);
-        loading = true;
-    }
-
-    public void stopLoading(){
-        handler.removeCallbacks(runnable);
-        if (subscription != null && !subscription.isUnsubscribed())subscription.unsubscribe();
-
-    }
-
-    private void setRenew(){
-        loading = true;
-        int delay = 10 * 1000;
-        handler.postDelayed(runnable,delay);
+    public void update(){
+     runnable.run();
     }
 
 }

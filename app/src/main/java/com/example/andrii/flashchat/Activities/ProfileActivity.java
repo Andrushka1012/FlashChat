@@ -278,9 +278,9 @@ public class ProfileActivity extends AppCompatActivity{
             etEmail.setError("This email is invalided");
             view = etEmail;
         }
-        if (etDate.getText().toString().length()!=10){
+        if (etDate.getText().toString().length() < 6){
             valid = false;
-            etEmail.setError("This email is invalided");
+            etDate.setError("This email is invalided");
             view = etEmail;
         }
         if (etNumber.getText().toString().length()<8){

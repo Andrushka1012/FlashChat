@@ -1,17 +1,21 @@
 package com.example.andrii.flashchat.Activities;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -22,9 +26,11 @@ import com.example.andrii.flashchat.adapters.ViewPagerAdapter;
 import com.example.andrii.flashchat.data.DB.MessageDb;
 import com.example.andrii.flashchat.data.DB.UserNamesBd;
 import com.example.andrii.flashchat.data.Model.Person;
+import com.example.andrii.flashchat.data.actions.ActionUnregisterDevice;
 import com.example.andrii.flashchat.fragments.RecyclerViewFragment;
 import com.example.andrii.flashchat.tools.ImageTools;
 import com.example.andrii.flashchat.tools.MessagesListLoader;
+import com.example.andrii.flashchat.tools.MyFirebaseMessaging;
 import com.example.andrii.flashchat.tools.QueryAction;
 import com.example.andrii.flashchat.tools.QueryPreferences;
 
@@ -32,6 +38,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 import io.realm.Realm;
 import io.realm.RealmResults;
 import rx.Observable;
+import rx.Subscriber;
 
 public class MessagesListActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener{
@@ -45,6 +52,7 @@ public class MessagesListActivity extends AppCompatActivity
     private Bundle savedInstance = null;
     private Realm realm;
     private MessagesListLoader loader;
+    private BroadcastReceiver broadcastReceiver;
 
     public static Intent newIntent(Context context,String userId){
         Intent intent = new Intent(context,MessagesListActivity.class);
@@ -73,20 +81,26 @@ public class MessagesListActivity extends AppCompatActivity
 
         ImageTools tools = new ImageTools(this);
         tools.downloadPersonImage(ivProfilePhoto,new Person(userId,""),true);
-
+        registerBroadcast();
     }
+
+    private void registerBroadcast() {
+        broadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                loader.update();
+            }
+        };
+        LocalBroadcastManager.getInstance(this)
+                .registerReceiver(broadcastReceiver, new IntentFilter(MyFirebaseMessaging.NEW_MESSAGE_KEY));
+    }
+
 
     @Override
     protected void onResume() {
         super.onResume();
         setUpUserData(getIntent().getStringExtra(USER_ID_ARG_KEY));
-        loader.startLoading();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        if (loader.isLoading()) loader.stopLoading();
+        loader.update();
     }
 
     @Override
@@ -100,6 +114,7 @@ public class MessagesListActivity extends AppCompatActivity
         super.onDestroy();
         QueryAction.unsubscribeAll();
         realm.close();
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(broadcastReceiver);
     }
 
     @Override
@@ -159,7 +174,7 @@ public class MessagesListActivity extends AppCompatActivity
                     RealmResults<UserNamesBd> resultsUsers = r.where(UserNamesBd.class).findAll();
                     for(UserNamesBd userNamesBd:resultsUsers){userNamesBd.deleteFromRealm();}
                     resultsUsers.deleteAllFromRealm();
-
+                    unregisterDevice();
                     r.close();
                 });
 
@@ -169,13 +184,33 @@ public class MessagesListActivity extends AppCompatActivity
                 startActivity(intent);
                 finish();
                 break;
-
-
         }
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    private void unregisterDevice() {
+        String deviceToken = QueryPreferences.getDeviceToken(this);
+        ActionUnregisterDevice action = new ActionUnregisterDevice(deviceToken);
+        QueryAction.executeAnswerQuery(action)
+                .subscribe(new Subscriber<String>() {
+                    @Override
+                    public void onCompleted() {
+                        QueryPreferences.setDeviceToken(MessagesListActivity.this, null);
+                    }
+
+                    @Override
+                    public void onError(Throwable ex) {
+                        Log.e("qwe", ex.getMessage());
+                    }
+
+                    @Override
+                    public void onNext(String response) {
+
+                    }
+                });
     }
 
     private void setupLayout(){
@@ -239,9 +274,5 @@ public class MessagesListActivity extends AppCompatActivity
 
         Observable<RecyclerViewFragment> fragmentObservable = Observable.just(fragmentMessages,fragmentOnline);
         loader = new MessagesListLoader(this,fragmentObservable);
-
-
     }
-
-
 }

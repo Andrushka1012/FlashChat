@@ -23,6 +23,7 @@ import com.facebook.FacebookException;
 import com.facebook.GraphRequest;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
+import com.google.firebase.iid.FirebaseInstanceId;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -59,8 +60,9 @@ public class LoginFragmentPresenter {
         boolean cancel = validate(context,email,password);
 
         if (!cancel){
-
-            ActionLogin actionLogin = new ActionLogin(email,password);
+            String deviceToken = FirebaseInstanceId.getInstance().getToken();
+            QueryPreferences.setDeviceToken(context, deviceToken);
+            ActionLogin actionLogin = new ActionLogin(email,password, deviceToken);
 
             Observable<String> observable = QueryAction.executeAnswerQuery(actionLogin);
             Subscription subscription = observable
@@ -244,7 +246,4 @@ public class LoginFragmentPresenter {
             }
         });
     }
-
-
-
 }

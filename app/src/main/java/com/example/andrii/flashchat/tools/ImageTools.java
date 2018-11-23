@@ -22,6 +22,7 @@ import com.example.andrii.flashchat.R;
 import com.example.andrii.flashchat.data.DB.UserNamesBd;
 import com.example.andrii.flashchat.data.Model.Person;
 import com.example.andrii.flashchat.data.actions.Action;
+import com.example.andrii.flashchat.data.actions.ActionGetImage;
 import com.example.andrii.flashchat.data.actions.ActionLoadImage;
 import com.example.andrii.flashchat.data.actions.ActionSendImage;
 import com.google.gson.JsonObject;
@@ -45,6 +46,7 @@ import rx.Observable;
 import rx.Observer;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action0;
 import rx.schedulers.Schedulers;
 
 public class ImageTools {
@@ -231,25 +233,33 @@ public class ImageTools {
                 });
     }
 
-    public void saveImage(File file,Bitmap image){
+    public void saveImage(File file, Bitmap image) {
         Observable.just(image)
                 .observeOn(Schedulers.io())
                 .subscribeOn(Schedulers.io())
-                .subscribe(bitmap -> {
-                    if (file.exists ()) file.delete();
+                .subscribe(new Observer<Bitmap>() {
+                    @Override
+                    public void onCompleted() {
 
-                    try {
-                        FileOutputStream out = new FileOutputStream(file);
+                    }
 
-                        image.compress(Bitmap.CompressFormat.JPEG, 90, out);
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.e("qwe", e.getMessage(), e);
+                    }
 
-                        out.flush();
-                        out.close();
+                    @Override
+                    public void onNext(Bitmap bitmap) {
+                        if (file.exists()) file.delete();
 
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                        try {
+                            FileOutputStream out = new FileOutputStream(file);
+                            bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
+                            out.flush();
+                            out.close();
+                        } catch (Exception e) {
+                            Log.e("qwe", e.getMessage(), e);
+                        }
                     }
                 });
     }
@@ -289,7 +299,8 @@ public class ImageTools {
 
                     @Override
                     public void onNext(String s) {
-                        if (s == null||s.equals("error")) Toast.makeText(context,"Error with sanding photo.",Toast.LENGTH_LONG).show();
+                        if (s.equals("error"))
+                            Toast.makeText(context, "Error with sanding photo.", Toast.LENGTH_LONG).show();
                     }
                 });
         QueryAction.addSubscription(subscription);
@@ -334,11 +345,5 @@ public class ImageTools {
 
         return output;
     }
-
-
-
-
-
-
 
 }

@@ -117,7 +117,6 @@ public class RegisterFragment extends Fragment {
                                 break;
                             default:
                                 Toast.makeText(getActivity(), "Your account was created", Toast.LENGTH_LONG).show();
-                                getActivity().onBackPressed();
                                 break;
                         }
                     }

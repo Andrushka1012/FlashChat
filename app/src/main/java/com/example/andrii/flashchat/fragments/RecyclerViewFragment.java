@@ -115,7 +115,6 @@ public class RecyclerViewFragment extends Fragment{
                 QueryPreferences.getActiveUserId(getActivity()));
 
         if (list.isEmpty()){
-            tvInformation.setText("You don`t have any messages.\nJust click on hire and find someone for start your firs correspondence.");
             showInfo(true);
         }else{
             showInfo(false);

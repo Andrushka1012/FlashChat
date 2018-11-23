@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+Class-Path: D:\projects\Java\FlashChatServer\out\production\FlashChatS
+ erver\FlashChatServer
+Main-Class: FlashChatServer.FlashChatServer
+

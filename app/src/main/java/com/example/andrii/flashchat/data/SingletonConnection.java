@@ -15,9 +15,8 @@ import java.net.UnknownHostException;
 
 public class SingletonConnection {
     private static final SingletonConnection ourInstance = new SingletonConnection();
-    //private static final String IP_SERVER = "192.168.43.14";//localhost
+    private static final String IP_SERVER = "192.168.43.14";//localhost
 
-    private static String IP_SERVER = "";
     private static final int PORT = 50000;
     private Socket socket;
     private BufferedReader in;
@@ -36,13 +35,13 @@ public class SingletonConnection {
 
 
     public void connect() throws IOException {
-        InetAddress address = null;
+       /* InetAddress address = null;
         try {
             address = InetAddress.getByName("ec2-13-59-71-192.us-east-2.compute.amazonaws.com");
         } catch (UnknownHostException e) {
             Log.e("error","SingletonConnection:",e);
         }
-        IP_SERVER = address.getHostAddress();
+        IP_SERVER = address.getHostAddress();*/
             Log.d("SingletonConnection","IP_SERVER:" + IP_SERVER);
             socket = new Socket(IP_SERVER, PORT);
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
