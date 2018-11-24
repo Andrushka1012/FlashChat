@@ -27,17 +27,14 @@ public class ActionCheckNewMessages implements Action{
             try {
                 Statement st = connection.createStatement();
                 String sql = "SELECT count(*) from MESSAGES" +
-                        "  WHERE RECIPIENT_ID = \'" + userId + "\' and READ = 0";
+                        "  WHERE RECIPIENT_ID = \'" + userId + "\' and ISREAD = 0";
                 System.out.println(sql);
                 ResultSet result = st.executeQuery(sql);
 
                 if (result.next()){
                     int count = result.getInt(1);
                     sql = "SELECT us.USER_ID,us.NAME,mes.TEXT from USERS us LEFT JOIN  MESSAGES mes on us.USER_ID = mes.SENDER_ID" +
-                            " WHERE mes.RECIPIENT_ID = \'" + userId + "\' and mes.READ = 0" +
-                            " and TO_DATE((substr(mes.MSG_DATE,0,10) || ' ' || substr(mes.MSG_DATE,12,8)),'YYYY-MM-DD HH24:MI:SS')" +
-                            " = (SELECT max(TO_DATE((substr(MSG_DATE,0,10) || ' ' || substr(MSG_DATE,12,8)),'YYYY-MM-DD HH24:MI:SS')) from MESSAGES" +
-                            " WHERE RECIPIENT_ID = \'" + userId + "\' and READ = 0)";
+                            " WHERE mes.RECIPIENT_ID = \'" + userId + "\' and mes.ISREAD = 0";
 
                     System.out.println(sql);
                     ResultSet resultIno = connection.createStatement().executeQuery(sql);

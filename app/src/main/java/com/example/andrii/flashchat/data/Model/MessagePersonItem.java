@@ -4,6 +4,9 @@ import com.example.andrii.flashchat.data.DB.MessageDb;
 import com.example.andrii.flashchat.data.DB.UserNamesBd;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
@@ -100,7 +103,7 @@ public class MessagePersonItem extends MessageItem{
         }
         realm.close();
 
-        list.sort((messagePersonItem, t1) -> {
+        Collections.sort(list, (messagePersonItem, t1) -> {
             Date date1 = messagePersonItem.getDate();
             Date date2 = t1.getDate();
             boolean before = date1.before(date2);

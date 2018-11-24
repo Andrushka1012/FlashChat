@@ -14,7 +14,7 @@ public class ActionGetImage implements Action {
 
     @Override
     public void execute(PrintWriter out) {
-        File file = new File("C:\\projects\\FlashChatServer\\FlashChatImages", msgId + ".txt");
+        File file = new File("C:\\projects\\flashChat\\FlashChatServer\\FlashChatImages", msgId + ".txt");
         if (file.exists()) {
             Scanner scanner = null;
             try {

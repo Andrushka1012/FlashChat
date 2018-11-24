@@ -32,7 +32,7 @@ public class ActionLoadImage implements Action{
                     String id = result.getString("img_id");
                     if (id.equals(imageId)){
                         //File file = new File("FlashChatImages",imageId + ".txt");
-                        File file = new File("C:\\projects\\FlashChatServer\\FlashChatImages",imageId + ".txt");
+                        File file = new File("C:\\projects\\flashChat\\FlashChatServer\\FlashChatImages",imageId + ".txt");
                         if (file.exists()){
                             Scanner scanner = new Scanner(file,"UTF-8");
                             String encodedString = scanner.useDelimiter("\\A").next();

@@ -24,7 +24,7 @@ public class ActionSendImage implements Action{
         if (connection != null){
             BufferedWriter writer = null;
             try {
-                 File file = new File("C:\\projects\\FlashChatServer\\FlashChatImages",image_id + ".txt");
+                 File file = new File("C:\\projects\\flashChat\\FlashChatServer\\FlashChatImages",image_id + ".txt");
                 //File file = new File("FlashChatImages",image_id + ".txt");
                 if (file.exists()) file.delete();
                 writer = new BufferedWriter(new FileWriter(file));

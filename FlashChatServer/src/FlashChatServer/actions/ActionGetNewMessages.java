@@ -19,7 +19,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
 
-public class ActionGetAllMessages implements Action{
+public class ActionGetNewMessages implements Action{
     private String action;
     private String userId;
 
@@ -31,7 +31,7 @@ public class ActionGetAllMessages implements Action{
             try {
                 Statement st = connection.createStatement();
                 String sql = "SELECT * from Messages" +
-                        " where sender_id = \'" + userId + "\'" + " or recipient_id = \'" + userId + "\'" ;
+                        " where recipient_id = \'" + userId + "\' and ISREAD = 0" ;
                 System.out.println(sql);
                 ResultSet result = st.executeQuery(sql);
                 List<Message> list = new ArrayList<>();
@@ -62,7 +62,7 @@ public class ActionGetAllMessages implements Action{
                 Gson gson = new Gson();
                 System.out.println("size:" + list.size());
                 String json = gson.toJson(list,type);
-             //   System.out.println(json);
+                //   System.out.println(json);
                 out.println(json);
 
                 st.executeQuery(

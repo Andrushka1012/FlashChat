@@ -15,7 +15,7 @@ import java.net.UnknownHostException;
 
 public class SingletonConnection {
     private static final SingletonConnection ourInstance = new SingletonConnection();
-    private static final String IP_SERVER = "192.168.43.14";//localhost
+    private static final String IP_SERVER = "192.168.43.242";//localhost
 
     private static final int PORT = 50000;
     private Socket socket;

@@ -26,6 +26,7 @@ import com.squareup.picasso.Picasso;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -39,7 +40,7 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.MyRecy
 
     public ChatListAdapter(Context con, List<MessageItem> list){
         context = con;
-        list.sort((messageItem, t1) -> {
+        Collections.sort(list, (messageItem, t1) -> {
             Date date1 = messageItem.getDate();
             Date date2 = t1.getDate();
 

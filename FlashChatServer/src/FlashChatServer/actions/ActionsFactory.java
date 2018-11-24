@@ -2,7 +2,6 @@ package FlashChatServer.actions;
 
 import FlashChatServer.Connection;
 import com.google.gson.Gson;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
@@ -56,13 +55,10 @@ public class ActionsFactory {
                 return gson.fromJson(JSONString,ActionUnregisterDevice.class);
             case "action_get_image":
                 return gson.fromJson(JSONString,ActionGetImage.class);
+            case "action_get_new_messages":
+                return gson.fromJson(JSONString, ActionGetNewMessages.class);
 
-            default:return new Action() {
-                @Override
-                public void execute(PrintWriter out) {
-
-                }
-            };
+            default:return out -> { };
         }
 
     }

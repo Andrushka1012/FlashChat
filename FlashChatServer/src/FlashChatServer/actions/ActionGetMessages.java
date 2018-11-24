@@ -40,14 +40,14 @@ public class ActionGetMessages implements Action{
                     String text = result.getString("text");
                     String senderId = result.getString("sender_id");
                     String recipient_id = result.getString("recipient_id");
-                    int read = result.getInt("read");
+                    int read = result.getInt("isread");
                     int type = result.getInt("type");
 
                     String stringDate = result.getString("msg_date");
                     Date date = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS")
                             .parse(stringDate);
                     if (type == 1) { //image type
-                        File file = new File("C:\\projects\\FlashChatServer\\FlashChatImages",msgId + ".txt");
+                        File file = new File("C:\\projects\\flashChat\\FlashChatServer\\FlashChatImages",msgId + ".txt");
                         //File file = new File("FlashChatImages",msgId + ".txt");
                         if (file.exists()){
                             Scanner scanner = new Scanner(file,"UTF-8");
@@ -68,7 +68,7 @@ public class ActionGetMessages implements Action{
 
                 st.executeQuery(
                         "UPDATE Messages" +
-                                " SET read = " + String.valueOf(1) +
+                                " SET isread = " + String.valueOf(1) +
                                 " WHERE sender_id = \'" + recipientId + "\' and recipient_id = \'" + userId +"\'"
                 );
 

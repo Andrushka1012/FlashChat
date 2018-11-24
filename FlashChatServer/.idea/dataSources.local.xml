@@ -21,5 +21,15 @@
       <user-name>andrushka</user-name>
       <introspection-schemas>*:ANDRUSHKA</introspection-schemas>
     </data-source>
+    <data-source name="mariaDB" uuid="70b7452a-caf5-4746-ab98-86d9b5477af2">
+      <database-info product="MySQL" version="10.3.9-MariaDB" jdbc-version="4.2" driver-name="MariaDB connector/J" driver-version="2.2.1" family="MARIADB" exact-version="10.3.9">
+        <extra-name-characters>#@</extra-name-characters>
+        <identifier-quote-string>`</identifier-quote-string>
+      </database-info>
+      <case-sensitivity plain-identifiers="lower" quoted-identifiers="lower" />
+      <secret-storage>master_key</secret-storage>
+      <user-name>root</user-name>
+      <introspection-schemas>*:@</introspection-schemas>
+    </data-source>
   </component>
 </project>

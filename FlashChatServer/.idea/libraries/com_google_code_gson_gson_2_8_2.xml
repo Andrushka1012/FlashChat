@@ -8,8 +8,11 @@
       <root url="jar://$PROJECT_DIR$/lib/ojdbc6.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/okhttp-3.8.0.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/okio-1.13.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/mariadb-java-client-2.2.1.jar!/" />
     </CLASSES>
     <JAVADOC />
-    <SOURCES />
+    <SOURCES>
+      <root url="jar://$PROJECT_DIR$/lib/mariadb-java-client-2.3.0-sources.jar!/" />
+    </SOURCES>
   </library>
 </component>

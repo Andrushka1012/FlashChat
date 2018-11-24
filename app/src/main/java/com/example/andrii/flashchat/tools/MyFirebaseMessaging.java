@@ -12,6 +12,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.example.andrii.flashchat.Activities.CorrespondenceListActivity;
+import com.example.andrii.flashchat.Activities.LoadingActivity;
 import com.example.andrii.flashchat.R;
 import com.example.andrii.flashchat.data.Model.Person;
 import com.example.andrii.flashchat.data.SingletonConnection;
@@ -61,8 +62,7 @@ public class MyFirebaseMessaging extends FirebaseMessagingService {
                             Gson gson = new Gson();
                             NotificationItem item = gson.fromJson(s,NotificationItem.class);
 
-                            Person person = new Person(item.senderId,item.senderName);
-                            Intent i = CorrespondenceListActivity.newIntent(MyFirebaseMessaging.this,person,false);
+                            Intent i = new Intent(MyFirebaseMessaging.this,LoadingActivity.class);
                             PendingIntent pi = PendingIntent.getActivity(MyFirebaseMessaging.this,0,i,0);
                             int count = item.getCount();
                             Uri alarSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);

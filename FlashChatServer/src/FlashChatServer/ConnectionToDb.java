@@ -1,5 +1,7 @@
 package FlashChatServer;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.sql.*;
 import java.sql.Connection;
 import java.time.LocalDateTime;
@@ -15,12 +17,15 @@ public class ConnectionToDb {
     //private static String DBUrl = "jdbc:oracle:thin:@oracledb.ctzv4jontqi0.us-east-2.rds.amazonaws.com:1521:oracleDB";
 
 
+    @Nullable
     public static java.sql.Connection connectToDB(String userId) {
         java.sql.Connection connection;
         try {
             Locale.setDefault(Locale.ENGLISH);
-            Class.forName("oracle.jdbc.driver.OracleDriver");
-            connection = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:xe",user,password); //connection to localhost
+            //Class.forName("oracle.jdbc.driver.OracleDriver");
+            Class.forName("org.mariadb.jdbc.Driver");
+            connection = DriverManager.getConnection("jdbc:mariadb://localhost:3306/flashchat?user=root&password=root"); //connection to localhost mariaDB
+            //connection = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:xe",user,password); //connection to localhost oracle
             //connection = DriverManager.getConnection(DBUrl,user,password); //connection to lockalhost
             System.out.println("Connected");
 

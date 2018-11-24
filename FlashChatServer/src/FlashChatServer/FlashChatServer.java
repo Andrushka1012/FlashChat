@@ -16,7 +16,7 @@ public class FlashChatServer {
 
 
     public static void main(String argS[]) {
-       /* FirebaseUtil.retrofit = new Retrofit.Builder()
+        FirebaseUtil.retrofit = new Retrofit.Builder()
                 .baseUrl("https://fcm.googleapis.com/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
@@ -34,9 +34,9 @@ public class FlashChatServer {
             }
         } catch (IOException e) {
             e.printStackTrace();
-        }*/
+        }
 
-        String sql = "select * from customers";
-        ConnectionToDb.executeQueryToDB(ConnectionToDb.connectToDB(""), sql);
+       /* String sql = "select * from images";
+        ConnectionToDb.executeQueryToDB(ConnectionToDb.connectToDB(""), sql);*/
     }
 }

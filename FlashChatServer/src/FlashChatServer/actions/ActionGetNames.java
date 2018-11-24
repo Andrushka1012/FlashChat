@@ -44,7 +44,7 @@ public class ActionGetNames implements Action{
                     String src = result.getString("image_src");
 
                     if(src != null && src.equals("no_facebook_url")){
-                        File file = new File("C:\\projects\\FlashChatServer\\FlashChatImages",userId + ".txt");
+                        File file = new File("C:\\projects\\flashChat\\FlashChatServer\\FlashChatImages",userId + ".txt");
                         if (file.exists()){
                             Scanner scanner = new Scanner(file,"UTF-8");
                             src = scanner.useDelimiter("\\A").next();
