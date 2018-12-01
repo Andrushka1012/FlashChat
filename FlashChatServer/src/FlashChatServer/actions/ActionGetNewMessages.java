@@ -62,7 +62,6 @@ public class ActionGetNewMessages implements Action{
                 Gson gson = new Gson();
                 System.out.println("size:" + list.size());
                 String json = gson.toJson(list,type);
-                //   System.out.println(json);
                 out.println(json);
 
                 st.executeQuery(

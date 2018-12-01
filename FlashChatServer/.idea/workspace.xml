@@ -7,40 +7,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d277ba58-392d-4ac1-a90d-801a3dd55e2f" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/src/FlashChatServer/actions/ActionGetNewMessages.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../app/src/main/java/com/example/andrii/flashchat/data/actions/ActionGetNewMessages.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../.idea/caches/build_file_checksums.ser" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/caches/build_file_checksums.ser" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/com_google_code_gson_gson_2_8_2.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/com_google_code_gson_gson_2_8_2.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/21700604-2a0a-42a8-a7f3-16a397b8c777.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/21700604-2a0a-42a8-a7f3-16a397b8c777.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/FlashChatServer/FlashChatServer/ConnectionToDb.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/FlashChatServer/FlashChatServer/ConnectionToDb.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/FlashChatServer/FlashChatServer/FlashChatServer.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/FlashChatServer/FlashChatServer/FlashChatServer.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/FlashChatServer/FlashChatServer/actions/ActionCheckNewMessages.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/FlashChatServer/FlashChatServer/actions/ActionCheckNewMessages.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/FlashChatServer/FlashChatServer/actions/ActionGetAllMessages.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/FlashChatServer/FlashChatServer/actions/ActionGetAllMessages.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/FlashChatServer/FlashChatServer/actions/ActionGetImage.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/FlashChatServer/FlashChatServer/actions/ActionGetImage.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/FlashChatServer/FlashChatServer/actions/ActionGetMessages.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/FlashChatServer/FlashChatServer/actions/ActionGetMessages.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/FlashChatServer/FlashChatServer/actions/ActionGetNames.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/FlashChatServer/FlashChatServer/actions/ActionGetNames.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/FlashChatServer/FlashChatServer/actions/ActionLoadImage.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/FlashChatServer/FlashChatServer/actions/ActionLoadImage.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/FlashChatServer/FlashChatServer/actions/ActionSendImage.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/FlashChatServer/FlashChatServer/actions/ActionSendImage.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/FlashChatServer/FlashChatServer/actions/ActionsFactory$1.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/FlashChatServer/FlashChatServer/actions/ActionsFactory.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/FlashChatServer/FlashChatServer/actions/ActionsFactory.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/FlashChatServer/FlashChatServer/actions/NotificationItem.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/FlashChatServer/FlashChatServer/actions/NotificationItem.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/FlashChatServer/ConnectionToDb.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/FlashChatServer/ConnectionToDb.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/FlashChatServer/FlashChatServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/FlashChatServer/FlashChatServer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/FlashChatServer/actions/ActionCheckNewMessages.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/FlashChatServer/actions/ActionCheckNewMessages.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/FlashChatServer/actions/ActionGetAllMessages.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/FlashChatServer/actions/ActionGetAllMessages.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/FlashChatServer/actions/ActionGetImage.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/FlashChatServer/actions/ActionGetImage.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/FlashChatServer/actions/ActionGetMessages.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/FlashChatServer/actions/ActionGetMessages.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/FlashChatServer/actions/ActionGetNames.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/FlashChatServer/actions/ActionGetNames.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/FlashChatServer/actions/ActionLoadImage.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/FlashChatServer/actions/ActionLoadImage.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/FlashChatServer/actions/ActionSendImage.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/FlashChatServer/actions/ActionSendImage.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/FlashChatServer/actions/ActionsFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/FlashChatServer/actions/ActionsFactory.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../app/src/main/java/com/example/andrii/flashchat/adapters/ChatListAdapter.java" beforeDir="false" afterPath="$PROJECT_DIR$/../app/src/main/java/com/example/andrii/flashchat/adapters/ChatListAdapter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../app/src/main/java/com/example/andrii/flashchat/data/Model/MessagePersonItem.java" beforeDir="false" afterPath="$PROJECT_DIR$/../app/src/main/java/com/example/andrii/flashchat/data/Model/MessagePersonItem.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../app/src/main/java/com/example/andrii/flashchat/data/SingletonConnection.java" beforeDir="false" afterPath="$PROJECT_DIR$/../app/src/main/java/com/example/andrii/flashchat/data/SingletonConnection.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../app/src/main/java/com/example/andrii/flashchat/tools/MessagesListLoader.java" beforeDir="false" afterPath="$PROJECT_DIR$/../app/src/main/java/com/example/andrii/flashchat/tools/MessagesListLoader.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../app/src/main/java/com/example/andrii/flashchat/tools/MyFirebaseMessaging.java" beforeDir="false" afterPath="$PROJECT_DIR$/../app/src/main/java/com/example/andrii/flashchat/tools/MyFirebaseMessaging.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/FlashChatServer/actions/ActionGetNewMessages.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/FlashChatServer/actions/ActionGetNewMessages.java" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -120,21 +89,25 @@
     <session id="607527500">
       <usages-collector id="statistics.lifecycle.project">
         <counts>
+          <entry key="project.closed" value="3" />
           <entry key="project.open.time.21" value="1" />
-          <entry key="project.opened" value="1" />
+          <entry key="project.open.time.28" value="1" />
+          <entry key="project.open.time.59" value="1" />
+          <entry key="project.open.time.75" value="1" />
+          <entry key="project.opened" value="4" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
         <counts>
           <entry key="MESSAGES" value="1" />
-          <entry key="java" value="22" />
+          <entry key="java" value="23" />
           <entry key="sql" value="4" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
           <entry key="Database Element" value="1" />
-          <entry key="JAVA" value="22" />
+          <entry key="JAVA" value="23" />
           <entry key="Scratch" value="4" />
         </counts>
       </usages-collector>
@@ -159,17 +132,34 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/FlashChatServer/actions/ActionGetAllMessages.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="141">
+            <state relative-caret-position="221">
               <caret line="30" column="17" selection-end-line="89" />
             </state>
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/FlashChatServer/actions/ActionGetNewMessages.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="313">
-              <caret line="78" column="47" lean-forward="true" selection-start-line="78" selection-start-column="47" selection-end-line="78" selection-end-column="47" />
+            <state relative-caret-position="646">
+              <caret line="55" column="21" selection-start-line="55" selection-start-column="21" selection-end-line="55" selection-end-column="21" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/FlashChatServer/FirebaseUtil.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="398">
+              <caret line="112" column="18" selection-start-line="112" selection-start-column="18" selection-end-line="112" selection-end-column="18" />
+              <folding>
+                <element signature="imports" expanded="true" />
+                <marker date="1540763163342" expanded="true" signature="1044:1194" ph="INSERT INTO Messages... " />
+                <marker date="1540763163342" expanded="true" signature="1868:1971" ph="DELETE FROM " />
+                <marker date="1540763163342" expanded="true" signature="2622:2709" ph="SELECT * fro... Devices" />
+                <marker date="1540763163342" expanded="true" signature="2622:2710" ph="SELECT * fro... Devices" />
+                <marker date="1540763163342" expanded="true" signature="2622:2711" ph="SELECT * fro... Devices" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -177,7 +167,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/FlashChatServer/actions/ActionsFactory.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="364">
+            <state relative-caret-position="901">
               <caret line="58" column="57" selection-start-line="58" selection-start-column="57" selection-end-line="58" selection-end-column="57" />
             </state>
           </provider>
@@ -293,6 +283,7 @@
         <option value="$PROJECT_DIR$/src/FlashChatServer/actions/ActionCheckNewMessages.java" />
         <option value="$PROJECT_DIR$/src/FlashChatServer/actions/ActionGetAllNewMessages.java" />
         <option value="$PROJECT_DIR$/src/FlashChatServer/actions/ActionsFactory.java" />
+        <option value="$PROJECT_DIR$/src/FlashChatServer/actions/ActionGetNewMessages.java" />
       </list>
     </option>
   </component>
@@ -314,7 +305,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="PackagesPane" />
+      <pane id="Scope" />
       <pane id="AndroidView" />
       <pane id="ProjectPane">
         <subPane>
@@ -353,7 +344,7 @@
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
+      <pane id="PackagesPane" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -361,7 +352,7 @@
     <property name="Downloaded.Files.Path.Enabled" value="true" />
     <property name="Repository.Attach.JavaDocs" value="false" />
     <property name="Repository.Attach.Sources" value="false" />
-    <property name="SearchEverywhereHistoryKey" value="getMe&#9;FILE&#9;file://C:/projects/flashChat/FlashChatServer/src/FlashChatServer/actions/ActionGetAllMessages.java&#10;actionS&#9;FILE&#9;file://C:/projects/flashChat/FlashChatServer/src/FlashChatServer/actions/ActionSendMessage.java&#10;action&#9;FILE&#9;file://D:/projects/Java/FlashChatServer/src/FlashChatServer/actions/ActionGetAllMessages.java&#10;getP&#9;PSI&#9;JAVA://FlashChatServer.actions.ActionGetPersonData&#10;sendIma&#9;FILE&#9;file://D:/projects/Java/FlashChatServer/src/FlashChatServer/actions/ActionSendImage.java&#10;send&#9;FILE&#9;file://D:/projects/Java/FlashChatServer/src/FlashChatServer/actions/ActionSendMessage.java&#10;getA&#9;FILE&#9;file://D:/projects/Java/FlashChatServer/src/FlashChatServer/actions/ActionGetAllMessages.java&#10;regis&#9;FILE&#9;file://D:/projects/Java/FlashChatServer/src/FlashChatServer/actions/ActionRegister.java&#10;actionL&#9;FILE&#9;file://D:/projects/Java/FlashChatServer/src/FlashChatServer/actions/ActionLogin.java" />
+    <property name="SearchEverywhereHistoryKey" value="FI&#9;FILE&#9;file://C:/projects/flashChat/FlashChatServer/src/FlashChatServer/FirebaseUtil.java&#10;getMe&#9;FILE&#9;file://C:/projects/flashChat/FlashChatServer/src/FlashChatServer/actions/ActionGetAllMessages.java&#10;actionS&#9;FILE&#9;file://C:/projects/flashChat/FlashChatServer/src/FlashChatServer/actions/ActionSendMessage.java&#10;action&#9;FILE&#9;file://D:/projects/Java/FlashChatServer/src/FlashChatServer/actions/ActionGetAllMessages.java&#10;getP&#9;PSI&#9;JAVA://FlashChatServer.actions.ActionGetPersonData&#10;sendIma&#9;FILE&#9;file://D:/projects/Java/FlashChatServer/src/FlashChatServer/actions/ActionSendImage.java&#10;send&#9;FILE&#9;file://D:/projects/Java/FlashChatServer/src/FlashChatServer/actions/ActionSendMessage.java&#10;getA&#9;FILE&#9;file://D:/projects/Java/FlashChatServer/src/FlashChatServer/actions/ActionGetAllMessages.java&#10;regis&#9;FILE&#9;file://D:/projects/Java/FlashChatServer/src/FlashChatServer/actions/ActionRegister.java&#10;actionL&#9;FILE&#9;file://D:/projects/Java/FlashChatServer/src/FlashChatServer/actions/ActionLogin.java" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
     <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1543083130712" />
@@ -584,15 +575,17 @@
       <workItem from="1542987358905" duration="2127000" />
       <workItem from="1542997623242" duration="1563000" />
       <workItem from="1543068524097" duration="13416000" />
+      <workItem from="1543231827088" duration="18000" />
+      <workItem from="1543486199203" duration="1079000" />
+      <workItem from="1543496675284" duration="600000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="323941000" />
+    <option name="totallyTimeSpent" value="325638000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1382" height="744" extended-state="6" />
-    <editor active="true" />
     <layout>
       <window_info id="Capture Tool" order="0" />
       <window_info id="Designer" order="1" />
@@ -600,7 +593,7 @@
       <window_info id="Image Layers" order="3" />
       <window_info id="Favorites" order="4" side_tool="true" />
       <window_info id="Nl-Palette" order="5" />
-      <window_info content_ui="combo" id="Project" order="6" visible="true" weight="0.22239032" />
+      <window_info content_ui="combo" id="Project" order="6" visible="true" weight="0.2322239" />
       <window_info id="Structure" order="7" weight="0.25" />
       <window_info anchor="bottom" id="Event Log" order="0" sideWeight="0.5030257" side_tool="true" weight="0.32786885" />
       <window_info anchor="bottom" id="Messages" order="1" weight="0.41734862" />
@@ -615,6 +608,7 @@
       <window_info anchor="bottom" id="Inspection" order="10" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="11" />
       <window_info anchor="bottom" id="Database Changes" order="12" />
+      <window_info anchor="bottom" id="RNConsole" order="13" />
       <window_info anchor="right" id="Maven Projects" order="0" />
       <window_info anchor="right" id="Properties" order="1" />
       <window_info anchor="right" id="Palette&#9;" order="2" />
@@ -792,11 +786,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="50">
           <caret line="39" column="47" selection-start-line="39" selection-start-column="47" selection-end-line="39" selection-end-column="47" />
-          <folding>
-            <marker date="1518989894133" expanded="true" signature="797:885" ph="SELECT * fro... users" />
-            <marker date="1518989894133" expanded="true" signature="1145:1328" ph="INSERT INTO users... " />
-            <marker date="1518989894133" expanded="true" signature="1145:1721" ph="INSERT INTO users... " />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -826,10 +815,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="119">
           <caret line="7" column="5" lean-forward="true" selection-start-line="7" selection-start-column="5" selection-end-line="7" selection-end-column="5" />
-          <folding>
-            <element signature="e#116#117#0" expanded="true" />
-            <element signature="e#146#147#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -837,9 +822,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="272">
           <caret line="40" column="20" selection-start-line="40" selection-start-column="20" selection-end-line="43" selection-end-column="44" />
-          <folding>
-            <marker date="1518804296674" expanded="true" signature="729:820" ph="SELECT * fro... users" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -874,13 +856,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="das://741328fd-40e6-4fe5-bb71-a6cfda32bba1/schema/SYSTEM/table/MESSAGES">
-      <provider selected="true" editor-type-id="com.intellij.database.editor.DatabaseTableFileEditorProvider">
-        <state>
-          <filtering enabled="true" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="das://741328fd-40e6-4fe5-bb71-a6cfda32bba1/schema/SYSTEM/table/MESSAGES" />
     <entry file="file://$PROJECT_DIR$/src/FlashChatServer/actions/ActionSendMessage.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="140">
@@ -899,9 +875,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="255">
           <caret line="21" column="47" selection-start-line="21" selection-start-column="47" selection-end-line="21" selection-end-column="47" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -943,13 +916,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$APPLICATION_CONFIG_DIR$/consoles/db/70b7452a-caf5-4746-ab98-86d9b5477af2/console.sql">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="17">
-          <caret line="1" column="84" selection-start-line="1" selection-start-column="84" selection-end-line="1" selection-end-column="84" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/FlashChatServer/actions/ActionCheckNewMessages.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="160">
@@ -964,10 +930,38 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/FlashChatServer/actions/ActionGetAllMessages.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="221">
+          <caret line="30" column="17" selection-end-line="89" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/FlashChatServer/actions/ActionGetNewMessages.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="646">
+          <caret line="55" column="21" selection-start-line="55" selection-start-column="21" selection-end-line="55" selection-end-column="21" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/FlashChatServer/actions/ActionsFactory.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="901">
+          <caret line="58" column="57" selection-start-line="58" selection-start-column="57" selection-end-line="58" selection-end-column="57" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$APPLICATION_CONFIG_DIR$/consoles/db/70b7452a-caf5-4746-ab98-86d9b5477af2/console.sql">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="17">
+          <caret line="1" column="84" selection-start-line="1" selection-start-column="84" selection-end-line="1" selection-end-column="84" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/FlashChatServer/FirebaseUtil.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="347">
-          <caret line="115" selection-start-line="115" selection-end-line="115" />
+        <state relative-caret-position="398">
+          <caret line="112" column="18" selection-start-line="112" selection-start-column="18" selection-end-line="112" selection-end-column="18" />
           <folding>
             <element signature="imports" expanded="true" />
             <marker date="1540763163342" expanded="true" signature="1044:1194" ph="INSERT INTO Messages... " />
@@ -976,27 +970,6 @@
             <marker date="1540763163342" expanded="true" signature="2622:2710" ph="SELECT * fro... Devices" />
             <marker date="1540763163342" expanded="true" signature="2622:2711" ph="SELECT * fro... Devices" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/FlashChatServer/actions/ActionGetAllMessages.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="141">
-          <caret line="30" column="17" selection-end-line="89" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/FlashChatServer/actions/ActionsFactory.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="364">
-          <caret line="58" column="57" selection-start-line="58" selection-start-column="57" selection-end-line="58" selection-end-column="57" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/FlashChatServer/actions/ActionGetNewMessages.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="313">
-          <caret line="78" column="47" lean-forward="true" selection-start-line="78" selection-start-column="47" selection-end-line="78" selection-end-column="47" />
         </state>
       </provider>
     </entry>

@@ -314,8 +314,7 @@ public class CorrespondenceListActivity extends AppCompatActivity {
         ImageTools tools = new ImageTools(this);
         tools.downloadPersonImage(ivPhoto,subject,false);
         ivPhoto.setOnClickListener(v ->{
-            Intent intent = ProfileActivity.newIntent(this,subject);
-            startActivity(intent);
+            ProfileActivity.startActivity(this,subject.getId());
         });
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);

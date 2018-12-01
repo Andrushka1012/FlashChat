@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <dataSource name="AWSDBConnection">
-  <database-model serializer="dbm" rdbms="ORACLE" format-version="4.2">
+  <database-model serializer="dbm" rdbms="ORACLE" format-version="4.11">
     <root id="1"/>
     <schema id="2" parent="1" name="ANDRUSHKA">
       <ObjectId>67</ObjectId>
@@ -87,17 +87,17 @@
     </table>
     <column id="25" parent="22" name="IMG_ID">
       <Position>1</Position>
-      <DataType>VARCHAR2(50)|0</DataType>
+      <DataType>VARCHAR2(50)|0s</DataType>
       <NotNull>1</NotNull>
     </column>
     <column id="26" parent="22" name="SENDER_ID">
       <Position>2</Position>
-      <DataType>VARCHAR2(50)|0</DataType>
+      <DataType>VARCHAR2(50)|0s</DataType>
       <NotNull>1</NotNull>
     </column>
     <column id="27" parent="22" name="RECIPIENT_ID">
       <Position>3</Position>
-      <DataType>VARCHAR2(50)|0</DataType>
+      <DataType>VARCHAR2(50)|0s</DataType>
     </column>
     <index id="28" parent="22" name="SYS_C005128">
       <ObjectId>20779</ObjectId>
@@ -118,32 +118,32 @@
     </key>
     <column id="30" parent="23" name="MSG_ID">
       <Position>1</Position>
-      <DataType>VARCHAR2(50)|0</DataType>
+      <DataType>VARCHAR2(50)|0s</DataType>
       <NotNull>1</NotNull>
     </column>
     <column id="31" parent="23" name="TEXT">
       <Position>2</Position>
-      <DataType>VARCHAR2(50)|0</DataType>
+      <DataType>VARCHAR2(50)|0s</DataType>
     </column>
     <column id="32" parent="23" name="SENDER_ID">
       <Position>3</Position>
-      <DataType>VARCHAR2(50)|0</DataType>
+      <DataType>VARCHAR2(50)|0s</DataType>
     </column>
     <column id="33" parent="23" name="RECIPIENT_ID">
       <Position>4</Position>
-      <DataType>VARCHAR2(50)|0</DataType>
+      <DataType>VARCHAR2(50)|0s</DataType>
     </column>
     <column id="34" parent="23" name="READ">
       <Position>5</Position>
-      <DataType>NUMBER(1)|0</DataType>
+      <DataType>NUMBER(1)|0s</DataType>
     </column>
     <column id="35" parent="23" name="TYPE">
       <Position>6</Position>
-      <DataType>NUMBER(1)|0</DataType>
+      <DataType>NUMBER(1)|0s</DataType>
     </column>
     <column id="36" parent="23" name="MSG_DATE">
       <Position>7</Position>
-      <DataType>VARCHAR2(30)|0</DataType>
+      <DataType>VARCHAR2(30)|0s</DataType>
     </column>
     <index id="37" parent="23" name="SYS_C005129">
       <ObjectId>20781</ObjectId>
@@ -164,42 +164,42 @@
     </key>
     <column id="39" parent="24" name="USER_ID">
       <Position>1</Position>
-      <DataType>VARCHAR2(50)|0</DataType>
+      <DataType>VARCHAR2(50)|0s</DataType>
       <NotNull>1</NotNull>
     </column>
     <column id="40" parent="24" name="NAME">
       <Position>2</Position>
-      <DataType>VARCHAR2(20)|0</DataType>
+      <DataType>VARCHAR2(20)|0s</DataType>
       <NotNull>1</NotNull>
     </column>
     <column id="41" parent="24" name="PASSWORD">
       <Position>3</Position>
-      <DataType>VARCHAR2(30)|0</DataType>
+      <DataType>VARCHAR2(30)|0s</DataType>
       <NotNull>1</NotNull>
     </column>
     <column id="42" parent="24" name="EMAIL">
       <Position>4</Position>
-      <DataType>VARCHAR2(50)|0</DataType>
+      <DataType>VARCHAR2(50)|0s</DataType>
     </column>
     <column id="43" parent="24" name="BIRTHDAY">
       <Position>5</Position>
-      <DataType>VARCHAR2(10)|0</DataType>
+      <DataType>VARCHAR2(10)|0s</DataType>
     </column>
     <column id="44" parent="24" name="PHONE_NUMBER">
       <Position>6</Position>
-      <DataType>VARCHAR2(15)|0</DataType>
+      <DataType>VARCHAR2(15)|0s</DataType>
     </column>
     <column id="45" parent="24" name="GENDER">
       <Position>7</Position>
-      <DataType>VARCHAR2(7)|0</DataType>
+      <DataType>VARCHAR2(7)|0s</DataType>
     </column>
     <column id="46" parent="24" name="LAST_QUERY">
       <Position>8</Position>
-      <DataType>VARCHAR2(30)|0</DataType>
+      <DataType>VARCHAR2(30)|0s</DataType>
     </column>
     <column id="47" parent="24" name="IMAGE_SRC">
       <Position>9</Position>
-      <DataType>VARCHAR2(300)|0</DataType>
+      <DataType>VARCHAR2(300)|0s</DataType>
     </column>
     <index id="48" parent="24" name="SYS_C005101">
       <ObjectId>20590</ObjectId>
