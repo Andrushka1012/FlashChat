@@ -17,7 +17,6 @@
             {"name":"muscle", "symbol":"💪"},
             {"name":"point_left", "symbol":"👈"},
             {"name":"point_right", "symbol":"👉"},
-            {"name":"point_up", "symbol":"☝"},
             {"name":"middle_finger", "symbol":"🖕"},
             {"name":"v", "symbol":"✌"},
             {"name":"ok_hand", "symbol":"👌"},
