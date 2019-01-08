@@ -83,7 +83,7 @@
             {"name":"hearts", "symbol":"♥"},
             {"name":"diamonds", "symbol":"♦"},
             {"name":"clubs", "symbol":"♣"},
-            {"name":"spades", "symbol":"♠"},
+            {"name":"spades", "symbol":"♠"}
         ]
     },
     {
