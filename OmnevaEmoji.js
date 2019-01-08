@@ -101,11 +101,7 @@
             {"name":"flag-tr", "symbol":"🇹🇷"},
             {"name":"es", "symbol":"🇪🇸"},
             {"name":"cn", "symbol":"🇨🇳"},
-            {"name":"flag-by", "symbol":"🇧🇾"},
-            {"name":"flag-nl", "char":"🇳🇱"},
-            {"name":"gb", "char":"🇬🇧"},
-            {"name":"flag-ch", "char":"🇨🇭"},
-            {"name":"flag-bg", "symbol":"🇧🇬"}
+            {"name":"flag-by", "symbol":"🇧🇾"}
         ]
     }
 ]
