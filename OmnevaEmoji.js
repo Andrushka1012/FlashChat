@@ -14,11 +14,8 @@
             {"name":"see_no_evil", "symbol":"🙈"},
             {"name":"hear_no_evil", "symbol":"🙉"},
             {"name":"speak_no_evil", "symbol":"🙊"},
-            {"name":"muscle", "symbol":"💪"},
             {"name":"point_left", "symbol":"👈"},
             {"name":"point_right", "symbol":"👉"},
-            {"name":"middle_finger", "symbol":"🖕"},
-            {"name":"v", "symbol":"✌"},
             {"name":"ok_hand", "symbol":"👌"},
             {"name":"wave", "symbol":"👋"}
         ]
@@ -89,10 +86,6 @@
         "tab": "Flags",
         "icon": "flag",
         "emoji": [
-            {"name":"flag-pl", "char":"🇵🇱"},
-            {"name":"flag-ac", "symbol":"🇦🇨"},
-            {"name":"flag-ad", "symbol":"🇦🇩"},
-            {"name":"flag-ao", "symbol":"🇦🇴"},
             {"name":"flag-af", "symbol":"🇦🇫"},
             {"name":"flag-ag", "symbol":"🇦🇬"},
             {"name":"flag-am", "symbol":"🇦🇲"},
