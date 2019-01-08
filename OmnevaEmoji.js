@@ -18,7 +18,6 @@
             {"name":"point_left", "symbol":"👈"},
             {"name":"point_right", "symbol":"👉"},
             {"name":"point_up", "symbol":"☝"},
-            {"name":"point_up_2", "symbol":"👆"},
             {"name":"middle_finger", "symbol":"🖕"},
             {"name":"v", "symbol":"✌"},
             {"name":"ok_hand", "symbol":"👌"},
@@ -30,7 +29,6 @@
         "icon": "cat",
         "emoji": [
             {"name":"monkey_face", "symbol":"🐵"},
-            {"name":"monkey", "symbol":"🐒"},
             {"name":"fox_face", "symbol":"🦊"},
             {"name":"wolf", "symbol":"🐺"},
             {"name":"pig", "symbol":"🐷"},
@@ -53,7 +51,6 @@
         "icon": "food",
         "emoji": [
             {"name":"grapes", "symbol":"🍇"},
-            {"name":"melon", "symbol":"🍈"},
             {"name":"watermelon", "symbol":"🍉"},
             {"name":"tangerine", "symbol":"🍊"},
             {"name":"lemon", "symbol":"🍋"},
@@ -82,31 +79,30 @@
             {"name":"soccer", "symbol":"⚽"},
             {"name":"volleyball", "symbol":"🏐"},
             {"name":"football", "symbol":"🏈"},
-            {"name":"ribbon", "symbol":"🎀"},
             {"name":"video_game", "symbol":"🎮"},
             {"name":"hearts", "symbol":"♥"},
             {"name":"diamonds", "symbol":"♦"},
             {"name":"clubs", "symbol":"♣"},
             {"name":"spades", "symbol":"♠"},
-            {"name":"black_joker", "symbol":"🃏"}
         ]
     },
     {
         "tab": "Flags",
         "icon": "flag",
         "emoji": [
+            {"name":"flag-pl", "char":"🇵🇱"},
             {"name":"flag-ac", "symbol":"🇦🇨"},
             {"name":"flag-ad", "symbol":"🇦🇩"},
             {"name":"flag-ao", "symbol":"🇦🇴"},
             {"name":"flag-af", "symbol":"🇦🇫"},
             {"name":"flag-ag", "symbol":"🇦🇬"},
             {"name":"flag-am", "symbol":"🇦🇲"},
-            {"name":"flag-ao", "symbol":"🇦🇴"},
             {"name":"flag-aq", "symbol":"🇦🇶"},
             {"name":"flag-ar", "symbol":"🇦🇷"},
             {"name":"flag-bg", "symbol":"🇧🇬"},
             {"name":"flag-be", "symbol":"🇧🇪"},
             {"name":"flag-br", "symbol":"🇧🇷"},
+            {"name":"de", "symbol":"🇩🇪"},
             {"name":"flag-eu", "symbol":"🇪🇺"},
             {"name":"flag-ua", "symbol":"🇺🇦"},
             {"name":"flag-um", "symbol":"🇺🇲"},
@@ -114,6 +110,9 @@
             {"name":"es", "symbol":"🇪🇸"},
             {"name":"cn", "symbol":"🇨🇳"},
             {"name":"flag-by", "symbol":"🇧🇾"},
+            {"name":"flag-nl", "char":"🇳🇱"},
+            {"name":"gb", "char":"🇬🇧"},
+            {"name":"flag-ch", "char":"🇨🇭"},
             {"name":"flag-bg", "symbol":"🇧🇬"}
         ]
     }
