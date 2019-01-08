@@ -27,7 +27,7 @@
     },
     {
         "tab": "Nature",
-        "icon": "dog",
+        "icon": "cat",
         "emoji": [
             {"name":"monkey_face", "char":"🐵"},
             {"name":"monkey", "char":"🐒"},
